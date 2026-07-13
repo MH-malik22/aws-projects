@@ -1,0 +1,188 @@
+{
+  "title": "Monitoring Quiz (Prometheus + Grafana)",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "mon-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "How does Prometheus collect metrics?",
+      "options": [
+        "Applications push metrics to Prometheus over gRPC",
+        "Prometheus pulls (scrapes) HTTP /metrics endpoints on an interval",
+        "It reads application log files",
+        "Agents stream metrics over syslog"
+      ],
+      "answer_index": 1,
+      "explanation": "Prometheus is pull-based: it scrapes targets' /metrics endpoints (default every 15s). Pull makes 'is the target up?' trivial (the `up` metric) and centralizes control. Short-lived jobs that can't be scraped use the Pushgateway exception."
+    },
+    {
+      "id": "mon-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "Which metric type should represent 'total HTTP requests served'?",
+      "options": ["Gauge", "Counter", "Histogram", "Summary"],
+      "answer_index": 1,
+      "explanation": "A counter increases monotonically (resets on restart). Totals-that-only-grow are counters; you derive per-second throughput with rate(). A gauge would be right for a value that goes both ways, like active connections."
+    },
+    {
+      "id": "mon-q03",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Why is `rate(http_requests_total[5m])` used instead of the raw counter value?",
+      "options": [
+        "Raw counters are encrypted",
+        "The raw value is a meaningless ever-growing total; rate() converts it to per-second throughput and handles counter resets",
+        "rate() is required syntax for all metrics",
+        "It reduces storage usage"
+      ],
+      "answer_index": 1,
+      "explanation": "'12,483,220 requests since restart' answers nothing. rate() computes the per-second increase over the window and corrects for restarts, yielding the operationally meaningful req/s."
+    },
+    {
+      "id": "mon-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is an exporter?",
+      "options": [
+        "A tool that exports dashboards to PDF",
+        "A process that translates a system's internals (host stats, Postgres, etc.) into a Prometheus /metrics endpoint",
+        "Prometheus's long-term storage",
+        "A Grafana plugin"
+      ],
+      "answer_index": 1,
+      "explanation": "Systems that don't speak Prometheus natively get a sidecar translator: node_exporter for host metrics, postgres_exporter, blackbox_exporter for probing endpoints. Prometheus scrapes the exporter like any target."
+    },
+    {
+      "id": "mon-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What does `for: 10m` in an alert rule accomplish?",
+      "options": [
+        "Repeats the notification every 10 minutes",
+        "The condition must hold continuously for 10 minutes before firing — filtering transient blips",
+        "Limits the alert's lifetime to 10 minutes",
+        "Delays evaluation start by 10 minutes"
+      ],
+      "answer_index": 1,
+      "explanation": "The alert sits in 'pending' until the expression has been true for the duration, then fires. It's the main defense against paging on a 30-second spike that self-heals."
+    },
+    {
+      "id": "mon-q06",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "Which PromQL computes p99 latency from a histogram?",
+      "options": [
+        "avg(http_request_duration_seconds)",
+        "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+        "max(http_request_duration_seconds) * 0.99",
+        "quantile_over_time(0.99, http_requests_total[5m])"
+      ],
+      "answer_index": 1,
+      "explanation": "Histogram quantiles come from bucket counters: rate the buckets, aggregate preserving the `le` label, then histogram_quantile interpolates. Averages hide tail pain — p99 is what your unluckiest 1% of users feel."
+    },
+    {
+      "id": "mon-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "The `up` metric equals 1 when Prometheus's last scrape of a target succeeded, and 0 when it failed.",
+      "answer_bool": true,
+      "explanation": "True. Prometheus synthesizes `up` for every target — the built-in heartbeat. `up == 0` (with a short `for:`) is the canonical target-down alert."
+    },
+    {
+      "id": "mon-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Adding a user_id label to a request metric is a good way to debug per-user issues.",
+      "answer_bool": false,
+      "explanation": "False. Every label combination creates a separate time series; unbounded values (user IDs, full URLs, request IDs) explode cardinality until Prometheus runs out of memory. Per-user debugging belongs in logs and traces; labels must be low-cardinality."
+    },
+    {
+      "id": "mon-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "Your team gets paged on 'CPU > 80%' nightly during backups; users are unaffected and on-call is burning out. What's the principled fix?",
+      "options": [
+        "Raise the threshold to 95%",
+        "Alert on user-facing symptoms (error rate, latency SLO burn) and demote resource causes to non-paging warnings/dashboards",
+        "Disable alerts overnight",
+        "Add a second on-call to share the load"
+      ],
+      "answer_index": 1,
+      "explanation": "CPU% is a cause, not a symptom — high CPU with healthy latency needs nobody awake. Page on what users experience (golden signals, SLO burn rate); keep saturation metrics as tickets/dashboards for capacity planning."
+    },
+    {
+      "id": "mon-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "During a database outage, on-call receives 47 alerts from every dependent service. Which Alertmanager features tame this?",
+      "options": [
+        "Longer scrape intervals",
+        "Grouping (one notification per group) and inhibition (suppress downstream alerts while the root-cause alert fires)",
+        "Deleting the dependent services' alerts",
+        "Sending everything to email instead"
+      ],
+      "answer_index": 1,
+      "explanation": "Grouping collapses related alerts into a single notification; inhibition rules mute symptom alerts while the causal alert (DatabaseDown) is active. 47 pages become one actionable page with context."
+    },
+    {
+      "id": "mon-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the curl command to fetch node_exporter's metrics endpoint on localhost (default port 9100).",
+      "accepted_answers": ["curl http://localhost:9100/metrics", "curl localhost:9100/metrics", "curl -s http://localhost:9100/metrics", "curl -s localhost:9100/metrics"],
+      "explanation": "Every Prometheus target is inspectable with plain curl — the first debugging step when a target shows as down or a metric seems missing: can I even reach /metrics?"
+    },
+    {
+      "id": "mon-q12",
+      "type": "command",
+      "difficulty": "advanced",
+      "question": "Write the PromQL expression for the per-second rate of http_requests_total over the last 5 minutes.",
+      "accepted_answers": ["rate(http_requests_total[5m])"],
+      "case_sensitive": true,
+      "explanation": "rate(<counter>[window]) is the single most-used PromQL construct: per-second average increase over the window, reset-aware. Wider windows smooth more but react slower."
+    },
+    {
+      "id": "mon-q13",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What are the 'four golden signals'?",
+      "options": [
+        "CPU, memory, disk, network",
+        "Latency, traffic, errors, saturation",
+        "Uptime, downtime, MTTR, MTBF",
+        "Requests, responses, retries, timeouts"
+      ],
+      "answer_index": 1,
+      "explanation": "From Google's SRE book: how slow (latency), how much (traffic), how broken (errors), how full (saturation). CPU/memory/disk are saturation inputs — components of one signal, not the full picture."
+    },
+    {
+      "id": "mon-q14",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What is an error budget?",
+      "options": [
+        "The infrastructure cost allocated to failures",
+        "The allowed unreliability implied by an SLO (e.g., 99.9% ⇒ 0.1% of requests may fail) — spent on incidents and risky changes",
+        "The number of alerts allowed per week",
+        "Grafana's licensing tier"
+      ],
+      "answer_index": 1,
+      "explanation": "The budget converts reliability into a spendable quantity: burning it fast triggers burn-rate alerts and slows releases; budget to spare licenses faster shipping. It replaces 'never break' with an explicit, measurable risk contract."
+    },
+    {
+      "id": "mon-q15",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "In Grafana, what do template variables (e.g., $namespace, $instance) enable?",
+      "options": [
+        "Faster queries via caching",
+        "One dashboard reused across many services/hosts via dropdown selection instead of per-service copies",
+        "Role-based access control",
+        "Automatic anomaly detection"
+      ],
+      "answer_index": 1,
+      "explanation": "Variables interpolate into every panel's query, so a single golden-signals dashboard serves the whole fleet. Copied-per-service dashboards drift and rot; templated ones stay maintained."
+    }
+  ]
+}

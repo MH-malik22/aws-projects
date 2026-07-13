@@ -1,0 +1,163 @@
+{
+  "title": "Linux Fundamentals Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "linux-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "Which directory conventionally holds system log files?",
+      "options": ["/etc/log", "/var/log", "/usr/log", "/opt/log"],
+      "answer_index": 1,
+      "explanation": "/var holds variable data that changes at runtime; logs live in /var/log. /etc is for configuration, /usr for installed software, /opt for optional third-party packages."
+    },
+    {
+      "id": "linux-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What does `chmod 640 report.txt` grant?",
+      "options": [
+        "Owner rwx, group r, others none",
+        "Owner rw, group r, others none",
+        "Owner rw, group w, others r",
+        "Owner r, group rw, others none"
+      ],
+      "answer_index": 1,
+      "explanation": "Octal digits map to owner/group/others: 6 = 4+2 = rw-, 4 = r--, 0 = ---. So the owner can read/write, the group can read, and others have no access."
+    },
+    {
+      "id": "linux-q03",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "Which command shows free disk space per filesystem in human-readable units?",
+      "options": ["du -sh", "df -h", "ls -lh", "free -h"],
+      "answer_index": 1,
+      "explanation": "df (disk free) reports per-filesystem usage; -h makes it human-readable. du measures directory usage, free shows memory, ls lists files."
+    },
+    {
+      "id": "linux-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is the difference between `kill -15` and `kill -9`?",
+      "options": [
+        "-15 is faster than -9",
+        "-15 sends SIGTERM (graceful, catchable); -9 sends SIGKILL (immediate, uncatchable)",
+        "-9 sends SIGTERM; -15 sends SIGKILL",
+        "They are aliases for the same signal"
+      ],
+      "answer_index": 1,
+      "explanation": "SIGTERM (15) asks the process to shut down and lets it run cleanup handlers. SIGKILL (9) is enforced by the kernel and cannot be caught — the process gets no chance to clean up, so it's a last resort."
+    },
+    {
+      "id": "linux-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What does `command > out.log 2>&1` do?",
+      "options": [
+        "Sends stdout to out.log and discards stderr",
+        "Sends stderr to out.log and stdout to the terminal",
+        "Sends both stdout and stderr to out.log",
+        "Appends stdout to out.log twice"
+      ],
+      "answer_index": 2,
+      "explanation": "`>` redirects stdout (fd 1) to the file; `2>&1` then redirects stderr (fd 2) to wherever fd 1 currently points — the file. Order matters: `2>&1 > out.log` would leave stderr on the terminal."
+    },
+    {
+      "id": "linux-q06",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "In a bash script, what does `set -euo pipefail` do?",
+      "options": [
+        "Enables verbose logging",
+        "Exits on errors, errors on unset variables, and fails a pipeline if any command in it fails",
+        "Runs the script in a restricted shell",
+        "Silences all error output"
+      ],
+      "answer_index": 1,
+      "explanation": "-e exits on any command failure, -u treats unset variables as errors, and pipefail makes a pipeline's exit status the first failure instead of the last command's status. Together they make scripts fail fast and loudly."
+    },
+    {
+      "id": "linux-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "`tail -f app.log` prints the last lines of the file and then keeps printing new lines as they are appended.",
+      "answer_bool": true,
+      "explanation": "True. -f means 'follow' — tail stays attached and streams new lines, which is the standard way to watch a live log."
+    },
+    {
+      "id": "linux-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Deleting a large file always frees its disk space immediately, even if a process still has the file open.",
+      "answer_bool": false,
+      "explanation": "False. If a process holds the file open, the inode stays allocated until the file descriptor closes — df won't drop. That's why truncating (`> app.log`) is often better than deleting a live log, and why `lsof +L1` finds deleted-but-open files."
+    },
+    {
+      "id": "linux-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "A deploy fails with 'Permission denied' writing to /opt/app/releases. `ls -ld /opt/app/releases` shows `drwxr-xr-x root root`. The deploy runs as user `deploy`. What is the cleanest fix?",
+      "options": [
+        "Run the whole deploy as root",
+        "chmod 777 /opt/app/releases",
+        "chown deploy:deploy /opt/app/releases",
+        "Reboot the server"
+      ],
+      "answer_index": 2,
+      "explanation": "Give ownership to the user that needs to write. Running deploys as root violates least privilege, and 777 lets every user on the system write there — both are common but dangerous shortcuts."
+    },
+    {
+      "id": "linux-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "An app reports 'address already in use' on port 8080 at startup. Which command best identifies the conflicting process?",
+      "options": [
+        "ps aux | grep 8080",
+        "ss -tulpn | grep 8080",
+        "cat /proc/net/config",
+        "ifconfig -a"
+      ],
+      "answer_index": 1,
+      "explanation": "ss shows sockets with the owning process (-p), listening only (-l), TCP/UDP (-t/-u), numeric ports (-n). `ps | grep 8080` only matches '8080' in command lines, which is unreliable — the port number usually isn't in the process name."
+    },
+    {
+      "id": "linux-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the command to recursively search for the string ERROR in /var/log/app, showing line numbers.",
+      "accepted_answers": ["grep -rn ERROR /var/log/app", "grep -nr ERROR /var/log/app", "grep -rn \"ERROR\" /var/log/app", "grep -nr \"ERROR\" /var/log/app", "grep -rn 'ERROR' /var/log/app", "grep -nr 'ERROR' /var/log/app"],
+      "case_sensitive": true,
+      "explanation": "grep -r recurses into directories, -n prefixes each match with its line number. Order of combined flags doesn't matter."
+    },
+    {
+      "id": "linux-q12",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to restart the nginx service using systemd (without sudo).",
+      "accepted_answers": ["systemctl restart nginx", "systemctl restart nginx.service"],
+      "explanation": "systemctl <verb> <unit> is the systemd pattern. `restart` stops then starts; `reload` re-reads config without dropping connections when the service supports it."
+    },
+    {
+      "id": "linux-q13",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "Which command shows the last 50 log lines for the systemd unit `api` and keeps following?",
+      "options": [
+        "journalctl -u api -n 50 -f",
+        "systemctl logs api --tail 50",
+        "tail -50 /var/log/api",
+        "dmesg | grep api"
+      ],
+      "answer_index": 0,
+      "explanation": "journalctl reads the systemd journal: -u filters by unit, -n limits history, -f follows. `systemctl logs` doesn't exist; the unit may not write to a file in /var/log at all."
+    },
+    {
+      "id": "linux-q14",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "Environment variables set with `export VAR=value` in one shell session are automatically visible in all other already-running sessions.",
+      "answer_bool": false,
+      "explanation": "False. Exported variables propagate only to child processes started afterwards from that shell. Other sessions never see them — which is why service env vars belong in systemd unit files or /etc/environment."
+    }
+  ]
+}

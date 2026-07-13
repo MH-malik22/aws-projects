@@ -1,0 +1,19 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# node / next
+node_modules/
+.next/
+out/
+
+# env & state
+.env
+*.tfstate*
+.terraform/
+
+# misc
+.DS_Store

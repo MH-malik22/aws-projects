@@ -1,0 +1,45 @@
+[
+  {
+    "slug": "pipeline-from-scratch",
+    "title": "Lab: Stand Up Jenkins and Run a Pipeline",
+    "intro_md": "Boot Jenkins in Docker, retrieve the admin password, and drive a pipeline build from the CLI perspective.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Start Jenkins LTS in Docker: detached, name `jenkins`, host port 8081 → container 8080, with a named volume `jenkins_home` mounted at `/var/jenkins_home`.",
+        "expected_commands": ["docker run -d --name jenkins -p 8081:8080 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts", "docker run -d -p 8081:8080 --name jenkins -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts", "docker run -d -p 8081:8080 -v jenkins_home:/var/jenkins_home --name jenkins jenkins/jenkins:lts"],
+        "mock_output": "7f9c1e2ab3...",
+        "hint": "docker run -d --name … -p HOST:CONTAINER -v volume:path image:tag"
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "Print the initial admin password (it's in `/var/jenkins_home/secrets/initialAdminPassword` inside the container).",
+        "expected_commands": ["docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword", "docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword"],
+        "mock_output": "2f61c3d84a5b4b7f9d0e1a2b3c4d5e6f",
+        "hint": "docker exec <container> cat <path>"
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Check the Jenkins container logs to confirm it's fully up ('Jenkins is fully up and running').",
+        "expected_commands": ["docker logs jenkins", "docker logs -f jenkins"],
+        "mock_output": "... hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running",
+        "hint": "Same log command you used in the Docker module."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Validate a Jenkinsfile locally before pushing, using the Jenkins CLI jar (assume `jenkins-cli.jar` and JENKINS_URL are set): run the `declarative-linter` command with the Jenkinsfile on stdin.",
+        "expected_commands": ["java -jar jenkins-cli.jar declarative-linter < Jenkinsfile", "/java -jar jenkins-cli\\.jar declarative-linter < Jenkinsfile.*/"],
+        "mock_output": "Jenkinsfile successfully validated.",
+        "hint": "java -jar jenkins-cli.jar declarative-linter < Jenkinsfile"
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Trigger the job named `api-build` via the CLI jar.",
+        "expected_commands": ["java -jar jenkins-cli.jar build api-build", "java -jar jenkins-cli.jar build api-build -s", "java -jar jenkins-cli.jar build api-build -f"],
+        "mock_output": "Started api-build #42",
+        "hint": "The CLI verb is simply `build <job>`."
+      }
+    ]
+  }
+]

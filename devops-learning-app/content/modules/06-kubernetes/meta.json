@@ -1,0 +1,9 @@
+{
+  "slug": "kubernetes",
+  "title": "Kubernetes",
+  "description": "Pods, Deployments, Services, config, storage, probes, autoscaling — running containers reliably at scale.",
+  "icon": "☸️",
+  "difficulty": "advanced",
+  "sort_order": 6,
+  "est_hours": 12
+}

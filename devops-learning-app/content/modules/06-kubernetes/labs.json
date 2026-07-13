@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "debug-crashloop",
+    "title": "Lab: Debug a CrashLooping Deployment",
+    "intro_md": "The `api` deployment is crash-looping in the `shop` namespace. Diagnose it the way an on-call engineer would: observe, describe, read last words, fix, verify.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "List pods in the `shop` namespace.",
+        "expected_commands": ["kubectl get pods -n shop", "kubectl -n shop get pods", "kubectl get po -n shop", "kubectl -n shop get po"],
+        "mock_output": "NAME                   READY  STATUS             RESTARTS   AGE\napi-6d4cf56db9-x2m8p   0/1    CrashLoopBackOff   7 (2m ago) 12m\napi-6d4cf56db9-q7r4t   0/1    CrashLoopBackOff   7 (1m ago) 12m",
+        "hint": "get pods, with the namespace flag."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "Describe the failing pod `api-6d4cf56db9-x2m8p` to read its events.",
+        "expected_commands": ["kubectl describe pod api-6d4cf56db9-x2m8p -n shop", "kubectl -n shop describe pod api-6d4cf56db9-x2m8p", "kubectl describe po api-6d4cf56db9-x2m8p -n shop"],
+        "mock_output": "...\nEvents:\n  Warning  BackOff  restarting failed container api\n  Normal   Pulled   Successfully pulled image \"api:2.1.0\"",
+        "hint": "describe pod <name> — events at the bottom explain most incidents."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "The image pulled fine, so read the logs of the PREVIOUS (crashed) container instance.",
+        "expected_commands": ["kubectl logs api-6d4cf56db9-x2m8p -n shop --previous", "kubectl -n shop logs api-6d4cf56db9-x2m8p --previous", "kubectl logs --previous api-6d4cf56db9-x2m8p -n shop", "kubectl logs api-6d4cf56db9-x2m8p --previous -n shop", "kubectl -n shop logs --previous api-6d4cf56db9-x2m8p"],
+        "mock_output": "FATAL: password authentication failed for user \"api\"\npanic: cannot connect to database",
+        "hint": "kubectl logs with the flag that shows the prior container's output."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Bad DB credentials after a secret rotation. The fixed secret manifest is in `secret.yaml` — apply it to the cluster.",
+        "expected_commands": ["kubectl apply -f secret.yaml", "kubectl apply -f secret.yaml -n shop", "kubectl -n shop apply -f secret.yaml"],
+        "mock_output": "secret/api-secrets configured",
+        "hint": "Declarative apply of a manifest file."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Pods only read secrets at start — restart the rollout of deployment `api` in namespace `shop`.",
+        "expected_commands": ["kubectl rollout restart deployment/api -n shop", "kubectl rollout restart deploy/api -n shop", "kubectl -n shop rollout restart deployment/api", "kubectl -n shop rollout restart deploy/api", "kubectl rollout restart deployment api -n shop"],
+        "mock_output": "deployment.apps/api restarted",
+        "hint": "kubectl rollout has a restart verb."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "Watch the rollout of deployment `api` until it completes.",
+        "expected_commands": ["kubectl rollout status deployment/api -n shop", "kubectl rollout status deploy/api -n shop", "kubectl -n shop rollout status deployment/api", "kubectl -n shop rollout status deploy/api"],
+        "mock_output": "deployment \"api\" successfully rolled out",
+        "hint": "rollout status shows progress and blocks until done."
+      }
+    ]
+  }
+]

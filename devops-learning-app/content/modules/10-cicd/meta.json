@@ -1,0 +1,9 @@
+{
+  "slug": "cicd",
+  "title": "CI/CD Concepts",
+  "description": "Continuous integration, delivery, and deployment: pipeline design, testing strategy, deployment patterns, and DORA metrics.",
+  "icon": "🔁",
+  "difficulty": "intermediate",
+  "sort_order": 10,
+  "est_hours": 5
+}

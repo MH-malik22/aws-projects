@@ -1,0 +1,178 @@
+{
+  "title": "CI/CD Concepts Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "cicd-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What distinguishes continuous DELIVERY from continuous DEPLOYMENT?",
+      "options": [
+        "Delivery is for libraries, deployment for services",
+        "Delivery keeps every build releasable with a manual gate to prod; deployment ships every green build to prod automatically",
+        "Deployment includes testing; delivery doesn't",
+        "They are identical"
+      ],
+      "answer_index": 1,
+      "explanation": "Both automate the path to production. Delivery stops at a human decision ('press the button'); deployment removes the button — green pipeline means prod. Many regulated teams intentionally stay at delivery."
+    },
+    {
+      "id": "cicd-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "Why should the cheapest checks (lint, unit tests) run first in a pipeline?",
+      "options": [
+        "They're most important",
+        "Fail fast: developers get feedback in seconds instead of waiting for long stages that would fail anyway",
+        "Later stages can't run them",
+        "License restrictions"
+      ],
+      "answer_index": 1,
+      "explanation": "Pipelines are feedback machines. Ordering by cost means a typo fails in 30 seconds, not after a 20-minute e2e suite — that latency compounds into developer time and CI cost across hundreds of runs daily."
+    },
+    {
+      "id": "cicd-q03",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What does 'build once, promote many' mean?",
+      "options": [
+        "Build one service per repository",
+        "Produce a single immutable artifact and move that exact artifact (e.g., image digest) through dev → staging → prod",
+        "Cache builds for a week",
+        "Build on one machine only"
+      ],
+      "answer_index": 1,
+      "explanation": "Rebuilding per environment means prod runs something never tested (newer transitive deps, different flags). Promoting one digest guarantees the tested bits are the shipped bits — environment differences live in config, not the artifact."
+    },
+    {
+      "id": "cicd-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "In a blue-green deployment, how do you roll back a bad release?",
+      "options": [
+        "Rebuild the previous version and redeploy",
+        "Switch traffic back to the previous (still-running) environment",
+        "Restore from database backup",
+        "Scale the new environment to zero first"
+      ],
+      "answer_index": 1,
+      "explanation": "Blue-green keeps the old environment intact while the new one takes traffic; rollback is flipping the router back — seconds, not a redeploy. The price is running double capacity during the transition."
+    },
+    {
+      "id": "cicd-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is a canary deployment?",
+      "options": [
+        "Deploying only on weekends",
+        "Routing a small, growing percentage of real traffic to the new version while comparing metrics, with automated rollback",
+        "A deployment that requires manual approval",
+        "Deploying to a staging environment first"
+      ],
+      "answer_index": 1,
+      "explanation": "The canary limits blast radius: 1–5% of users hit the new version; error rate/latency/business metrics gate each promotion step. Problems affect a sliver of traffic and trigger an automatic shift back."
+    },
+    {
+      "id": "cicd-q06",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "Which are the four DORA metrics?",
+      "options": [
+        "Uptime, cost, velocity, coverage",
+        "Deployment frequency, lead time for changes, change failure rate, mean time to restore",
+        "Commits/day, PRs/week, bugs/month, releases/quarter",
+        "CPU, memory, disk, network"
+      ],
+      "answer_index": 1,
+      "explanation": "Two speed metrics (frequency, lead time) and two stability metrics (failure rate, MTTR). The research finding: elite teams are better at BOTH — speed and stability correlate, they don't trade off."
+    },
+    {
+      "id": "cicd-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "Feature flags let you separate deploying code from releasing the feature to users.",
+      "answer_bool": true,
+      "explanation": "True. Code ships to prod 'dark' behind a flag; release is a toggle — per segment, percentage, or user. Rollback becomes flipping a flag rather than an emergency deploy. (Pay the tax: clean up stale flags.)"
+    },
+    {
+      "id": "cicd-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "The best fix for a flaky test is configuring the pipeline to retry it up to 3 times.",
+      "answer_bool": false,
+      "explanation": "False. Retries hide the flake, triple its runtime cost, and erode trust in red builds — the moment devs say 'probably just flaky', CI has failed. Quarantine flaky tests visibly and fix the root cause (timing waits, shared state, order dependence)."
+    },
+    {
+      "id": "cicd-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "A bug appears in prod but not staging. Investigation: prod image was rebuilt at deploy time and pulled a newer dependency than the staging build. Which principle was violated?",
+      "options": [
+        "Fail fast",
+        "Build once, promote many",
+        "Shift left",
+        "Trunk-based development"
+      ],
+      "answer_index": 1,
+      "explanation": "Two builds = two artifacts = the staging tests validated bits that never reached prod. Promote the identical digest and this bug class disappears; pin dependencies so even rebuilds are reproducible."
+    },
+    {
+      "id": "cicd-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "Your DORA numbers: deploys weekly, lead time 9 days, change failure 25%, MTTR 6h. Reviews take under a day, but PRs average 1,200 lines. What's the highest-leverage change?",
+      "options": [
+        "Buy faster CI machines",
+        "Radically smaller batches: small PRs, trunk-based flow with feature flags — improving all four metrics at once",
+        "Add a mandatory second approval to cut failures",
+        "Freeze deploys to stabilize"
+      ],
+      "answer_index": 1,
+      "explanation": "Huge PRs slow review, batch risk, and make failures hard to isolate/revert — visible in every metric. Smaller batches are the single intervention DORA research ties to improving speed AND stability. More gates and freezes move the numbers the wrong way."
+    },
+    {
+      "id": "cicd-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "With the GitHub CLI, write the command to list recent workflow runs.",
+      "accepted_answers": ["gh run list"],
+      "explanation": "gh run list shows recent Actions runs with status and IDs; follow up with gh run view <id> (add --log-failed for failing logs) — faster than clicking through the web UI."
+    },
+    {
+      "id": "cicd-q12",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the gh command to re-run ONLY the failed jobs of workflow run 12345.",
+      "accepted_answers": ["gh run rerun 12345 --failed", "gh run rerun --failed 12345"],
+      "explanation": "--failed scopes the rerun to jobs that failed, saving the time and cost of repeating everything that already passed."
+    },
+    {
+      "id": "cicd-q13",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Where should pipeline secrets (deploy tokens, registry credentials) live?",
+      "options": [
+        "Encrypted in the repository README",
+        "In the CI system's secret store or an external secrets manager, injected at runtime and masked in logs",
+        "In a .env file committed to the repo",
+        "In the Dockerfile as ENV"
+      ],
+      "answer_index": 1,
+      "explanation": "Secrets in the repo (or baked into images) leak via history, forks, and layer inspection. CI secret stores scope them to jobs, mask them in output, and support rotation without code changes."
+    },
+    {
+      "id": "cicd-q14",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What does 'shift left' mean in a delivery pipeline?",
+      "options": [
+        "Moving deploys to earlier in the week",
+        "Moving quality and security checks (tests, SAST, dependency scans) earlier — into the PR/commit stage where fixes are cheapest",
+        "Left-aligning YAML",
+        "Prioritizing frontend work"
+      ],
+      "answer_index": 1,
+      "explanation": "The later a defect is found, the more it costs. Shifting checks left — linting, tests, vulnerability scans on the PR itself — catches issues before merge, when the author has full context and nothing has shipped."
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "title": "AWS Basics Quiz (IAM, EC2, S3, VPC)",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "aws-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "How should an application on EC2 obtain AWS credentials?",
+      "options": [
+        "Hardcode an access key in the app config",
+        "Attach an IAM role to the instance; the SDK gets temporary credentials from instance metadata",
+        "Store root account keys in an environment variable",
+        "Email the keys to the team"
+      ],
+      "answer_index": 1,
+      "explanation": "Instance roles deliver auto-rotating temporary credentials via IMDS — nothing to leak, commit, or rotate manually. Long-lived keys on servers are the root cause of most AWS breaches."
+    },
+    {
+      "id": "aws-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "In IAM policy evaluation, what always wins?",
+      "options": [
+        "The most recently attached policy",
+        "An explicit Deny",
+        "An explicit Allow",
+        "The policy with the most statements"
+      ],
+      "answer_index": 1,
+      "explanation": "Order is: explicit deny beats everything; otherwise an explicit allow grants; otherwise the implicit default deny applies. That's why deny statements make reliable guardrails (e.g., deny outside approved regions)."
+    },
+    {
+      "id": "aws-q03",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What makes a subnet 'public'?",
+      "options": [
+        "Its name contains 'public'",
+        "Its route table has a 0.0.0.0/0 route pointing at an Internet Gateway",
+        "It has more than 251 IPs",
+        "Instances in it always get Elastic IPs"
+      ],
+      "answer_index": 1,
+      "explanation": "Public/private is purely a routing property. IGW route = public. Private subnets route 0.0.0.0/0 at a NAT gateway (outbound only) or have no internet route at all."
+    },
+    {
+      "id": "aws-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Security groups vs NACLs — which statement is correct?",
+      "options": [
+        "Both are stateless",
+        "Security groups are stateful, instance-level, allow-rules-only; NACLs are stateless, subnet-level, with allow and deny rules",
+        "NACLs are stateful; security groups are stateless",
+        "Security groups can deny specific IPs"
+      ],
+      "answer_index": 1,
+      "explanation": "SG: return traffic automatically allowed (stateful), attached to ENIs, only allow rules. NACL: evaluated per-packet both directions (stateless — you must open ephemeral ports), ordered rules incl. deny, applied at the subnet edge."
+    },
+    {
+      "id": "aws-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is a NAT Gateway for?",
+      "options": [
+        "Letting the internet initiate connections to private instances",
+        "Giving instances in private subnets outbound internet access while blocking inbound connections",
+        "Load balancing between AZs",
+        "Encrypting VPC traffic"
+      ],
+      "answer_index": 1,
+      "explanation": "NAT translates private source IPs for outbound flows (package updates, external APIs) and drops unsolicited inbound. Note it's billed hourly + per GB — a classic surprise cost in idle dev accounts."
+    },
+    {
+      "id": "aws-q06",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Which S3 feature protects against accidental overwrites and deletions?",
+      "options": ["Transfer Acceleration", "Versioning", "Multipart upload", "S3 Select"],
+      "answer_index": 1,
+      "explanation": "With versioning, overwrites create new versions and deletes just add a delete marker — remove the marker to restore. Pair with lifecycle rules to expire old versions, and MFA-delete/Object Lock for stronger protection."
+    },
+    {
+      "id": "aws-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "S3 bucket names must be globally unique across all AWS accounts.",
+      "answer_bool": true,
+      "explanation": "True. The bucket namespace is global (bucket names appear in URLs like bucket.s3.amazonaws.com), so 'test' was taken years ago. Use org prefixes: acme-prod-uploads-eu."
+    },
+    {
+      "id": "aws-q08",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "Using the root account for daily administration is fine as long as it has MFA enabled.",
+      "answer_bool": false,
+      "explanation": "False. Root bypasses all IAM policies and can't be constrained — MFA reduces theft risk but not blast radius. Enable MFA, remove root access keys, lock it away for the few tasks that truly require it, and work through IAM roles/SSO."
+    },
+    {
+      "id": "aws-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "A web tier behind an ALB should accept traffic ONLY from the load balancer. What's the cleanest security-group design?",
+      "options": [
+        "Allow 0.0.0.0/0 on port 80 to the web tier",
+        "In the web tier SG, allow the port with the ALB's security group as the SOURCE",
+        "List the ALB's current IP addresses in the web SG",
+        "Use a NACL to allow only the ALB subnet"
+      ],
+      "answer_index": 1,
+      "explanation": "Security groups can reference other security groups as sources. ALB IPs change; SG references don't. This chaining (ALB SG → app SG → DB SG) is the standard 3-tier pattern."
+    },
+    {
+      "id": "aws-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "An instance in a private subnet times out running `dnf update`. Route table: 10.0.0.0/16 → local only. What's missing?",
+      "options": [
+        "An Internet Gateway route in that subnet",
+        "A 0.0.0.0/0 route to a NAT gateway (in a public subnet)",
+        "A bigger instance type",
+        "An Elastic IP on the instance"
+      ],
+      "answer_index": 1,
+      "explanation": "With only the local route, the subnet has zero internet path. Private instances get outbound via NAT: create a NAT gateway in a public subnet and add 0.0.0.0/0 → nat-... to the private route table. An IGW route would make the subnet public — not desired."
+    },
+    {
+      "id": "aws-q11",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "CI needs cheap compute for interruptible test jobs. Which purchasing option fits best?",
+      "options": [
+        "On-demand — simplest",
+        "Spot instances — up to ~90% cheaper, and job interruption is acceptable",
+        "3-year reserved instances",
+        "Dedicated hosts"
+      ],
+      "answer_index": 1,
+      "explanation": "Spot sells spare capacity at deep discount with a 2-minute interruption notice — a perfect match for stateless, retryable CI workloads. Reserved/savings plans suit steady 24/7 baselines; dedicated hosts are for licensing/compliance."
+    },
+    {
+      "id": "aws-q12",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the AWS CLI command that shows which identity (account/ARN) your current credentials belong to.",
+      "accepted_answers": ["aws sts get-caller-identity"],
+      "explanation": "The 'whoami' of AWS. Run it before anything destructive — wrong-account incidents are legendary. It needs no permissions beyond being authenticated."
+    },
+    {
+      "id": "aws-q13",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to sync the local directory ./build to the bucket s3://acme-web (high-level CLI).",
+      "accepted_answers": ["aws s3 sync ./build s3://acme-web", "aws s3 sync build s3://acme-web", "aws s3 sync ./build s3://acme-web/", "aws s3 sync build s3://acme-web/", "aws s3 sync ./build/ s3://acme-web", "aws s3 sync ./build/ s3://acme-web/"],
+      "explanation": "s3 sync copies only new/changed files (like rsync) — the standard deploy step for static sites; add --delete to remove remote files that no longer exist locally."
+    },
+    {
+      "id": "aws-q14",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Why should subnets (and the resources in them) be spread across multiple Availability Zones?",
+      "options": [
+        "Cross-AZ traffic is free",
+        "AZs are physically separate data centers; spreading across them survives a single-AZ failure",
+        "Each AZ has different instance prices",
+        "It's required for IPv6"
+      ],
+      "answer_index": 1,
+      "explanation": "An AZ is one or more isolated data centers. ALB + Auto Scaling across ≥2 AZs is the baseline HA pattern; a single-AZ design turns an AWS zonal event into your outage. (Cross-AZ data transfer actually costs money — a tradeoff, not a reason.)"
+    },
+    {
+      "id": "aws-q15",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What is EC2 user data?",
+      "options": [
+        "Metadata about the instance owner",
+        "A script executed on first boot, used to bootstrap the instance (install packages, join clusters)",
+        "The instance's EBS snapshot",
+        "Per-user home directories"
+      ],
+      "answer_index": 1,
+      "explanation": "User data runs via cloud-init on first boot (by default) — the standard hook for bootstrap: install agent, pull config, register with the fleet. For repeatable fleets, bake AMIs (Packer) and keep user data minimal."
+    }
+  ]
+}

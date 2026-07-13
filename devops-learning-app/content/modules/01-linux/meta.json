@@ -1,0 +1,9 @@
+{
+  "slug": "linux",
+  "title": "Linux Fundamentals",
+  "description": "Master the OS every DevOps tool runs on: shell, filesystem, permissions, processes, networking, and scripting.",
+  "icon": "🐧",
+  "difficulty": "beginner",
+  "sort_order": 1,
+  "est_hours": 8
+}

@@ -1,0 +1,9 @@
+{
+  "slug": "git",
+  "title": "Git & Version Control",
+  "description": "Branching, merging, rebasing, undoing mistakes, and the team workflows (PRs, trunk-based) behind every CI/CD pipeline.",
+  "icon": "🌿",
+  "difficulty": "beginner",
+  "sort_order": 2,
+  "est_hours": 6
+}

@@ -1,0 +1,9 @@
+{
+  "slug": "docker",
+  "title": "Docker & Containers",
+  "description": "Images, containers, Dockerfiles, networking, volumes, Compose, and production image hygiene.",
+  "icon": "🐳",
+  "difficulty": "beginner",
+  "sort_order": 3,
+  "est_hours": 8
+}

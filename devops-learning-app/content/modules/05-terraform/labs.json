@@ -1,0 +1,59 @@
+[
+  {
+    "slug": "plan-apply-loop",
+    "title": "Lab: The Plan/Apply Loop",
+    "intro_md": "Drive a Terraform configuration through its full lifecycle: init, validate, plan, apply, inspect state, and destroy.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Initialize the working directory (downloads providers, sets up the backend).",
+        "expected_commands": ["terraform init"],
+        "mock_output": "Initializing provider plugins...\n- Installing hashicorp/aws v5.54.0...\nTerraform has been successfully initialized!",
+        "hint": "Always the first command in a fresh Terraform directory."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "Check the configuration for syntax and internal consistency errors.",
+        "expected_commands": ["terraform validate"],
+        "mock_output": "Success! The configuration is valid.",
+        "hint": "Not plan — the lighter-weight static check."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Produce an execution plan and save it to a file named `tfplan`.",
+        "expected_commands": ["terraform plan -out tfplan", "terraform plan -out=tfplan"],
+        "mock_output": "Plan: 3 to add, 0 to change, 0 to destroy.\nSaved the plan to: tfplan",
+        "hint": "plan with the -out flag."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Apply exactly that saved plan.",
+        "expected_commands": ["terraform apply tfplan", "terraform apply \"tfplan\""],
+        "mock_output": "Apply complete! Resources: 3 added, 0 changed, 0 destroyed.\nOutputs:\npublic_ip = \"52.31.4.18\"",
+        "hint": "Pass the plan file as the argument — no -auto-approve needed, the plan IS the approval."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "List all resources currently tracked in state.",
+        "expected_commands": ["terraform state list"],
+        "mock_output": "aws_instance.web\naws_security_group.web\ndata.aws_ami.al2023",
+        "hint": "The state subcommand has a listing verb."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "Show the value of the output named `public_ip`.",
+        "expected_commands": ["terraform output public_ip"],
+        "mock_output": "\"52.31.4.18\"",
+        "hint": "terraform output <name>"
+      },
+      {
+        "step_no": 7,
+        "instruction_md": "Tear everything down without an interactive prompt.",
+        "expected_commands": ["terraform destroy -auto-approve", "terraform apply -destroy -auto-approve"],
+        "mock_output": "Destroy complete! Resources: 3 destroyed.",
+        "hint": "destroy plus the flag that skips the yes/no prompt."
+      }
+    ]
+  }
+]

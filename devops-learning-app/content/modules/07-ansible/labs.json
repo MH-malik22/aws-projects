@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "playbook-run",
+    "title": "Lab: Run and Verify a Playbook",
+    "intro_md": "Exercise the daily Ansible loop: ad-hoc connectivity check, syntax check, dry run with diff, real run, and an idempotency proof.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Verify connectivity to every host in `inventory.ini` with the ping module.",
+        "expected_commands": ["ansible all -i inventory.ini -m ping", "ansible -i inventory.ini all -m ping"],
+        "mock_output": "web1 | SUCCESS => {\"ping\": \"pong\"}\nweb2 | SUCCESS => {\"ping\": \"pong\"}",
+        "hint": "ansible <pattern> -i <inventory> -m <module>"
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "Syntax-check the playbook `site.yml` without running it.",
+        "expected_commands": ["ansible-playbook site.yml --syntax-check", "ansible-playbook --syntax-check site.yml", "ansible-playbook site.yml -i inventory.ini --syntax-check", "ansible-playbook -i inventory.ini site.yml --syntax-check"],
+        "mock_output": "playbook: site.yml",
+        "hint": "ansible-playbook has a --syntax-check flag."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Dry-run the playbook against the inventory, showing file diffs (check mode + diff).",
+        "expected_commands": ["ansible-playbook site.yml -i inventory.ini --check --diff", "ansible-playbook -i inventory.ini site.yml --check --diff", "ansible-playbook site.yml -i inventory.ini --diff --check", "ansible-playbook -i inventory.ini site.yml --diff --check"],
+        "mock_output": "TASK [Deploy site config] ****\n--- before\n+++ after\n+worker_processes 4;\nchanged: [web1]\nPLAY RECAP: web1 ok=3 changed=2 (CHECK MODE)",
+        "hint": "--check simulates; --diff shows what templates/files would change."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Run the playbook for real.",
+        "expected_commands": ["ansible-playbook site.yml -i inventory.ini", "ansible-playbook -i inventory.ini site.yml"],
+        "mock_output": "PLAY RECAP ****\nweb1: ok=5 changed=2 unreachable=0 failed=0\nweb2: ok=5 changed=2 unreachable=0 failed=0",
+        "hint": "Same command, minus the safety flags."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Prove idempotency: run it again and observe changed=0.",
+        "expected_commands": ["ansible-playbook site.yml -i inventory.ini", "ansible-playbook -i inventory.ini site.yml"],
+        "mock_output": "PLAY RECAP ****\nweb1: ok=5 changed=0 unreachable=0 failed=0\nweb2: ok=5 changed=0 unreachable=0 failed=0",
+        "hint": "Idempotent playbooks converge — a second run changes nothing."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "Encrypt the secrets file `group_vars/prod/vault.yml` with Ansible Vault.",
+        "expected_commands": ["ansible-vault encrypt group_vars/prod/vault.yml"],
+        "mock_output": "Encryption successful",
+        "hint": "ansible-vault <verb> <file>"
+      }
+    ]
+  }
+]

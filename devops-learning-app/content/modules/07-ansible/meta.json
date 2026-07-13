@@ -1,0 +1,9 @@
+{
+  "slug": "ansible",
+  "title": "Ansible",
+  "description": "Agentless configuration management: inventories, playbooks, modules, handlers, roles, Vault, and idempotency.",
+  "icon": "🅰️",
+  "difficulty": "intermediate",
+  "sort_order": 7,
+  "est_hours": 6
+}

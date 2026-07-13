@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "release-lifecycle",
+    "title": "Lab: Release Lifecycle",
+    "intro_md": "Install, upgrade, inspect, and roll back a Helm release — the full lifecycle you'll run in CI and during incidents.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Add the bitnami chart repository (https://charts.bitnami.com/bitnami) under the name `bitnami`.",
+        "expected_commands": ["helm repo add bitnami https://charts.bitnami.com/bitnami"],
+        "mock_output": "\"bitnami\" has been added to your repositories",
+        "hint": "helm repo add <name> <url>"
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "Refresh your local repo index.",
+        "expected_commands": ["helm repo update"],
+        "mock_output": "...Successfully got an update from the \"bitnami\" chart repository\nUpdate Complete. ⎈Happy Helming!⎈",
+        "hint": "Like apt update, but for charts."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Install `bitnami/nginx` as a release named `web` in namespace `demo`, creating the namespace.",
+        "expected_commands": ["helm install web bitnami/nginx -n demo --create-namespace", "helm install web bitnami/nginx --namespace demo --create-namespace", "helm install web bitnami/nginx --create-namespace -n demo", "helm install web bitnami/nginx --create-namespace --namespace demo"],
+        "mock_output": "NAME: web\nNAMESPACE: demo\nSTATUS: deployed\nREVISION: 1",
+        "hint": "helm install <release> <chart> plus namespace flags."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Upgrade the `web` release setting `replicaCount=3` (namespace demo).",
+        "expected_commands": ["helm upgrade web bitnami/nginx -n demo --set replicaCount=3", "helm upgrade web bitnami/nginx --set replicaCount=3 -n demo", "helm upgrade web bitnami/nginx --namespace demo --set replicaCount=3", "helm upgrade web bitnami/nginx --set replicaCount=3 --namespace demo"],
+        "mock_output": "Release \"web\" has been upgraded. Happy Helming!\nREVISION: 2",
+        "hint": "helm upgrade <release> <chart> with --set."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Show the revision history of the `web` release (namespace demo).",
+        "expected_commands": ["helm history web -n demo", "helm history web --namespace demo", "helm -n demo history web"],
+        "mock_output": "REVISION  STATUS      DESCRIPTION\n1         superseded  Install complete\n2         deployed    Upgrade complete",
+        "hint": "There's a history subcommand."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "The upgrade caused issues — roll back `web` to revision 1 (namespace demo).",
+        "expected_commands": ["helm rollback web 1 -n demo", "helm rollback web 1 --namespace demo", "helm -n demo rollback web 1"],
+        "mock_output": "Rollback was a success! Happy Helming!",
+        "hint": "helm rollback <release> <revision>"
+      }
+    ]
+  }
+]

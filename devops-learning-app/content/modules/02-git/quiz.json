@@ -1,0 +1,169 @@
+{
+  "title": "Git & Version Control Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "git-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What are Git's three main areas, in the order changes flow through them?",
+      "options": [
+        "Repository → staging area → working directory",
+        "Working directory → staging area → repository",
+        "Staging area → working directory → repository",
+        "Working directory → repository → staging area"
+      ],
+      "answer_index": 1,
+      "explanation": "You edit files in the working directory, select changes into the staging area with `git add`, and record the staged snapshot into the repository with `git commit`."
+    },
+    {
+      "id": "git-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What is the difference between `git fetch` and `git pull`?",
+      "options": [
+        "fetch downloads and merges; pull only downloads",
+        "fetch only downloads remote refs; pull downloads and then merges (or rebases) into your branch",
+        "They are identical",
+        "pull works only on the main branch"
+      ],
+      "answer_index": 1,
+      "explanation": "fetch updates your remote-tracking refs without touching local branches — always safe. pull = fetch + merge (or + rebase with --rebase), which modifies your current branch."
+    },
+    {
+      "id": "git-q03",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "A bad commit is already pushed to the shared main branch. What's the safest way to undo it?",
+      "options": [
+        "git reset --hard HEAD~1 && git push --force",
+        "git revert <sha>",
+        "Delete the branch and recreate it",
+        "git commit --amend"
+      ],
+      "answer_index": 1,
+      "explanation": "revert creates a new commit that inverses the bad one — history is preserved and nobody's clones break. Force-pushing rewritten history onto a shared branch strands every collaborator (and may be blocked by branch protection)."
+    },
+    {
+      "id": "git-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "When is it acceptable to rebase?",
+      "options": [
+        "Anytime, on any branch",
+        "Only on commits that haven't been shared/pushed for others to build on",
+        "Only on the main branch",
+        "Never — rebase is deprecated"
+      ],
+      "answer_index": 1,
+      "explanation": "Rebase rewrites commit hashes. On your own unpushed (or single-author feature) branch it produces clean linear history; on shared branches it breaks everyone who pulled the old commits."
+    },
+    {
+      "id": "git-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "You need to switch branches but have half-finished changes you don't want to commit. What's the standard tool?",
+      "options": ["git stash", "git reset --hard", "git clean -fd", "git archive"],
+      "answer_index": 0,
+      "explanation": "`git stash` shelves working-directory changes onto a stack; `git stash pop` restores them later. reset --hard and clean would destroy the work."
+    },
+    {
+      "id": "git-q06",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "You ran `git reset --hard HEAD~2` and lost two commits you actually needed. What recovers them?",
+      "options": [
+        "They are gone permanently",
+        "git reflog to find the old HEAD, then reset/cherry-pick back to it",
+        "git fsck --delete",
+        "Reclone the repository"
+      ],
+      "answer_index": 1,
+      "explanation": "reflog records every position HEAD has had. Find the sha from before the reset and `git reset --hard <sha>` (or cherry-pick the lost commits). Unreachable commits are kept ~90 days before garbage collection."
+    },
+    {
+      "id": "git-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "`git commit --amend` changes the hash of the last commit.",
+      "answer_bool": true,
+      "explanation": "True. Amending creates a new commit object (new content/message/timestamp ⇒ new SHA) replacing the old tip — which is why you shouldn't amend commits already pushed to a shared branch."
+    },
+    {
+      "id": "git-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "A 'fast-forward' merge creates a merge commit.",
+      "answer_bool": false,
+      "explanation": "False. Fast-forward simply moves the branch pointer forward when there's no divergent history — no new commit is created. Use `git merge --no-ff` to force a merge commit if your team wants explicit merge points."
+    },
+    {
+      "id": "git-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "During `git rebase main`, Git stops with conflicts in two files. You fix them. What completes the rebase?",
+      "options": [
+        "git commit -m 'fixed conflicts'",
+        "git add <files> then git rebase --continue",
+        "git merge --continue",
+        "git push --force"
+      ],
+      "answer_index": 1,
+      "explanation": "During rebase you stage the resolved files and run `git rebase --continue`; Git re-applies the remaining commits. Committing manually or force-pushing mid-rebase are the classic mistakes."
+    },
+    {
+      "id": "git-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "Your team wants an automated changelog and semantic-version bumps derived from commit history. Which practice enables that?",
+      "options": [
+        "Squash-merging everything with default messages",
+        "Conventional Commits (feat:, fix:, BREAKING CHANGE:) enforced in CI",
+        "Tagging every commit manually",
+        "Using longer branch names"
+      ],
+      "answer_index": 1,
+      "explanation": "Conventional Commits give commits machine-readable types; tools like semantic-release map fix→patch, feat→minor, BREAKING CHANGE→major and generate changelogs automatically. The other options provide no parseable signal."
+    },
+    {
+      "id": "git-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the command to create AND switch to a new branch called hotfix/timeout (modern syntax).",
+      "accepted_answers": ["git switch -c hotfix/timeout", "git checkout -b hotfix/timeout"],
+      "case_sensitive": true,
+      "explanation": "`git switch -c` is the modern purpose-built command; `git checkout -b` is the older equivalent that also still works."
+    },
+    {
+      "id": "git-q12",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to interactively rebase the last 3 commits.",
+      "accepted_answers": ["git rebase -i HEAD~3", "git rebase --interactive HEAD~3"],
+      "case_sensitive": true,
+      "explanation": "Interactive rebase over HEAD~3 opens an editor listing the last three commits, letting you squash, reword, reorder, or drop them before they're re-applied."
+    },
+    {
+      "id": "git-q13",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What does `git cherry-pick <sha>` do?",
+      "options": [
+        "Deletes the given commit from history",
+        "Applies the changes of that single commit as a new commit on your current branch",
+        "Moves your branch pointer to that commit",
+        "Compares that commit with HEAD"
+      ],
+      "answer_index": 1,
+      "explanation": "cherry-pick replays one commit's diff onto the current branch as a new commit (new sha). Typical use: porting a hotfix from main onto a release branch."
+    },
+    {
+      "id": "git-q14",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "In trunk-based development, feature branches typically live for weeks to keep changes isolated until fully complete.",
+      "answer_bool": false,
+      "explanation": "False — that describes long-lived feature branching. Trunk-based development means integrating into main at least daily via tiny branches or direct commits, with incomplete features hidden behind feature flags."
+    }
+  ]
+}

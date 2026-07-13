@@ -1,0 +1,9 @@
+{
+  "slug": "helm",
+  "title": "Helm",
+  "description": "The Kubernetes package manager: charts, values, templating, releases, upgrades/rollbacks, and repositories.",
+  "icon": "⎈",
+  "difficulty": "intermediate",
+  "sort_order": 8,
+  "est_hours": 5
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "feature-branch-flow",
+    "title": "Lab: Feature Branch Workflow",
+    "intro_md": "Walk the exact loop you'll use daily on a team: branch, commit, push, and recover from a mistake with revert.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Create and switch to a new branch named `feature/login`.",
+        "expected_commands": ["git switch -c feature/login", "git checkout -b feature/login"],
+        "mock_output": "Switched to a new branch 'feature/login'",
+        "hint": "Modern Git uses `switch -c`; the classic form is `checkout -b`."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "You edited `login.py`. Stage that file.",
+        "expected_commands": ["git add login.py"],
+        "mock_output": "",
+        "hint": "git add <path> moves changes into the staging area."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Commit with the message `feat: add login endpoint` (use double quotes).",
+        "expected_commands": ["git commit -m \"feat: add login endpoint\""],
+        "mock_output": "[feature/login 3f2a1c9] feat: add login endpoint\n 1 file changed, 42 insertions(+)",
+        "hint": "git commit -m \"message\""
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Push the branch to origin and set it as upstream.",
+        "expected_commands": ["git push -u origin feature/login", "git push --set-upstream origin feature/login"],
+        "mock_output": "Branch 'feature/login' set up to track remote branch 'feature/login' from 'origin'.",
+        "hint": "-u (or --set-upstream) links the local branch to the remote one."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Check which commits exist with a compact one-line graph of all branches.",
+        "expected_commands": ["git log --oneline --graph --all", "git log --all --oneline --graph", "git log --graph --oneline --all"],
+        "mock_output": "* 3f2a1c9 (HEAD -> feature/login, origin/feature/login) feat: add login endpoint\n* a1b2c3d (main, origin/main) chore: initial commit",
+        "hint": "Combine --oneline, --graph and --all."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "The commit `3f2a1c9` broke staging after merge. Undo it safely on the shared branch (no history rewrite), keeping the default commit message (`--no-edit`).",
+        "expected_commands": ["git revert 3f2a1c9 --no-edit", "git revert --no-edit 3f2a1c9"],
+        "mock_output": "[feature/login 9e8d7c6] Revert \"feat: add login endpoint\"",
+        "hint": "revert adds a new inverse commit — safe on branches others share, unlike reset."
+      }
+    ]
+  }
+]

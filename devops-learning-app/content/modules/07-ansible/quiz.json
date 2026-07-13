@@ -1,0 +1,178 @@
+{
+  "title": "Ansible Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "ansible-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What makes Ansible 'agentless'?",
+      "options": [
+        "It requires no control node",
+        "It connects to managed hosts over SSH and needs no daemon installed on them",
+        "It runs entirely in the cloud",
+        "It uses HTTP polling"
+      ],
+      "answer_index": 1,
+      "explanation": "Unlike Puppet/Chef agents, Ansible pushes small module programs over SSH (WinRM for Windows) and executes them; targets need only Python. Nothing to install, patch, or keep enrolled."
+    },
+    {
+      "id": "ansible-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What does idempotency mean for a playbook?",
+      "options": [
+        "It runs faster on the second execution",
+        "Re-running it on an already-converged host makes no changes (changed=0)",
+        "It can only run once per host",
+        "Tasks execute in random order"
+      ],
+      "answer_index": 1,
+      "explanation": "Modules assert desired state ('nginx present', 'line exists') rather than performing actions blindly, so repeated runs are safe. That property is what makes scheduled convergence runs and drift repair possible."
+    },
+    {
+      "id": "ansible-q03",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "In a playbook, what does `become: true` do?",
+      "options": [
+        "Runs tasks in parallel",
+        "Escalates privileges (typically sudo) for the tasks",
+        "Turns on check mode",
+        "Registers the output of tasks"
+      ],
+      "answer_index": 1,
+      "explanation": "become switches to a privileged user (root by default, configurable via become_user) — needed for package installs, service management, and writing system paths."
+    },
+    {
+      "id": "ansible-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "When does a handler run?",
+      "options": [
+        "After every task",
+        "Only when notified by a task that reported CHANGED, and then once at the end of the play",
+        "Before the tasks section",
+        "Whenever its service is stopped"
+      ],
+      "answer_index": 1,
+      "explanation": "Handlers are deduplicated, change-triggered tasks: ten config tasks can notify 'reload nginx' and it reloads once, and only if something actually changed — no pointless service bounces."
+    },
+    {
+      "id": "ansible-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Why prefer the apt/yum/service modules over shell commands like `shell: apt install -y nginx`?",
+      "options": [
+        "Shell is slower to type",
+        "Modules are idempotent, report changed-state accurately, support check mode, and are cross-platform-aware",
+        "shell is removed in Ansible 2.x",
+        "Modules run locally instead of remotely"
+      ],
+      "answer_index": 1,
+      "explanation": "shell always reports 'changed', breaks --check, and hides errors in string parsing. Modules know how to test state first. Rule of thumb: shell/command is a last resort, guarded with creates:/when:."
+    },
+    {
+      "id": "ansible-q06",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Which variable source has the HIGHEST precedence?",
+      "options": [
+        "role defaults",
+        "group_vars",
+        "host_vars",
+        "extra vars passed with -e"
+      ],
+      "answer_index": 3,
+      "explanation": "Extra vars (-e) always win; role defaults always lose. In between (simplified): group_vars < host_vars < play vars. Design roles with overridable defaults and inject environment-specifics higher up."
+    },
+    {
+      "id": "ansible-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "Ansible Vault lets you keep encrypted secrets committed in Git and decrypt them at playbook runtime.",
+      "answer_bool": true,
+      "explanation": "True. vault-encrypted files are ciphertext in the repo; --ask-vault-pass or --vault-password-file (held by CI) decrypts in memory at run time. Rotate the vault password like any credential."
+    },
+    {
+      "id": "ansible-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "`--check` mode guarantees that no task can modify a managed host.",
+      "answer_bool": false,
+      "explanation": "False in the strict sense: shell/command tasks (and modules without check support) either skip or — if forced with check_mode: false — still execute. Check mode is a strong safety net, not an absolute guarantee; keep raw commands out of playbooks."
+    },
+    {
+      "id": "ansible-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "You must patch 40 web servers with zero total downtime. Which playbook feature is designed for this?",
+      "options": [
+        "forks: 40 to hit all hosts at once",
+        "serial: (e.g., serial: 2) to roll through hosts in small batches, optionally with max_fail_percentage",
+        "async: 3600 on every task",
+        "strategy: free"
+      ],
+      "answer_index": 1,
+      "explanation": "serial turns a play into a rolling update: 2 hosts leave the pool, patch, return healthy, next batch. Combined with a health-check task and max_fail_percentage, a bad patch stops after the first batch instead of taking down the fleet."
+    },
+    {
+      "id": "ansible-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "Your EC2 fleet autoscales; hardcoded inventory files are permanently stale. What's the Ansible-native fix?",
+      "options": [
+        "A cron job that rewrites inventory.ini hourly",
+        "A dynamic inventory plugin (e.g., aws_ec2) that queries the cloud API and groups hosts by tags at run time",
+        "One playbook per instance",
+        "Switch all connections to WinRM"
+      ],
+      "answer_index": 1,
+      "explanation": "Dynamic inventory resolves hosts live from the source of truth (cloud APIs); tag Name/Role/Env become groups automatically. New autoscaled instances are targetable seconds after boot."
+    },
+    {
+      "id": "ansible-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the ad-hoc command to ping all hosts in inventory.ini.",
+      "accepted_answers": ["ansible all -i inventory.ini -m ping", "ansible -i inventory.ini all -m ping", "ansible all -m ping -i inventory.ini"],
+      "explanation": "Ad-hoc form: ansible <host-pattern> -i <inventory> -m <module>. The ping module verifies SSH + Python on each target (it's not an ICMP ping)."
+    },
+    {
+      "id": "ansible-q12",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to run site.yml against inventory.ini in dry-run mode showing diffs.",
+      "accepted_answers": ["ansible-playbook site.yml -i inventory.ini --check --diff", "ansible-playbook -i inventory.ini site.yml --check --diff", "ansible-playbook site.yml -i inventory.ini --diff --check", "ansible-playbook -i inventory.ini site.yml --diff --check", "ansible-playbook site.yml --check --diff -i inventory.ini"],
+      "explanation": "--check simulates the run; --diff prints before/after for files and templates. The pair is the standard pre-flight before touching production."
+    },
+    {
+      "id": "ansible-q13",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is an Ansible role?",
+      "options": [
+        "A user permission level",
+        "A conventional directory structure (tasks, handlers, defaults, templates…) packaging reusable automation",
+        "An inventory group",
+        "A type of module"
+      ],
+      "answer_index": 1,
+      "explanation": "Roles are Ansible's reuse unit: a self-contained bundle applied with a single line in a play. Teams compose plays from roles (base, nginx, app) instead of monolithic task lists."
+    },
+    {
+      "id": "ansible-q14",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What are 'facts' in Ansible?",
+      "options": [
+        "Static variables defined in group_vars",
+        "Per-host system information auto-gathered at play start (OS, IPs, memory), usable in templates and conditionals",
+        "The output of the debug module",
+        "Values stored in Ansible Vault"
+      ],
+      "answer_index": 1,
+      "explanation": "The setup module collects facts like ansible_facts.os_family, letting one playbook branch per platform (`when: ansible_facts.os_family == 'Debian'`). Disable with gather_facts: false when speed matters and facts don't."
+    }
+  ]
+}

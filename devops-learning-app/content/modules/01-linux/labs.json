@@ -1,0 +1,59 @@
+[
+  {
+    "slug": "server-triage",
+    "title": "Lab: Triage a Misbehaving Server",
+    "intro_md": "A web server is reported down and its disk is filling up. Work through a realistic triage: check disk, find the log hog, inspect the service, free the port, and bring it back.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Check overall disk usage in human-readable form.",
+        "expected_commands": ["df -h"],
+        "mock_output": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/xvda1       20G   20G     0 100% /\ntmpfs           2.0G     0  2.0G   0% /dev/shm",
+        "hint": "df reports free disk space; add the flag for human-readable sizes."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "The root volume is full. Summarize the size of each directory under `/var` (human-readable).",
+        "expected_commands": ["du -sh /var/*", "/du -sh \\/var\\/\\*.*/"],
+        "mock_output": "12K   /var/backups\n4.0K  /var/cache\n18G   /var/log\n1.2G  /var/lib",
+        "hint": "du -s summarizes, -h is human-readable. Glob the children of /var."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "`/var/log` holds 18G. List its files sorted by size (largest first) with details.",
+        "expected_commands": ["ls -laS /var/log", "ls -lhS /var/log", "ls -lahS /var/log"],
+        "mock_output": "-rw-r--r-- 1 www-data www-data 17.5G Jul 13 09:12 app.log\n-rw-r----- 1 syslog   adm       210M Jul 13 09:12 syslog",
+        "hint": "ls has a flag that sorts by file size."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Check the status of the failed `api` service with systemd.",
+        "expected_commands": ["systemctl status api", "sudo systemctl status api"],
+        "mock_output": "● api.service - Example API\n   Active: failed (Result: exit-code)\n   ...EADDRINUSE: address already in use :::8080",
+        "hint": "systemctl <verb> <service> — you want its status."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Something is squatting on port 8080. Show listening sockets with process info.",
+        "expected_commands": ["ss -tulpn", "sudo ss -tulpn", "ss -tlnp", "sudo ss -tlnp"],
+        "mock_output": "LISTEN 0 128 *:8080 *:* users:((\"python3\",pid=4721,fd=3))",
+        "hint": "ss with flags for tcp/udp, listening, process, numeric."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "Gracefully terminate the orphaned process (PID 4721).",
+        "expected_commands": ["kill -15 4721", "kill 4721", "kill -SIGTERM 4721"],
+        "mock_output": "",
+        "hint": "SIGTERM (15) asks nicely; SIGKILL (9) is a last resort."
+      },
+      {
+        "step_no": 7,
+        "instruction_md": "Start the `api` service again.",
+        "expected_commands": ["systemctl start api", "sudo systemctl start api"],
+        "mock_output": "● api.service - Example API\n   Active: active (running)",
+        "hint": "Same systemctl pattern as before, different verb."
+      }
+    ]
+  }
+]

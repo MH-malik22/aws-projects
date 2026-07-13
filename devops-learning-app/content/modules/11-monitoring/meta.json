@@ -1,0 +1,9 @@
+{
+  "slug": "monitoring",
+  "title": "Monitoring (Prometheus + Grafana)",
+  "description": "Metrics, PromQL, exporters, alerting rules, Alertmanager, and Grafana dashboards — observability that pages the right person.",
+  "icon": "📈",
+  "difficulty": "intermediate",
+  "sort_order": 11,
+  "est_hours": 7
+}

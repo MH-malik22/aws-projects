@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "build-ship-run",
+    "title": "Lab: Build, Ship, Run",
+    "intro_md": "Containerize a web app end to end: build an image, run it with a port mapping, inspect it from inside, and clean up.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Build an image from the Dockerfile in the current directory, tagged `myapp:v1`.",
+        "expected_commands": ["docker build -t myapp:v1 .", "docker build . -t myapp:v1"],
+        "mock_output": "[+] Building 12.4s (10/10) FINISHED\n => naming to docker.io/library/myapp:v1",
+        "hint": "-t tags the image; don't forget the build context (the dot)."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "Run it detached, named `web`, mapping host port 8080 to container port 3000.",
+        "expected_commands": ["docker run -d -p 8080:3000 --name web myapp:v1", "docker run -d --name web -p 8080:3000 myapp:v1", "docker run --name web -d -p 8080:3000 myapp:v1", "docker run -p 8080:3000 -d --name web myapp:v1"],
+        "mock_output": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hint": "-d detach, -p HOST:CONTAINER, --name web, then image:tag."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "List running containers to confirm `web` is up.",
+        "expected_commands": ["docker ps"],
+        "mock_output": "CONTAINER ID  IMAGE      STATUS         PORTS                   NAMES\ne3b0c44298fc  myapp:v1   Up 5 seconds   0.0.0.0:8080->3000/tcp  web",
+        "hint": "The command that lists running containers only."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Follow the container's logs.",
+        "expected_commands": ["docker logs -f web", "docker logs --follow web"],
+        "mock_output": "Server listening on :3000",
+        "hint": "docker logs with the follow flag."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Open an interactive shell (`sh`) inside the running container.",
+        "expected_commands": ["docker exec -it web sh", "docker exec -ti web sh", "docker exec -it web /bin/sh"],
+        "mock_output": "/app #",
+        "hint": "exec with -i (interactive) and -t (tty)."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "Stop the container, then remove it (two commands chained with &&).",
+        "expected_commands": ["docker stop web && docker rm web", "docker rm -f web"],
+        "mock_output": "web",
+        "hint": "stop then rm — or force-remove in one shot."
+      }
+    ]
+  }
+]

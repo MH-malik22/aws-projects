@@ -1,0 +1,186 @@
+{
+  "title": "Docker & Containers Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "docker-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What is the relationship between an image and a container?",
+      "options": [
+        "They're synonyms",
+        "A container is a running instance of an immutable image, plus a writable layer",
+        "An image is a running container that was paused",
+        "Images run inside containers"
+      ],
+      "answer_index": 1,
+      "explanation": "The image is the immutable, layered template; each container instantiates it with its own thin writable layer on top. Think class vs object."
+    },
+    {
+      "id": "docker-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "In `docker run -p 8080:80 nginx`, what does 8080:80 mean?",
+      "options": [
+        "Container port 8080 → host port 80",
+        "Host port 8080 → container port 80",
+        "Limit to 8080 KB/s on port 80",
+        "Open a port range 80–8080"
+      ],
+      "answer_index": 1,
+      "explanation": "The format is HOST:CONTAINER. Traffic hitting the host on 8080 is forwarded to port 80 inside the container. Getting this backwards is the most common port-mapping bug."
+    },
+    {
+      "id": "docker-q03",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "How do containers differ fundamentally from virtual machines?",
+      "options": [
+        "Containers virtualize hardware; VMs virtualize the OS",
+        "Containers share the host kernel via namespaces/cgroups; VMs each run their own kernel on a hypervisor",
+        "VMs start faster than containers",
+        "There is no difference in isolation model"
+      ],
+      "answer_index": 1,
+      "explanation": "Containers are isolated processes on a shared kernel (namespaces limit visibility, cgroups limit resources), so they start in milliseconds. VMs boot a full guest OS on virtualized hardware — stronger isolation, heavier cost."
+    },
+    {
+      "id": "docker-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Why should `COPY package*.json ./` + `RUN npm ci` come before `COPY . .` in a Dockerfile?",
+      "options": [
+        "npm requires it",
+        "Layer caching: dependencies reinstall only when manifests change, not on every source edit",
+        "It reduces image size",
+        "COPY . . is deprecated"
+      ],
+      "answer_index": 1,
+      "explanation": "Docker caches layers top-down and invalidates from the first changed layer. Copying only the manifests first means source-code edits don't bust the expensive dependency-install layer — rebuilds go from minutes to seconds."
+    },
+    {
+      "id": "docker-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is the main purpose of a multi-stage build?",
+      "options": [
+        "Run multiple apps in one container",
+        "Build with heavy toolchains but ship a final image containing only the runtime artifacts",
+        "Build for multiple CPU architectures",
+        "Parallelize builds across machines"
+      ],
+      "answer_index": 1,
+      "explanation": "Earlier stages can use full SDK images (compilers, dev deps); the final stage COPY --from's just the built artifacts onto a slim base. Result: dramatically smaller images and less attack surface. (Multi-arch is buildx, a different feature.)"
+    },
+    {
+      "id": "docker-q06",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "A container exits with code 137. What does that usually indicate?",
+      "options": [
+        "Normal successful exit",
+        "The process received SIGKILL — typically the OOM killer hit a memory limit",
+        "A file was not found",
+        "Port conflict"
+      ],
+      "answer_index": 1,
+      "explanation": "137 = 128 + 9 (SIGKILL). In containers that almost always means the kernel's OOM killer terminated the process for exceeding its memory limit. Check `docker inspect` (OOMKilled: true) and `docker stats`."
+    },
+    {
+      "id": "docker-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "Data written inside a container's filesystem survives `docker rm` of that container.",
+      "answer_bool": false,
+      "explanation": "False. The writable layer is deleted with the container. Persistent data must live in a volume or bind mount — which is exactly why databases in Compose files always declare volumes."
+    },
+    {
+      "id": "docker-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "On a user-defined Docker network, containers can reach each other by container name via built-in DNS.",
+      "answer_bool": true,
+      "explanation": "True. User-defined networks include a DNS server that resolves container (and Compose service) names, e.g. `db:5432`. The legacy default bridge network does NOT provide name resolution — a classic gotcha."
+    },
+    {
+      "id": "docker-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "Your CI builds take 8 minutes; profiling shows npm install runs on every build even for README-only changes. What's the fix?",
+      "options": [
+        "Use a bigger CI machine",
+        "Reorder the Dockerfile so dependency manifests are copied and installed before the full source COPY",
+        "Switch from npm to yarn",
+        "Delete the .dockerignore file"
+      ],
+      "answer_index": 1,
+      "explanation": "The layer cache is being invalidated by `COPY . .` placed before the install. Copy package*.json, install, then copy the rest — README changes then reuse the cached install layer."
+    },
+    {
+      "id": "docker-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "Security review flags that your app container runs as root. What's the standard Dockerfile remediation?",
+      "options": [
+        "Add `USER <non-root>` after setup steps (creating the user if the base image lacks one)",
+        "Run docker with sudo",
+        "Set privileged: false in compose",
+        "Use a bigger base image"
+      ],
+      "answer_index": 0,
+      "explanation": "Create/switch to an unprivileged user with the USER instruction so the app process isn't root even if the container is compromised. (privileged: false is already the default; it doesn't change the in-container user.)"
+    },
+    {
+      "id": "docker-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the command to list ALL containers, including stopped ones.",
+      "accepted_answers": ["docker ps -a", "docker ps --all", "docker container ls -a", "docker container ls --all"],
+      "explanation": "`docker ps` shows only running containers; -a/--all includes exited ones — essential when debugging a container that crashed at startup."
+    },
+    {
+      "id": "docker-q12",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to open an interactive bash shell in the running container named `api`.",
+      "accepted_answers": ["docker exec -it api bash", "docker exec -ti api bash", "docker exec -it api /bin/bash", "docker exec -ti api /bin/bash"],
+      "explanation": "exec runs a new process in a running container; -i keeps stdin open and -t allocates a TTY, which together give you a usable shell."
+    },
+    {
+      "id": "docker-q13",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What is the difference between CMD and ENTRYPOINT?",
+      "options": [
+        "CMD runs at build time; ENTRYPOINT at run time",
+        "ENTRYPOINT is the fixed executable; CMD supplies default arguments that `docker run` arguments replace",
+        "They are interchangeable in all cases",
+        "ENTRYPOINT is deprecated"
+      ],
+      "answer_index": 1,
+      "explanation": "With both set, the container runs ENTRYPOINT + CMD. Arguments after `docker run image ...` override CMD but not ENTRYPOINT (unless --entrypoint). Pattern: ENTRYPOINT [\"myapp\"], CMD [\"--default-flag\"]."
+    },
+    {
+      "id": "docker-q14",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Using the `latest` tag for base images in production Dockerfiles is recommended because you always get security fixes automatically.",
+      "answer_bool": false,
+      "explanation": "False. `latest` makes builds non-reproducible — the same Dockerfile can produce different images on different days and break without any code change. Pin versions (ideally digests) and upgrade deliberately via automated PRs (Renovate/Dependabot)."
+    },
+    {
+      "id": "docker-q15",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "In Docker Compose, what does `depends_on` guarantee by default?",
+      "options": [
+        "The dependency is started first AND ready to accept connections",
+        "Only start order — the dependency's container starts first, but readiness isn't checked",
+        "Automatic restart of dependents",
+        "Shared environment variables"
+      ],
+      "answer_index": 1,
+      "explanation": "Plain depends_on orders startup only; Postgres may still be initializing when your app connects. Use `condition: service_healthy` with a healthcheck, or make the app retry connections."
+    }
+  ]
+}

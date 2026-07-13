@@ -1,0 +1,9 @@
+{
+  "slug": "terraform",
+  "title": "Terraform (Infrastructure as Code)",
+  "description": "Declarative infrastructure: HCL, providers, state, plan/apply, variables, modules, and safe team workflows.",
+  "icon": "🏗️",
+  "difficulty": "intermediate",
+  "sort_order": 5,
+  "est_hours": 8
+}

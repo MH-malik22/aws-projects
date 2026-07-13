@@ -1,0 +1,168 @@
+{
+  "title": "Jenkins Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "jenkins-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "In Jenkins architecture, what is the recommended role split between controller and agents?",
+      "options": [
+        "Controller runs all builds; agents serve the UI",
+        "Controller schedules and serves the UI; agents execute the builds",
+        "They are identical instances behind a load balancer",
+        "Agents store all configuration"
+      ],
+      "answer_index": 1,
+      "explanation": "The controller orchestrates (queue, UI, config) and should run zero executors in production; build work happens on agents so a runaway build can't take down the controller."
+    },
+    {
+      "id": "jenkins-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "Where should a pipeline definition live, following pipeline-as-code practice?",
+      "options": [
+        "Configured in the Jenkins UI job settings",
+        "In a Jenkinsfile committed to the application's repository",
+        "In the controller's /var/jenkins_home",
+        "In a shared Google Doc"
+      ],
+      "answer_index": 1,
+      "explanation": "A Jenkinsfile in the repo is versioned, reviewed in PRs, and travels with the code — UI-configured pipelines are unauditable and lost when the controller dies."
+    },
+    {
+      "id": "jenkins-q03",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What does `agent { docker { image 'node:20' } }` give you?",
+      "options": [
+        "Deploys the app to Docker Hub",
+        "Runs the stage's steps inside a fresh node:20 container — a clean, reproducible build environment",
+        "Installs Docker on the agent",
+        "Builds a Docker image of the workspace"
+      ],
+      "answer_index": 1,
+      "explanation": "The Docker agent directive executes steps in an ephemeral container of that image, so builds don't depend on what happens to be installed on the agent and can't pollute each other."
+    },
+    {
+      "id": "jenkins-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Which block runs steps regardless of whether the build succeeded or failed?",
+      "options": ["finally { }", "post { always { } }", "stage('cleanup')", "when { always() }"],
+      "answer_index": 1,
+      "explanation": "Declarative pipelines use post conditions: always, success, failure, unstable, changed. `post { always { junit … } }` is the standard place for test-report publishing and cleanup."
+    },
+    {
+      "id": "jenkins-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is a Multibranch Pipeline?",
+      "options": [
+        "A pipeline that deploys to multiple environments",
+        "A job that auto-discovers branches/PRs containing a Jenkinsfile and creates a sub-job for each",
+        "A pipeline split across multiple controllers",
+        "A pipeline with parallel stages"
+      ],
+      "answer_index": 1,
+      "explanation": "Multibranch scans the repo, indexes every branch and pull request with a Jenkinsfile, and builds each automatically — the standard setup for PR-based CI on Jenkins."
+    },
+    {
+      "id": "jenkins-q06",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "In the cron spec `H 2 * * *`, what does H mean?",
+      "options": [
+        "Hourly",
+        "A hash-based value spreading jobs evenly over the range, so all nightly jobs don't fire at exactly 02:00",
+        "High priority",
+        "Half-hour offset"
+      ],
+      "answer_index": 1,
+      "explanation": "H is hashed from the job name into the field's valid range — this job runs at a stable but pseudo-random minute during the 2 AM hour, preventing thundering-herd load spikes on shared infrastructure."
+    },
+    {
+      "id": "jenkins-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "Secrets injected via withCredentials are automatically masked in the console log.",
+      "answer_bool": true,
+      "explanation": "True. Jenkins replaces bound credential values with **** in build output. But masking is best-effort — encoding or transforming a secret before printing can still leak it, so never echo secrets at all."
+    },
+    {
+      "id": "jenkins-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Polling the SCM every minute is preferable to webhooks because it puts less load on Jenkins.",
+      "answer_bool": false,
+      "explanation": "False — it's backwards. Polling makes Jenkins hammer the SCM regardless of activity and still reacts late; webhooks push events instantly with near-zero idle cost. Poll only as a fallback where webhooks can't reach Jenkins."
+    },
+    {
+      "id": "jenkins-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "Deploys must run only for the main branch, but the same Jenkinsfile serves all branches. What's the declarative way?",
+      "options": [
+        "Maintain a separate Jenkinsfile per branch",
+        "Wrap the Deploy stage in `when { branch 'main' }`",
+        "Use an if-statement in the agent block",
+        "Configure it in the job UI"
+      ],
+      "answer_index": 1,
+      "explanation": "The `when` directive conditionally executes a stage; `branch 'main'` matches only builds of main (in multibranch pipelines). Feature branches show Deploy as skipped."
+    },
+    {
+      "id": "jenkins-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "Five teams copy-paste the same 300-line Jenkinsfile and drift apart. What's the standard remedy?",
+      "options": [
+        "A wiki page with the canonical version",
+        "A Shared Library exposing steps like buildAndDeploy(), loaded with @Library",
+        "One giant job that builds all five services",
+        "Lock the Jenkinsfiles with branch protection"
+      ],
+      "answer_index": 1,
+      "explanation": "Shared Libraries centralize pipeline logic in a versioned Git repo; each service's Jenkinsfile shrinks to a few lines calling shared steps. Fixes and policies then roll out from one place."
+    },
+    {
+      "id": "jenkins-q11",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Using the Jenkins CLI jar, write the command to trigger the job named `api-build`.",
+      "accepted_answers": ["java -jar jenkins-cli.jar build api-build"],
+      "explanation": "The CLI's build command queues a job: `java -jar jenkins-cli.jar build <job>`; add -s to block until completion or -f to also stream output."
+    },
+    {
+      "id": "jenkins-q12",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the docker command to print the initial admin password from a Jenkins container named `jenkins` (path: /var/jenkins_home/secrets/initialAdminPassword).",
+      "accepted_answers": ["docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword"],
+      "explanation": "docker exec runs a command inside the running container; the setup wizard's unlock password is stored at that path on first boot."
+    },
+    {
+      "id": "jenkins-q13",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What does the Jenkins Configuration-as-Code (JCasC) plugin solve?",
+      "options": [
+        "Writing pipelines in YAML instead of Groovy",
+        "Defining the controller's own configuration (security, agents, credentials sources) in versioned YAML so it can be rebuilt reproducibly",
+        "Automatic plugin updates",
+        "Caching build artifacts"
+      ],
+      "answer_index": 1,
+      "explanation": "Jenkinsfiles cover jobs, but the controller itself (auth, clouds, global settings) is traditionally hand-clicked. JCasC declares it in YAML — turning the controller from an irreplaceable pet into rebuildable cattle."
+    },
+    {
+      "id": "jenkins-q14",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Tests fail and you want the pipeline to mark the build UNSTABLE (yellow) rather than FAILED while still publishing reports. Which step does report publishing with that behavior?",
+      "options": ["sh 'cat results.xml'", "junit 'reports/**/*.xml'", "archiveArtifacts", "stash"],
+      "answer_index": 1,
+      "explanation": "The junit step parses JUnit XML, publishes trend graphs, and sets the build to UNSTABLE when there are test failures — distinct from a hard pipeline failure like a compile error."
+    }
+  ]
+}

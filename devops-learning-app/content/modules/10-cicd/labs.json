@@ -1,0 +1,59 @@
+[
+  {
+    "slug": "github-actions-pipeline",
+    "title": "Lab: Wire Up a CI Pipeline (GitHub Actions)",
+    "intro_md": "Apply CI/CD concepts in the most accessible tool: create a workflow, watch it fail fast, and inspect runs from the CLI (gh).",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Workflows live in a conventional directory. Create `.github/workflows` (with parents).",
+        "expected_commands": ["mkdir -p .github/workflows"],
+        "mock_output": "",
+        "hint": "mkdir with the flag that creates parent directories."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "You wrote `.github/workflows/ci.yml` with lint → test → build jobs. Stage it.",
+        "expected_commands": ["git add .github/workflows/ci.yml", "git add .github", "git add ."],
+        "mock_output": "",
+        "hint": "Standard git staging."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Commit it with the message `ci: add pipeline` (double quotes).",
+        "expected_commands": ["git commit -m \"ci: add pipeline\""],
+        "mock_output": "[main 4a5b6c7] ci: add pipeline\n 1 file changed, 48 insertions(+)",
+        "hint": "git commit -m \"…\""
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Push to origin main to trigger the workflow.",
+        "expected_commands": ["git push origin main", "git push -u origin main", "git push"],
+        "mock_output": "To github.com:acme/app.git\n   a1b2c3d..4a5b6c7  main -> main",
+        "hint": "Push the branch the workflow triggers on."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "List recent workflow runs with the GitHub CLI.",
+        "expected_commands": ["gh run list"],
+        "mock_output": "STATUS  TITLE             WORKFLOW  BRANCH  EVENT  ID\nX       ci: add pipeline  CI        main    push   9182736450",
+        "hint": "gh run <verb>"
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "The run failed (fail-fast at lint). Inspect run 9182736450 showing the failing job's log.",
+        "expected_commands": ["gh run view 9182736450 --log-failed", "gh run view --log-failed 9182736450"],
+        "mock_output": "lint | src/app.js:12:1 error 'db' is not defined  no-undef\nlint | Process completed with exit code 1.",
+        "hint": "gh run view <id> with the flag that prints only failed steps' logs."
+      },
+      {
+        "step_no": 7,
+        "instruction_md": "You fixed and pushed; re-run the failed run 9182736450 (only failed jobs).",
+        "expected_commands": ["gh run rerun 9182736450 --failed", "gh run rerun --failed 9182736450", "gh run rerun 9182736450"],
+        "mock_output": "✓ Requested rerun of run 9182736450",
+        "hint": "gh run rerun — optionally scoped to failed jobs."
+      }
+    ]
+  }
+]

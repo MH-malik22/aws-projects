@@ -1,0 +1,59 @@
+[
+  {
+    "slug": "cli-fundamentals",
+    "title": "Lab: AWS CLI Fundamentals",
+    "intro_md": "Work the AWS CLI the way engineers actually do: verify identity, inspect compute, and manage S3 objects safely.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "First rule of AWS debugging: know who you are. Print the identity of your current credentials with STS.",
+        "expected_commands": ["aws sts get-caller-identity"],
+        "mock_output": "{\n  \"UserId\": \"AIDAEXAMPLE\",\n  \"Account\": \"123456789012\",\n  \"Arn\": \"arn:aws:iam::123456789012:user/devops-lab\"\n}",
+        "hint": "The STS service has a get-caller-identity call."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "List your EC2 instances (default output is fine).",
+        "expected_commands": ["aws ec2 describe-instances"],
+        "mock_output": "{ \"Reservations\": [ { \"Instances\": [ { \"InstanceId\": \"i-0abc123def456\", \"State\": { \"Name\": \"running\" }, \"InstanceType\": \"t3.micro\" } ] } ] }",
+        "hint": "EC2 read operations are describe-*."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Create an S3 bucket named `devops-academy-lab-bucket` using the high-level s3 commands.",
+        "expected_commands": ["aws s3 mb s3://devops-academy-lab-bucket"],
+        "mock_output": "make_bucket: devops-academy-lab-bucket",
+        "hint": "s3 mb = make bucket; bucket URIs start with s3://"
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Upload the local file `report.pdf` to that bucket.",
+        "expected_commands": ["aws s3 cp report.pdf s3://devops-academy-lab-bucket", "aws s3 cp report.pdf s3://devops-academy-lab-bucket/", "aws s3 cp report.pdf s3://devops-academy-lab-bucket/report.pdf"],
+        "mock_output": "upload: ./report.pdf to s3://devops-academy-lab-bucket/report.pdf",
+        "hint": "cp works like Linux cp: source then destination."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "List the bucket's contents.",
+        "expected_commands": ["aws s3 ls s3://devops-academy-lab-bucket", "aws s3 ls s3://devops-academy-lab-bucket/"],
+        "mock_output": "2026-07-13 10:22:41     482133 report.pdf",
+        "hint": "s3 ls with the bucket URI."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "Turn versioning ON for the bucket (s3api command).",
+        "expected_commands": ["aws s3api put-bucket-versioning --bucket devops-academy-lab-bucket --versioning-configuration Status=Enabled"],
+        "mock_output": "",
+        "hint": "s3api put-bucket-versioning with --versioning-configuration Status=Enabled"
+      },
+      {
+        "step_no": 7,
+        "instruction_md": "Lab teardown: remove the bucket AND everything in it in one command.",
+        "expected_commands": ["aws s3 rb s3://devops-academy-lab-bucket --force"],
+        "mock_output": "delete: s3://devops-academy-lab-bucket/report.pdf\nremove_bucket: devops-academy-lab-bucket",
+        "hint": "rb = remove bucket; a flag empties it first."
+      }
+    ]
+  }
+]

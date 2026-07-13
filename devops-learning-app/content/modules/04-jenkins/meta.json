@@ -1,0 +1,9 @@
+{
+  "slug": "jenkins",
+  "title": "Jenkins",
+  "description": "Pipelines as code with Jenkinsfiles: stages, agents, credentials, triggers, shared libraries, and production CI patterns.",
+  "icon": "🤵",
+  "difficulty": "intermediate",
+  "sort_order": 4,
+  "est_hours": 6
+}

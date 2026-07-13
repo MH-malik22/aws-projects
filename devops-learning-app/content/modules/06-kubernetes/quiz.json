@@ -1,0 +1,195 @@
+{
+  "title": "Kubernetes Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "k8s-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What is a Pod?",
+      "options": [
+        "A single container",
+        "The smallest deployable unit: one or more containers sharing network and storage",
+        "A virtual machine managed by Kubernetes",
+        "A group of nodes"
+      ],
+      "answer_index": 1,
+      "explanation": "A pod wraps one (usually) or more tightly-coupled containers that share an IP, ports, and volumes — e.g., an app plus a sidecar. You almost never create bare pods; controllers like Deployments create them for you."
+    },
+    {
+      "id": "k8s-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "Why use a Deployment instead of creating pods directly?",
+      "options": [
+        "Deployments are faster to schedule",
+        "Deployments give self-healing (ReplicaSet), rolling updates, rollback, and declarative scaling — bare pods are mortal and unmanaged",
+        "Pods can't have labels",
+        "Deployments bypass the scheduler"
+      ],
+      "answer_index": 1,
+      "explanation": "Delete a bare pod and it's gone. A Deployment maintains N replicas via a ReplicaSet, replaces failed pods, orchestrates zero-downtime image rollouts, and remembers history for `rollout undo`."
+    },
+    {
+      "id": "k8s-q03",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "How does a Service know which pods to route to?",
+      "options": [
+        "By pod name prefix",
+        "By label selector matching pod labels",
+        "By container image name",
+        "By node assignment"
+      ],
+      "answer_index": 1,
+      "explanation": "The Service's selector (e.g., app: api) matches pod labels; matching ready pods become endpoints. Empty endpoints (`kubectl get endpoints`) is the classic symptom of a selector/label mismatch."
+    },
+    {
+      "id": "k8s-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Readiness vs liveness probes — which statement is correct?",
+      "options": [
+        "Readiness restarts the container; liveness removes it from load balancing",
+        "Readiness gates whether the pod receives traffic; liveness failure causes a container restart",
+        "Both restart the container",
+        "Liveness only runs at startup"
+      ],
+      "answer_index": 1,
+      "explanation": "Failing readiness = pod pulled from Service endpoints (no restart) — right for temporary unreadiness like warmup or lost DB connection. Failing liveness = kubelet restarts the container — right for deadlocks."
+    },
+    {
+      "id": "k8s-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What's the difference between resource requests and limits?",
+      "options": [
+        "Requests are for CPU, limits for memory",
+        "Requests are what the scheduler reserves when placing the pod; limits are hard runtime ceilings (CPU throttled, memory OOM-killed)",
+        "Limits are suggestions",
+        "Requests apply only to Deployments"
+      ],
+      "answer_index": 1,
+      "explanation": "The scheduler bin-packs on requests; a node must have that much free allocatable. At runtime, exceeding a CPU limit throttles, exceeding a memory limit gets the container OOMKilled (exit 137)."
+    },
+    {
+      "id": "k8s-q06",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "A pod is stuck in `Pending`. What is the most common cause?",
+      "options": [
+        "The image tag doesn't exist",
+        "No node has enough unreserved capacity to satisfy the pod's resource requests (or scheduling constraints can't be met)",
+        "The liveness probe is failing",
+        "kube-proxy is down"
+      ],
+      "answer_index": 1,
+      "explanation": "Pending = not scheduled yet. `kubectl describe pod` events typically show 'Insufficient cpu/memory' or unsatisfiable affinity/taints. A missing image would show ImagePullBackOff after scheduling; probes only run once containers start."
+    },
+    {
+      "id": "k8s-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "A ClusterIP Service is reachable from outside the cluster by default.",
+      "answer_bool": false,
+      "explanation": "False. ClusterIP is internal-only. External access needs NodePort, a LoadBalancer Service, or (typically) an Ingress routing HTTP to ClusterIP services behind it."
+    },
+    {
+      "id": "k8s-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Kubernetes Secrets are encrypted by default just because they are base64-encoded.",
+      "answer_bool": false,
+      "explanation": "False. base64 is encoding, not encryption — anyone with etcd or API access can decode them. Production clusters enable etcd encryption-at-rest and RBAC, or better, sync from an external secret manager (Vault, cloud secret stores)."
+    },
+    {
+      "id": "k8s-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "A pod shows CrashLoopBackOff. Which command reveals why the process died?",
+      "options": [
+        "kubectl logs <pod> --previous",
+        "kubectl get svc",
+        "kubectl top node",
+        "kubectl delete pod <pod>"
+      ],
+      "answer_index": 0,
+      "explanation": "--previous reads the crashed container instance's output — the app's last words (stack trace, config error). Plain `logs` may show only the fresh attempt; deleting the pod destroys evidence and fixes nothing since the controller recreates it."
+    },
+    {
+      "id": "k8s-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "During rolling updates users get 502s for ~20 seconds. Probes are absent. Why, and what fixes it?",
+      "options": [
+        "The cluster DNS is broken; restart CoreDNS",
+        "New pods receive traffic before the app is listening; add a readiness probe (and tune maxUnavailable)",
+        "The Service type must be LoadBalancer",
+        "Increase replicas"
+      ],
+      "answer_index": 1,
+      "explanation": "Without readiness, a pod counts as ready the moment its containers start — traffic arrives before the app boots. A readiness probe holds the pod out of endpoints until it truly serves; maxUnavailable: 0 keeps capacity during the roll."
+    },
+    {
+      "id": "k8s-q11",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "You deployed image tag v2.0.1 which doesn't exist; the rollout is stuck, but users are unaffected. Why unaffected, and what's the fast recovery?",
+      "options": [
+        "Kubernetes silently pulled v2.0.0; do nothing",
+        "The old ReplicaSet's pods keep serving during a stalled rollout; run kubectl rollout undo deploy/<name>",
+        "kube-proxy caches responses; flush it",
+        "Users are affected; restart all nodes"
+      ],
+      "answer_index": 1,
+      "explanation": "Rolling updates keep old pods until replacements go Ready — new pods stuck in ImagePullBackOff never join, so the old version serves on. `rollout undo` reverts to the previous ReplicaSet immediately."
+    },
+    {
+      "id": "k8s-q12",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the command to list all pods in the namespace `prod`.",
+      "accepted_answers": ["kubectl get pods -n prod", "kubectl -n prod get pods", "kubectl get pods --namespace prod", "kubectl get po -n prod", "kubectl -n prod get po", "kubectl get pods --namespace=prod"],
+      "explanation": "kubectl get pods with -n/--namespace scopes the query; `po` is the built-in short name for pods."
+    },
+    {
+      "id": "k8s-q13",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to scale deployment `api` to 5 replicas (default namespace).",
+      "accepted_answers": ["kubectl scale deployment api --replicas=5", "kubectl scale deploy api --replicas=5", "kubectl scale deployment/api --replicas=5", "kubectl scale deploy/api --replicas=5", "kubectl scale --replicas=5 deployment/api", "kubectl scale --replicas=5 deploy/api"],
+      "explanation": "kubectl scale sets the replica count imperatively. In GitOps setups you'd change the manifest instead, but scale is the right tool for immediate manual intervention."
+    },
+    {
+      "id": "k8s-q14",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What does the Horizontal Pod Autoscaler (HPA) do?",
+      "options": [
+        "Adds nodes to the cluster under load",
+        "Adjusts a workload's replica count based on observed metrics like CPU utilization",
+        "Increases container memory limits automatically",
+        "Balances pods evenly across zones"
+      ],
+      "answer_index": 1,
+      "explanation": "HPA scales replicas horizontally against a target metric (e.g., 70% CPU of requests). Adding nodes is the Cluster Autoscaler; resizing a pod's resources is the Vertical Pod Autoscaler."
+    },
+    {
+      "id": "k8s-q15",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "Which control-plane component is the ONLY one that reads/writes etcd directly?",
+      "options": ["kubelet", "kube-scheduler", "kube-apiserver", "kube-proxy"],
+      "answer_index": 2,
+      "explanation": "All state flows through the API server; scheduler, controllers, and kubelets watch and update objects via its API. That single choke point is where authn/authz, admission, and validation happen."
+    },
+    {
+      "id": "k8s-q16",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Editing a ConfigMap automatically restarts the pods that consume it as environment variables.",
+      "answer_bool": false,
+      "explanation": "False. Env vars are read at container start; pods keep the old values until restarted (e.g., kubectl rollout restart). Volume-mounted ConfigMaps do refresh eventually, but apps must re-read files. Checksum annotations in Helm are the common auto-restart trick."
+    }
+  ]
+}

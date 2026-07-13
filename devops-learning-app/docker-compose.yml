@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: devops
+      POSTGRES_PASSWORD: devops
+      POSTGRES_DB: devops_academy
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devops -d devops_academy"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://devops:devops@db:5432/devops_academy
+      JWT_SECRET: dev-only-secret-change-me
+      CORS_ORIGINS: http://localhost:3000
+      CONTENT_DIR: /content
+    volumes:
+      - ./content:/content:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  seed:
+    build: ./backend
+    command: python -m app.seed
+    environment:
+      DATABASE_URL: postgresql+asyncpg://devops:devops@db:5432/devops_academy
+      CONTENT_DIR: /content
+    volumes:
+      - ./content:/content:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:

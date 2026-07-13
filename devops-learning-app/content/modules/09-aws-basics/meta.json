@@ -1,0 +1,9 @@
+{
+  "slug": "aws-basics",
+  "title": "AWS Basics (IAM, EC2, S3, VPC)",
+  "description": "The four AWS primitives every DevOps engineer must own: identity, compute, object storage, and networking.",
+  "icon": "☁️",
+  "difficulty": "intermediate",
+  "sort_order": 9,
+  "est_hours": 10
+}

@@ -1,0 +1,186 @@
+{
+  "title": "Terraform Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "tf-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What is the correct order of the core Terraform workflow?",
+      "options": [
+        "plan → init → apply",
+        "init → plan → apply",
+        "apply → plan → init",
+        "init → apply → plan"
+      ],
+      "answer_index": 1,
+      "explanation": "init prepares the directory (providers, backend), plan computes the change set, apply executes it. validate/fmt slot in between init and plan."
+    },
+    {
+      "id": "tf-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What does `terraform plan` actually show?",
+      "options": [
+        "A list of all resources in the cloud account",
+        "The diff between desired config, recorded state, and refreshed reality — what would be created/changed/destroyed",
+        "The cost estimate of the infrastructure",
+        "The provider changelog"
+      ],
+      "answer_index": 1,
+      "explanation": "Plan reconciles three views: your HCL (desired), the state file (last known), and the refreshed real-world values — producing the add/change/destroy set that apply would execute."
+    },
+    {
+      "id": "tf-q03",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Why is the state file critical?",
+      "options": [
+        "It caches provider binaries",
+        "It maps resource addresses in code to real resource IDs — without it Terraform doesn't know what it manages",
+        "It stores the Terraform CLI version",
+        "It is only used for outputs"
+      ],
+      "answer_index": 1,
+      "explanation": "State is the binding between `aws_instance.web` and instance i-0abc123. Lose it and Terraform will plan to create everything again (duplicating live infra); corrupt it and applies become dangerous. Hence: remote, encrypted, locked, backed up."
+    },
+    {
+      "id": "tf-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Two engineers run `terraform apply` on the same state at the same time. What prevents corruption?",
+      "options": [
+        "Terraform queues them automatically over the network",
+        "State locking via the backend (e.g., DynamoDB with S3, or Terraform Cloud)",
+        "Git merge conflicts",
+        "Nothing — it always corrupts"
+      ],
+      "answer_index": 1,
+      "explanation": "Locking backends acquire a lock before mutating state; the second apply fails fast with 'state locked' instead of interleaving writes. A plain local or lock-less remote state has no such protection."
+    },
+    {
+      "id": "tf-q05",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "What's the difference between a `resource` and a `data` block?",
+      "options": [
+        "data blocks are deprecated resources",
+        "resource creates/manages infrastructure; data only reads existing infrastructure",
+        "resource is for AWS, data for Azure",
+        "data blocks can't have filters"
+      ],
+      "answer_index": 1,
+      "explanation": "Data sources query things Terraform doesn't manage (the latest AMI, an existing VPC) so you can reference them; resources are owned by this configuration and appear in plans as create/update/destroy."
+    },
+    {
+      "id": "tf-q06",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "Plan shows `-/+ aws_db_instance.main (forces replacement)` on production. Best first move?",
+      "options": [
+        "Apply — Terraform knows best",
+        "Stop; identify the attribute forcing replacement, consider state mv (if renamed), lifecycle rules, or a non-destructive path",
+        "Delete the state file and re-import",
+        "Run destroy first to be clean"
+      ],
+      "answer_index": 1,
+      "explanation": "-/+ means destroy-then-create — for a database that's data loss. Plans must be read, not just approved. Renames need `terraform state mv` (or moved blocks); some attributes support in-place alternatives; `prevent_destroy` guards against exactly this."
+    },
+    {
+      "id": "tf-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "The terraform.tfstate file may contain secrets in plaintext and should never be committed to Git.",
+      "answer_bool": true,
+      "explanation": "True. State stores all resource attributes — DB passwords, keys — as returned by providers. Use an encrypted remote backend with restricted access, and add *.tfstate to .gitignore."
+    },
+    {
+      "id": "tf-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "`terraform apply` on unchanged code and unchanged infrastructure will still recreate all resources.",
+      "answer_bool": false,
+      "explanation": "False. Terraform is declarative and idempotent: if desired state matches actual state, the plan is 'No changes' and apply does nothing. Recreation happens only when a diff forces it."
+    },
+    {
+      "id": "tf-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "During an incident someone hand-edited a security group in the AWS console. How does that surface in Terraform, and what's the disciplined fix?",
+      "options": [
+        "It never surfaces; console changes are invisible",
+        "Next plan shows drift; either apply to revert to code, or codify the change in HCL and apply",
+        "Terraform blocks all future applies",
+        "Run terraform init -upgrade"
+      ],
+      "answer_index": 1,
+      "explanation": "Plan refreshes reality and diffs it against code — the manual edit appears as a pending change. The team decides: revert (apply as-is) or adopt (update HCL first). Either way, code stays the source of truth."
+    },
+    {
+      "id": "tf-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "You must bring an existing, hand-created S3 bucket under Terraform management without recreating it. What's the mechanism?",
+      "options": [
+        "Just write the resource block; Terraform auto-detects it",
+        "Write the matching resource block, then terraform import (or an import block) to bind it into state",
+        "Delete the bucket and let Terraform recreate it",
+        "Copy the bucket definition from the AWS console export"
+      ],
+      "answer_index": 1,
+      "explanation": "Import writes the real resource's ID into state under your resource address; from then on plans manage it. Without import, Terraform would try to CREATE a duplicate (and fail on the unique name)."
+    },
+    {
+      "id": "tf-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the command to create an execution plan and save it to a file named tfplan.",
+      "accepted_answers": ["terraform plan -out tfplan", "terraform plan -out=tfplan"],
+      "explanation": "-out saves the exact computed plan; `terraform apply tfplan` then executes precisely what was reviewed — the pattern CI/CD pipelines use so nothing changes between review and apply."
+    },
+    {
+      "id": "tf-q12",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to list every resource tracked in the current state.",
+      "accepted_answers": ["terraform state list"],
+      "explanation": "`terraform state list` prints all resource addresses in state; pair with `terraform state show <addr>` to inspect one resource's recorded attributes."
+    },
+    {
+      "id": "tf-q13",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is a Terraform module?",
+      "options": [
+        "A provider plugin binary",
+        "A reusable, versionable package of Terraform configuration called with input variables",
+        "A single .tf file",
+        "A workspace"
+      ],
+      "answer_index": 1,
+      "explanation": "A module is a directory of configuration with inputs and outputs, consumable via source+version. Organizations publish standard modules (VPC, service, database) so every team builds on the same paved road."
+    },
+    {
+      "id": "tf-q14",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What does `lifecycle { prevent_destroy = true }` do?",
+      "options": [
+        "Hides the resource from plans",
+        "Makes any plan that would destroy the resource fail with an error",
+        "Prevents manual console deletion",
+        "Skips the resource during refresh"
+      ],
+      "answer_index": 1,
+      "explanation": "It's a guard rail inside Terraform: a plan/apply that includes destroying that resource errors out. It can't stop console deletion — it stops the far more likely accident of a careless terraform apply/destroy."
+    },
+    {
+      "id": "tf-q15",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Pinning provider versions (e.g., `version = \"~> 5.0\"`) is recommended so runs are reproducible.",
+      "answer_bool": true,
+      "explanation": "True. Unpinned providers can introduce breaking behavior between runs. Version constraints plus the .terraform.lock.hcl file make every machine and CI runner resolve identical provider builds."
+    }
+  ]
+}

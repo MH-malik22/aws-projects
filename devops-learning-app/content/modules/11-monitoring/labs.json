@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "prometheus-stack",
+    "title": "Lab: Stand Up Prometheus + Grafana",
+    "intro_md": "Bring up a monitoring stack with Docker Compose, verify scraping, query with PromQL, and check alert state — the loop you'll run whenever you adopt a new service.",
+    "mode": "simulated",
+    "steps": [
+      {
+        "step_no": 1,
+        "instruction_md": "Start the monitoring stack defined in the current directory's compose file, detached.",
+        "expected_commands": ["docker compose up -d", "docker-compose up -d"],
+        "mock_output": "[+] Running 3/3\n ✔ Container prometheus     Started\n ✔ Container node-exporter  Started\n ✔ Container grafana        Started",
+        "hint": "Compose up, detached."
+      },
+      {
+        "step_no": 2,
+        "instruction_md": "Verify Prometheus itself is up by querying its health endpoint with curl (http://localhost:9090/-/healthy).",
+        "expected_commands": ["curl http://localhost:9090/-/healthy", "curl localhost:9090/-/healthy", "curl -s http://localhost:9090/-/healthy", "curl -s localhost:9090/-/healthy"],
+        "mock_output": "Prometheus Server is Healthy.",
+        "hint": "Plain curl against the /-/healthy path."
+      },
+      {
+        "step_no": 3,
+        "instruction_md": "Check node_exporter is exposing metrics: fetch its endpoint and show only lines starting with `node_load` (pipe to grep).",
+        "expected_commands": ["curl -s http://localhost:9100/metrics | grep node_load", "curl -s localhost:9100/metrics | grep node_load", "curl http://localhost:9100/metrics | grep node_load", "curl localhost:9100/metrics | grep node_load"],
+        "mock_output": "node_load1 0.42\nnode_load15 0.31\nnode_load5 0.38",
+        "hint": "Exporters serve plaintext at /metrics on their own port (node_exporter: 9100)."
+      },
+      {
+        "step_no": 4,
+        "instruction_md": "Query the Prometheus HTTP API for the `up` metric (endpoint /api/v1/query, parameter query=up).",
+        "expected_commands": ["curl -s 'http://localhost:9090/api/v1/query?query=up'", "curl 'http://localhost:9090/api/v1/query?query=up'", "curl -s \"http://localhost:9090/api/v1/query?query=up\"", "curl \"http://localhost:9090/api/v1/query?query=up\"", "curl -s http://localhost:9090/api/v1/query?query=up", "curl http://localhost:9090/api/v1/query?query=up"],
+        "mock_output": "{\"status\":\"success\",\"data\":{\"result\":[{\"metric\":{\"job\":\"prometheus\"},\"value\":[1752400000,\"1\"]},{\"metric\":{\"job\":\"node\"},\"value\":[1752400000,\"1\"]}]}}",
+        "hint": "GET /api/v1/query?query=up — quote the URL so the shell keeps the ? intact."
+      },
+      {
+        "step_no": 5,
+        "instruction_md": "Simulate an outage: stop the node-exporter container.",
+        "expected_commands": ["docker stop node-exporter", "docker compose stop node-exporter", "docker-compose stop node-exporter"],
+        "mock_output": "node-exporter",
+        "hint": "Stop it like any container."
+      },
+      {
+        "step_no": 6,
+        "instruction_md": "Ask Prometheus which targets are down: query `up == 0` via the API (URL-encode the spaces as %20 or quote the URL).",
+        "expected_commands": ["curl -s 'http://localhost:9090/api/v1/query?query=up == 0'", "curl -s 'http://localhost:9090/api/v1/query?query=up%20==%200'", "curl 'http://localhost:9090/api/v1/query?query=up == 0'", "curl 'http://localhost:9090/api/v1/query?query=up%20==%200'", "curl -s \"http://localhost:9090/api/v1/query?query=up == 0\"", "curl \"http://localhost:9090/api/v1/query?query=up == 0\""],
+        "mock_output": "{\"status\":\"success\",\"data\":{\"result\":[{\"metric\":{\"job\":\"node\",\"instance\":\"node-exporter:9100\"},\"value\":[1752400060,\"0\"]}]}}",
+        "hint": "The same query endpoint accepts any PromQL expression — `up == 0` finds dead targets."
+      }
+    ]
+  }
+]

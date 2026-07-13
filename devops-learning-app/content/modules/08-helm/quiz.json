@@ -1,0 +1,173 @@
+{
+  "title": "Helm Quiz",
+  "pass_threshold": 70,
+  "questions": [
+    {
+      "id": "helm-q01",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "Chart, values, release — which mapping is correct?",
+      "options": [
+        "Chart=running instance, values=package, release=config",
+        "Chart=package of templates, values=configuration injected into them, release=a named installed instance",
+        "Chart=repository, values=namespace, release=pod",
+        "They are synonyms"
+      ],
+      "answer_index": 1,
+      "explanation": "The chart is the reusable package; values parameterize it; a release is one installation of that chart with those values, tracked with revisions in the cluster."
+    },
+    {
+      "id": "helm-q02",
+      "type": "mcq",
+      "difficulty": "beginner",
+      "question": "In Chart.yaml, what's the difference between `version` and `appVersion`?",
+      "options": [
+        "None, they must match",
+        "version is the chart package's semver; appVersion records the application version it deploys by default",
+        "appVersion is the Kubernetes API version",
+        "version is deprecated"
+      ],
+      "answer_index": 1,
+      "explanation": "The chart itself evolves independently of the app it packages: fixing a template bug bumps version, shipping app 2.3.0 bumps appVersion (often used as the default image tag)."
+    },
+    {
+      "id": "helm-q03",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "What is the values precedence, lowest to highest?",
+      "options": [
+        "--set < -f file < chart values.yaml",
+        "chart values.yaml < -f file(s) < --set",
+        "-f file < chart values.yaml < --set",
+        "All are merged with equal priority"
+      ],
+      "answer_index": 1,
+      "explanation": "Chart defaults are the base; each -f file overlays them in order; --set flags override everything. That's why env files hold the real config and --set is reserved for one-off overrides like image tags in CI."
+    },
+    {
+      "id": "helm-q04",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Which command renders a chart's manifests locally WITHOUT touching a cluster?",
+      "options": ["helm install --dry-run=none", "helm template", "helm render", "kubectl apply --dry-run"],
+      "answer_index": 1,
+      "explanation": "helm template runs the template engine client-side and prints the YAML — ideal for CI validation, debugging template logic, and feeding GitOps tools. (install --dry-run also renders but contacts the cluster for validation.)"
+    },
+    {
+      "id": "helm-q05",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "Why is `helm upgrade --install` the standard deploy command in CI pipelines?",
+      "options": [
+        "It skips hooks, making deploys faster",
+        "It's idempotent: installs the release if absent, upgrades it if present — one command for first and every subsequent deploy",
+        "It never fails",
+        "It bypasses values files"
+      ],
+      "answer_index": 1,
+      "explanation": "Pipelines shouldn't need if-first-time logic. upgrade --install (often with --atomic --wait) converges to the desired release state whether or not it already exists."
+    },
+    {
+      "id": "helm-q06",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "What does the --atomic flag on helm upgrade do?",
+      "options": [
+        "Runs the upgrade in a single API call",
+        "Automatically rolls back to the previous revision if the upgrade fails (waiting for resources to be ready)",
+        "Locks the release against concurrent upgrades only",
+        "Deletes failed pods"
+      ],
+      "answer_index": 1,
+      "explanation": "--atomic implies --wait: Helm waits for resources to become ready and, on timeout/failure, restores the previous revision — turning a bad deploy into a no-op instead of an outage."
+    },
+    {
+      "id": "helm-q07",
+      "type": "true_false",
+      "difficulty": "beginner",
+      "question": "helm rollback can restore a release to any previous revision recorded in its history.",
+      "answer_bool": true,
+      "explanation": "True. Each install/upgrade stores a revision (in Secrets by default); `helm history <release>` lists them and `helm rollback <release> <rev>` re-applies that revision's manifests."
+    },
+    {
+      "id": "helm-q08",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "question": "Uninstalling a Helm release always deletes the PersistentVolumeClaims created while it ran.",
+      "answer_bool": false,
+      "explanation": "False. Many charts (databases especially) create PVCs via StatefulSet volumeClaimTemplates, which survive uninstall to protect data. Reinstalling can then reuse old credentials/data — clean them explicitly when you truly want a fresh start."
+    },
+    {
+      "id": "helm-q09",
+      "type": "scenario",
+      "difficulty": "intermediate",
+      "question": "You change a value that only affects a ConfigMap, but pods keep running with old config. What's the established chart pattern to force a rolling restart on config changes?",
+      "options": [
+        "Set replicas to 0 and back in two upgrades",
+        "Add a checksum/config annotation on the pod template that hashes the rendered ConfigMap",
+        "Use helm rollback",
+        "Mark the ConfigMap immutable"
+      ],
+      "answer_index": 1,
+      "explanation": "Hashing the config into a pod-template annotation means any config change alters the template, so the Deployment performs a rolling update. Without it, env-var consumers never see the new values."
+    },
+    {
+      "id": "helm-q10",
+      "type": "scenario",
+      "difficulty": "advanced",
+      "question": "One chart must serve dev (1 replica, no TLS) and prod (5 replicas, TLS ingress). What's the idiomatic structure?",
+      "options": [
+        "Two divergent copies of the chart",
+        "Single chart with feature flags in templates; per-environment values files (values-dev.yaml, values-prod.yaml)",
+        "Hardcode prod settings; patch dev with kubectl edit",
+        "Separate clusters make this unnecessary"
+      ],
+      "answer_index": 1,
+      "explanation": "The chart encodes ALL capabilities behind values (`{{- if .Values.ingress.enabled }}`); environments differ only by values file. Duplicate charts drift apart within weeks — the values-file diff IS your environment documentation."
+    },
+    {
+      "id": "helm-q11",
+      "type": "command",
+      "difficulty": "beginner",
+      "question": "Write the command to list Helm releases across ALL namespaces.",
+      "accepted_answers": ["helm list -A", "helm list --all-namespaces", "helm ls -A", "helm ls --all-namespaces"],
+      "explanation": "helm list is namespace-scoped by default; -A/--all-namespaces surveys the whole cluster — first command when auditing what's installed where."
+    },
+    {
+      "id": "helm-q12",
+      "type": "command",
+      "difficulty": "intermediate",
+      "question": "Write the command to roll back release `api` to revision 3 in namespace `prod`.",
+      "accepted_answers": ["helm rollback api 3 -n prod", "helm rollback api 3 --namespace prod", "helm -n prod rollback api 3", "helm --namespace prod rollback api 3"],
+      "explanation": "helm rollback <release> <revision> with the namespace flag. Check `helm history api -n prod` first to pick the right revision."
+    },
+    {
+      "id": "helm-q13",
+      "type": "mcq",
+      "difficulty": "intermediate",
+      "question": "In a template, what does `{{ .Values.image.tag | default .Chart.AppVersion }}` do?",
+      "options": [
+        "Throws an error if image.tag is unset",
+        "Uses image.tag from values if set, otherwise falls back to the chart's appVersion",
+        "Always uses appVersion",
+        "Compares the two values"
+      ],
+      "answer_index": 1,
+      "explanation": "Pipelines pass the left value through the function: default returns the fallback only when the input is empty. This is the standard pattern letting CI override the tag while keeping a sane default."
+    },
+    {
+      "id": "helm-q14",
+      "type": "mcq",
+      "difficulty": "advanced",
+      "question": "Where does Helm 3 store release state?",
+      "options": [
+        "In the Tiller pod",
+        "As Secrets (by default) in the release's namespace",
+        "In ~/.helm on the client",
+        "In a dedicated etcd instance"
+      ],
+      "answer_index": 1,
+      "explanation": "Helm 3 removed Tiller; release metadata lives in Kubernetes Secrets (sh.helm.release.v1.<name>.v<rev>) in the release namespace, secured by ordinary RBAC. Client-side config is just repos and cache."
+    }
+  ]
+}
