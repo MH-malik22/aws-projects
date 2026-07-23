@@ -1,0 +1,86 @@
+{
+  "slug": "kubernetes",
+  "title": "Kubernetes",
+  "order": 4,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Kubernetes (K8s) is a container orchestration platform that automates deploying, scaling, and operating containerized applications across a cluster of machines. You describe the desired state declaratively in YAML — how many replicas, which image, what resources — and Kubernetes continuously reconciles the actual state to match, restarting failed containers, rescheduling on healthy nodes, and load-balancing traffic. It turns a fleet of servers into a single logical compute pool.",
+    "whyItMatters": "As applications grow into dozens of microservices, running containers by hand becomes impossible. Kubernetes provides self-healing, horizontal scaling, rolling updates, service discovery, and secret management as first-class primitives. It is the de facto standard for running containers in production and the target platform for most modern CD pipelines.",
+    "useCases": [
+      "Running and scaling microservices with self-healing and rolling updates",
+      "Zero-downtime deployments and instant rollbacks",
+      "Autoscaling workloads based on CPU, memory, or custom metrics",
+      "Service discovery and internal load balancing between components",
+      "Managing configuration and secrets separately from images"
+    ],
+    "architecture": "A cluster has a control plane and worker nodes. Control plane: the API server (front door for all operations), etcd (the key-value store holding cluster state), the scheduler (places Pods on nodes), and controller managers (reconcile desired vs actual state). Each worker node runs a kubelet (agent that starts Pods), a container runtime (containerd), and kube-proxy (networking rules). The smallest deployable unit is a Pod (one or more containers sharing network/storage). Deployments manage ReplicaSets which manage Pods. A Service gives Pods a stable virtual IP and DNS name; an Ingress routes external HTTP traffic to Services. ConfigMaps and Secrets inject configuration."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Pod", "def": "The smallest deployable unit: one or more containers sharing network and storage." },
+      { "term": "Deployment", "def": "A controller that manages a ReplicaSet to run a declared number of identical Pods and handle rolling updates." },
+      { "term": "Service", "def": "A stable network endpoint (virtual IP + DNS) that load-balances to a set of Pods." },
+      { "term": "Ingress", "def": "Rules that route external HTTP/S traffic to Services, often via an ingress controller." },
+      { "term": "ConfigMap / Secret", "def": "Objects that hold non-sensitive config and sensitive data injected into Pods." },
+      { "term": "Namespace", "def": "A virtual cluster partition used to isolate and organize resources." },
+      { "term": "kubectl", "def": "The CLI used to apply manifests and query the cluster." }
+    ],
+    "commands": [
+      { "cmd": "kubectl apply -f app.yaml", "desc": "Create or update resources from a manifest declaratively." },
+      { "cmd": "kubectl get pods -o wide", "desc": "List Pods with node and IP details." },
+      { "cmd": "kubectl describe pod <name>", "desc": "Show events and detailed status for debugging." },
+      { "cmd": "kubectl logs -f <pod>", "desc": "Stream a Pod's logs." },
+      { "cmd": "kubectl exec -it <pod> -- sh", "desc": "Run a shell inside a Pod's container." },
+      { "cmd": "kubectl scale deploy/app --replicas=5", "desc": "Change the number of Pod replicas." },
+      { "cmd": "kubectl rollout status deploy/app", "desc": "Watch a rolling update progress." },
+      { "cmd": "kubectl rollout undo deploy/app", "desc": "Roll back to the previous Deployment revision." },
+      { "cmd": "kubectl get svc,ingress", "desc": "List Services and Ingress routes." },
+      { "cmd": "kubectl top pod", "desc": "Show CPU/memory usage per Pod (needs metrics-server)." },
+      { "cmd": "kubectl create secret generic db --from-literal=pw=xyz", "desc": "Create a Secret from a literal value." },
+      { "cmd": "kubectl get events --sort-by=.lastTimestamp", "desc": "View recent cluster events for troubleshooting." }
+    ],
+    "bestPractices": [
+      "Always set resource requests and limits so the scheduler can place Pods and prevent noisy neighbors.",
+      "Define liveness and readiness probes so K8s restarts hung Pods and routes traffic only when ready.",
+      "Store config in ConfigMaps/Secrets, never hardcoded in images.",
+      "Use rolling updates with maxUnavailable/maxSurge for zero-downtime deploys.",
+      "Namespace and label resources consistently for organization and network policies."
+    ],
+    "pitfalls": [
+      "Missing readiness probes, so traffic hits Pods before the app is ready.",
+      "No resource limits, letting one Pod starve the node (OOMKills, evictions).",
+      "Treating Pods as pets — they are ephemeral and can be rescheduled anytime.",
+      "Putting secrets in plain ConfigMaps or committing them to Git.",
+      "Using 'latest' image tags, making rollbacks and reproducibility unreliable."
+    ],
+    "cheatSheet": [
+      "Debug a crashing Pod: kubectl describe pod <p> then kubectl logs <p> --previous",
+      "Port-forward locally: kubectl port-forward svc/app 8080:80",
+      "Dry run a manifest: kubectl apply -f app.yaml --dry-run=client",
+      "Get YAML of a live object: kubectl get deploy app -o yaml",
+      "Watch rollout: kubectl rollout status deploy/app",
+      "Restart a deployment: kubectl rollout restart deploy/app"
+    ]
+  },
+  "quiz": [
+    { "id": "kubernetes-q1", "type": "mcq", "question": "What is the smallest deployable unit in Kubernetes?", "options": ["Container", "Pod", "Node", "Deployment"], "answer": 1, "explanation": "A Pod wraps one or more containers sharing network and storage." },
+    { "id": "kubernetes-q2", "type": "mcq", "question": "Which component stores the cluster's desired state?", "options": ["kubelet", "etcd", "kube-proxy", "Ingress"], "answer": 1, "explanation": "etcd is the distributed key-value store backing the control plane." },
+    { "id": "kubernetes-q3", "type": "truefalse", "question": "A Deployment can perform rolling updates and roll back to a previous revision.", "options": ["True", "False"], "answer": true, "explanation": "Deployments manage ReplicaSets and support rollout and rollback." },
+    { "id": "kubernetes-q4", "type": "mcq", "question": "What does a readiness probe control?", "options": ["Whether the Pod is restarted", "Whether the Pod receives traffic from Services", "The Pod's CPU limit", "The container image tag"], "answer": 1, "explanation": "Readiness gates traffic; liveness decides restarts." },
+    { "id": "kubernetes-q5", "type": "mcq", "question": "How do Pods get a stable network identity despite being ephemeral?", "options": ["Static IPs per Pod", "A Service provides a stable virtual IP and DNS", "Ingress assigns hostnames", "etcd pins the IP"], "answer": 1, "explanation": "Services front a set of Pods with a stable ClusterIP and DNS name." },
+    { "id": "kubernetes-q6", "type": "scenario", "question": "Your rolling update ships a broken image and Pods crash-loop. Fastest safe recovery?", "options": ["Delete the namespace", "kubectl rollout undo deploy/app", "Scale to zero and back", "Reboot the nodes"], "answer": 1, "explanation": "rollout undo reverts to the last healthy revision immediately." },
+    { "id": "kubernetes-q7", "type": "truefalse", "question": "Setting resource requests helps the scheduler decide where to place a Pod.", "options": ["True", "False"], "answer": true, "explanation": "Requests inform scheduling; limits cap usage at runtime." },
+    { "id": "kubernetes-q8", "type": "mcq", "question": "Where should database credentials be stored?", "options": ["In the container image", "In a ConfigMap as plain text", "In a Secret", "In the Dockerfile"], "answer": 2, "explanation": "Secrets are the intended object for sensitive data (ideally encrypted at rest)." },
+    { "id": "kubernetes-q9", "type": "mcq", "question": "What routes external HTTP traffic to internal Services by hostname/path?", "options": ["kube-proxy", "Ingress", "etcd", "kubelet"], "answer": 1, "explanation": "Ingress defines HTTP routing rules realized by an ingress controller." },
+    { "id": "kubernetes-q10", "type": "scenario", "question": "A Pod is stuck in CrashLoopBackOff. Which pair of commands best diagnoses it?", "options": ["kubectl get nodes; kubectl top pod", "kubectl describe pod; kubectl logs --previous", "kubectl scale; kubectl apply", "kubectl delete; kubectl create"], "answer": 1, "explanation": "describe shows events/exit reasons; logs --previous shows the crashed container's output." },
+    { "id": "kubernetes-q11", "type": "truefalse", "question": "Pods should be treated as long-lived pets that never move.", "options": ["True", "False"], "answer": false, "explanation": "Pods are cattle: ephemeral and reschedulable at any time." },
+    { "id": "kubernetes-q12", "type": "mcq", "question": "Which command increases a Deployment to 5 replicas?", "options": ["kubectl replicas 5", "kubectl scale deploy/app --replicas=5", "kubectl run app=5", "kubectl expand app 5"], "answer": 1, "explanation": "kubectl scale adjusts the replica count." },
+    { "id": "kubernetes-q13", "type": "scenario", "question": "One Pod keeps getting OOMKilled. What is the most likely fix?", "options": ["Remove all resource limits", "Raise the memory limit/request or fix the leak", "Add more replicas", "Switch to a different namespace"], "answer": 1, "explanation": "OOMKilled means the container exceeded its memory limit; raise it or fix the leak." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Deploy your first app", "goal": "Run an app on a local cluster (minikube/kind).", "steps": ["Start a local cluster", "Write a Deployment manifest with 2 replicas", "kubectl apply the manifest", "Expose it with a Service and verify the Pods are Running"], "successCriteria": ["Two Pods are in Running state", "The Service reaches the app"] },
+    { "level": "intermediate", "title": "Add probes and config", "goal": "Make the app production-shaped.", "steps": ["Add liveness and readiness probes to the container", "Move configuration into a ConfigMap and a Secret", "Set resource requests and limits", "Apply and confirm the Pod becomes Ready"], "successCriteria": ["Pod passes readiness before receiving traffic", "Config and secret values are injected as env vars"] },
+    { "level": "advanced", "title": "Rolling update and rollback", "goal": "Practice safe releases.", "steps": ["Change the image tag and apply to trigger a rolling update", "Watch it with kubectl rollout status", "Deploy a deliberately broken image and observe the crash-loop", "Recover with kubectl rollout undo"], "successCriteria": ["A successful rolling update completes with no downtime", "rollout undo restores the healthy version"] },
+    { "level": "simulation", "title": "Operate a scaling service", "goal": "Run a service under changing load.", "steps": ["Expose the Deployment via an Ingress", "Configure a HorizontalPodAutoscaler on CPU", "Generate load and watch replicas scale up", "Reduce load and confirm scale-down"], "successCriteria": ["HPA scales replicas up under load", "Traffic is served through the Ingress the whole time"] }
+  ]
+}

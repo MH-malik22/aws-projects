@@ -1,0 +1,86 @@
+{
+  "slug": "aws-core",
+  "title": "AWS Core Services (EC2, S3, IAM, Lambda)",
+  "order": 7,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Amazon Web Services is the largest cloud provider, offering on-demand compute, storage, networking, and identity. Four services form the backbone most DevOps engineers touch daily: EC2 (virtual servers you rent by the second), S3 (durable, virtually unlimited object storage), IAM (the identity and permission system that controls who can do what), and Lambda (serverless functions that run code without managing servers). Master these four and you can build, secure, and scale most cloud workloads.",
+    "whyItMatters": "The cloud is where modern software runs, and AWS is the market leader. Understanding EC2, S3, IAM, and Lambda lets you deploy applications, store data safely, enforce least-privilege security, and build event-driven systems without maintaining infrastructure. IAM in particular underpins the security of everything else — misconfigured permissions are one of the most common causes of cloud breaches.",
+    "useCases": [
+      "Hosting applications and services on EC2 instances with auto scaling",
+      "Storing backups, static assets, logs, and data lakes in S3",
+      "Granting least-privilege access to users, services, and pipelines via IAM roles",
+      "Running event-driven, pay-per-invocation workloads with Lambda",
+      "Building serverless APIs, image processors, and scheduled jobs"
+    ],
+    "architecture": "EC2 instances launch inside a VPC (virtual network) with subnets, security groups (stateful firewalls), and optionally an Auto Scaling Group behind a load balancer. S3 stores objects in globally named buckets across Availability Zones for 11 nines of durability, with access governed by bucket policies and IAM. IAM is the control plane for identity: principals (users, roles) are granted permissions through policies (JSON documents of allow/deny statements); services assume roles to get temporary credentials. Lambda runs your function code in response to events (S3 uploads, API Gateway requests, schedules); it scales automatically and you pay only for execution time. IAM roles tie it together by granting each service exactly the permissions it needs."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "EC2", "def": "Elastic Compute Cloud — resizable virtual machines billed per second." },
+      { "term": "S3", "def": "Simple Storage Service — durable object storage organized into buckets." },
+      { "term": "IAM", "def": "Identity and Access Management — users, roles, and policies controlling access." },
+      { "term": "Lambda", "def": "Serverless compute that runs functions in response to events, no servers to manage." },
+      { "term": "IAM Role", "def": "An identity with permissions that services or users assume for temporary credentials." },
+      { "term": "Security Group", "def": "A stateful virtual firewall controlling inbound/outbound traffic to instances." },
+      { "term": "Policy", "def": "A JSON document listing allowed/denied actions on resources." }
+    ],
+    "commands": [
+      { "cmd": "aws configure", "desc": "Set up CLI credentials, region, and output format." },
+      { "cmd": "aws ec2 describe-instances", "desc": "List EC2 instances and their state." },
+      { "cmd": "aws ec2 run-instances --image-id ... ", "desc": "Launch a new EC2 instance." },
+      { "cmd": "aws s3 mb s3://my-bucket", "desc": "Create an S3 bucket." },
+      { "cmd": "aws s3 cp file s3://my-bucket/", "desc": "Upload an object to S3." },
+      { "cmd": "aws s3 sync ./dir s3://my-bucket", "desc": "Sync a local directory to a bucket." },
+      { "cmd": "aws iam create-role --role-name ...", "desc": "Create an IAM role with a trust policy." },
+      { "cmd": "aws iam attach-role-policy ...", "desc": "Attach a permissions policy to a role." },
+      { "cmd": "aws lambda create-function ...", "desc": "Deploy a Lambda function." },
+      { "cmd": "aws lambda invoke --function-name f out.json", "desc": "Invoke a function and capture output." },
+      { "cmd": "aws sts get-caller-identity", "desc": "Show which identity the CLI is using." },
+      { "cmd": "aws s3 presign s3://bucket/key", "desc": "Generate a temporary signed URL for an object." }
+    ],
+    "bestPractices": [
+      "Follow least privilege: grant only the specific actions and resources needed.",
+      "Use IAM roles (temporary credentials) instead of long-lived access keys, especially on EC2/Lambda.",
+      "Never make S3 buckets public unless truly required; block public access by default.",
+      "Enable MFA on privileged users and rotate any access keys regularly.",
+      "Encrypt data at rest (S3 SSE, EBS) and in transit (TLS)."
+    ],
+    "pitfalls": [
+      "Attaching AdministratorAccess to everything instead of scoped policies.",
+      "Hardcoding AWS access keys in code or committing them to Git.",
+      "Publicly exposed S3 buckets leaking sensitive data.",
+      "Overly open security groups (0.0.0.0/0 on port 22) inviting attacks.",
+      "Leaving unused EC2 instances or unattached volumes running up costs."
+    ],
+    "cheatSheet": [
+      "Whoami in AWS: aws sts get-caller-identity",
+      "Block S3 public access at the account level by default",
+      "Prefer roles over keys: EC2 instance profile / Lambda execution role",
+      "Least-privilege policy: specific Action + specific Resource ARN",
+      "Tag resources (Environment, Owner) for cost tracking",
+      "Use presigned URLs to share private objects temporarily"
+    ]
+  },
+  "quiz": [
+    { "id": "aws-core-q1", "type": "mcq", "question": "Which AWS service provides durable object storage?", "options": ["EC2", "S3", "IAM", "Lambda"], "answer": 1, "explanation": "S3 stores objects in buckets with very high durability." },
+    { "id": "aws-core-q2", "type": "mcq", "question": "What is the primary purpose of IAM?", "options": ["Run functions", "Store files", "Control who can do what on which resources", "Provide virtual servers"], "answer": 2, "explanation": "IAM manages identities and their permissions across AWS." },
+    { "id": "aws-core-q3", "type": "truefalse", "question": "IAM roles provide temporary credentials, which is safer than long-lived access keys.", "options": ["True", "False"], "answer": true, "explanation": "Roles issue short-lived credentials, reducing the risk of leaked long-term keys." },
+    { "id": "aws-core-q4", "type": "mcq", "question": "Lambda is best described as:", "options": ["A managed database", "Serverless compute that runs code on events", "A load balancer", "A storage bucket"], "answer": 1, "explanation": "Lambda runs functions in response to events without server management." },
+    { "id": "aws-core-q5", "type": "scenario", "question": "An EC2 app needs to read from S3. What is the recommended way to grant access?", "options": ["Hardcode access keys in the app", "Attach an IAM role (instance profile) with least-privilege S3 permissions", "Make the bucket public", "Email the keys to the app"], "answer": 1, "explanation": "An instance profile role gives temporary, scoped credentials with no keys in code." },
+    { "id": "aws-core-q6", "type": "truefalse", "question": "Making an S3 bucket public is a safe default.", "options": ["True", "False"], "answer": false, "explanation": "Public buckets frequently leak data; block public access unless truly required." },
+    { "id": "aws-core-q7", "type": "mcq", "question": "What does a security group act as?", "options": ["A billing alarm", "A stateful virtual firewall for instances", "An S3 policy", "A DNS record"], "answer": 1, "explanation": "Security groups control inbound/outbound traffic to resources like EC2." },
+    { "id": "aws-core-q8", "type": "scenario", "question": "Opening port 22 to 0.0.0.0/0 on a production instance is risky because:", "options": ["It disables SSH", "It exposes SSH to the entire internet for brute-force attacks", "It costs more money", "It blocks legitimate traffic"], "answer": 1, "explanation": "Wide-open SSH invites attacks; restrict to known IPs or use SSM/bastions." },
+    { "id": "aws-core-q9", "type": "mcq", "question": "Which command shows which identity your CLI is using?", "options": ["aws whoami", "aws sts get-caller-identity", "aws iam list-users", "aws configure"], "answer": 1, "explanation": "get-caller-identity returns the ARN of the current principal." },
+    { "id": "aws-core-q10", "type": "truefalse", "question": "Least privilege means granting only the permissions a principal actually needs.", "options": ["True", "False"], "answer": true, "explanation": "Least privilege minimizes blast radius if credentials are compromised." },
+    { "id": "aws-core-q11", "type": "mcq", "question": "How can you securely share a private S3 object temporarily?", "options": ["Make the bucket public", "Generate a presigned URL", "Email your access keys", "Disable IAM"], "answer": 1, "explanation": "A presigned URL grants time-limited access without changing bucket permissions." },
+    { "id": "aws-core-q12", "type": "scenario", "question": "A developer committed AWS access keys to a public repo. First action?", "options": ["Do nothing", "Deactivate/rotate the keys immediately and audit for misuse", "Make the repo private and keep the keys", "Delete the commit only"], "answer": 1, "explanation": "Treat the keys as compromised: deactivate/rotate at once, then review activity." },
+    { "id": "aws-core-q13", "type": "mcq", "question": "Which pairing correctly matches service to job?", "options": ["S3 runs code; Lambda stores files", "EC2 is identity; IAM is compute", "EC2 is compute; S3 is storage; IAM is identity; Lambda is serverless compute", "IAM stores files; S3 controls access"], "answer": 2, "explanation": "EC2=compute, S3=storage, IAM=identity/permissions, Lambda=serverless compute." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Store and retrieve an object in S3", "goal": "Learn basic S3 operations.", "steps": ["Create a bucket with public access blocked", "Upload a file with aws s3 cp", "List the bucket contents", "Generate a presigned URL to download it"], "successCriteria": ["The object uploads successfully", "The presigned URL grants temporary access"] },
+    { "level": "intermediate", "title": "Least-privilege IAM role", "goal": "Grant scoped access correctly.", "steps": ["Create an IAM role with an EC2 (or Lambda) trust policy", "Attach a policy allowing only s3:GetObject on one bucket ARN", "Assign the role to a compute resource", "Verify it can read but not write or delete"], "successCriteria": ["The role can read the specified bucket", "It is denied actions outside the policy"] },
+    { "level": "advanced", "title": "Deploy a Lambda function", "goal": "Build event-driven compute.", "steps": ["Write a small function and package it", "Create the function with an execution role", "Configure an S3 upload trigger", "Upload a file and confirm the function ran via logs"], "successCriteria": ["The function is invoked on S3 upload", "Logs show successful execution"] },
+    { "level": "simulation", "title": "Secure a small web stack", "goal": "Stand up a realistic, secured deployment.", "steps": ["Launch an EC2 instance in a VPC with a tight security group", "Give it an instance-profile role to read config from S3", "Store static assets in a private S3 bucket served via presigned URLs or CloudFront", "Audit permissions to confirm least privilege"], "successCriteria": ["SSH is restricted, not open to the world", "No long-lived keys are used; access is via roles"] }
+  ]
+}

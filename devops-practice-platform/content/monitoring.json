@@ -1,0 +1,86 @@
+{
+  "slug": "monitoring",
+  "title": "Monitoring & Logging (Prometheus, Grafana)",
+  "order": 8,
+  "level": "advanced",
+  "concept": {
+    "overview": "Observability is the ability to understand what a system is doing from the outside using its telemetry: metrics, logs, and traces. Prometheus is a time-series database and monitoring system that scrapes numeric metrics from your applications and infrastructure, stores them, and evaluates alerting rules. Grafana is the visualization layer that turns those metrics into dashboards and graphs. Together with a logging stack (like Loki or the ELK stack), they let you see trends, spot anomalies, and get paged before users notice an outage.",
+    "whyItMatters": "You cannot operate what you cannot see. Monitoring turns a black-box production system into something you can reason about: is latency rising, is the error rate spiking, is the disk about to fill? Good observability shortens the time to detect and resolve incidents, validates that deployments are healthy, and provides the data behind SLOs and capacity planning. It is the feedback loop that makes reliable operations possible.",
+    "useCases": [
+      "Tracking golden signals — latency, traffic, errors, saturation — per service",
+      "Alerting on-call engineers when thresholds or SLOs are breached",
+      "Visualizing system and application health on shared dashboards",
+      "Correlating a deploy with a change in error rate or latency",
+      "Aggregating and searching logs to debug incidents quickly"
+    ],
+    "architecture": "Applications expose metrics on an HTTP /metrics endpoint in the Prometheus text format, often via a client library or an exporter (node_exporter for hosts, cAdvisor for containers). Prometheus periodically scrapes these targets (discovered statically or via service discovery), stores the samples in its time-series database, and evaluates recording and alerting rules written in PromQL. When an alert fires, it is sent to Alertmanager, which deduplicates, groups, and routes notifications to Slack, PagerDuty, or email. Grafana queries Prometheus (and other data sources) with PromQL to render dashboards. Logs flow through a separate pipeline (Fluent Bit/Promtail -> Loki/Elasticsearch) and can be correlated with metrics in Grafana."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Metric", "def": "A numeric measurement over time, e.g., http_requests_total or cpu_usage." },
+      { "term": "Time-series", "def": "A stream of timestamped values identified by a metric name and labels." },
+      { "term": "Scrape", "def": "Prometheus pulling metrics from a target's /metrics endpoint on an interval." },
+      { "term": "Exporter", "def": "A sidecar that exposes third-party system metrics in Prometheus format (e.g., node_exporter)." },
+      { "term": "PromQL", "def": "Prometheus' query language for selecting and aggregating time-series." },
+      { "term": "Alertmanager", "def": "Component that handles routing, grouping, and silencing of alerts." },
+      { "term": "Golden signals", "def": "Latency, traffic, errors, and saturation — the key indicators of service health." }
+    ],
+    "commands": [
+      { "cmd": "rate(http_requests_total[5m])", "desc": "Per-second request rate averaged over 5 minutes." },
+      { "cmd": "sum by (status) (rate(http_requests_total[5m]))", "desc": "Request rate grouped by HTTP status." },
+      { "cmd": "histogram_quantile(0.95, ...)", "desc": "Estimate the 95th percentile latency from a histogram." },
+      { "cmd": "up == 0", "desc": "PromQL to find targets that are down." },
+      { "cmd": "node_filesystem_avail_bytes", "desc": "Available disk space metric from node_exporter." },
+      { "cmd": "increase(errors_total[1h])", "desc": "Total increase in a counter over the last hour." },
+      { "cmd": "scrape_configs: - job_name: 'api'", "desc": "Prometheus config block defining a scrape target." },
+      { "cmd": "avg_over_time(cpu[10m])", "desc": "Average of a series over a time window." },
+      { "cmd": "ALERT HighErrorRate IF ...", "desc": "Sketch of an alerting rule condition in PromQL." },
+      { "cmd": "promtool check rules rules.yml", "desc": "Validate Prometheus rule files." },
+      { "cmd": "curl localhost:9090/-/healthy", "desc": "Check Prometheus health endpoint." },
+      { "cmd": "grafana-cli plugins install ...", "desc": "Install a Grafana data source or panel plugin." }
+    ],
+    "bestPractices": [
+      "Alert on symptoms users feel (error rate, latency), not just causes (CPU), to reduce noise.",
+      "Base alerts on SLOs and burn rates so paging is meaningful and actionable.",
+      "Use labels thoughtfully; high-cardinality labels (user IDs) explode storage.",
+      "Make every alert actionable and linked to a runbook; delete alerts nobody acts on.",
+      "Keep dashboards focused on the golden signals per service, not vanity metrics."
+    ],
+    "pitfalls": [
+      "Alert fatigue from too many noisy, non-actionable alerts — real ones get ignored.",
+      "High-cardinality labels blowing up Prometheus memory and storage.",
+      "Alerting only on CPU/memory while users experience errors you never see.",
+      "Dashboards full of graphs no one understands or acts on.",
+      "No Alertmanager grouping, so one incident produces hundreds of pages."
+    ],
+    "cheatSheet": [
+      "Error rate: sum(rate(errors_total[5m])) / sum(rate(requests_total[5m]))",
+      "Target down alert: up == 0 for 5m",
+      "p95 latency: histogram_quantile(0.95, sum by (le) (rate(bucket[5m])))",
+      "Disk almost full: node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.1",
+      "RED method: Rate, Errors, Duration per request",
+      "USE method: Utilization, Saturation, Errors per resource"
+    ]
+  },
+  "quiz": [
+    { "id": "monitoring-q1", "type": "mcq", "question": "How does Prometheus collect metrics from targets?", "options": ["Targets push to Prometheus", "Prometheus scrapes targets' /metrics endpoints", "Via email", "Through a message queue only"], "answer": 1, "explanation": "Prometheus uses a pull model, scraping HTTP /metrics endpoints on an interval." },
+    { "id": "monitoring-q2", "type": "mcq", "question": "What is Grafana primarily used for?", "options": ["Storing time-series", "Scraping metrics", "Visualizing metrics in dashboards", "Routing alerts"], "answer": 2, "explanation": "Grafana is the visualization layer; Prometheus stores and queries the data." },
+    { "id": "monitoring-q3", "type": "truefalse", "question": "The four golden signals are latency, traffic, errors, and saturation.", "options": ["True", "False"], "answer": true, "explanation": "These four indicators summarize user-facing service health." },
+    { "id": "monitoring-q4", "type": "mcq", "question": "Which component routes and deduplicates alerts?", "options": ["Grafana", "node_exporter", "Alertmanager", "PromQL"], "answer": 2, "explanation": "Alertmanager groups, deduplicates, silences, and routes alerts to receivers." },
+    { "id": "monitoring-q5", "type": "scenario", "question": "You are paged constantly for brief CPU spikes that don't affect users. Best fix?", "options": ["Ignore all alerts", "Alert on user-facing symptoms (error rate/latency/SLO) instead of raw CPU", "Add more CPU alerts", "Delete the dashboards"], "answer": 1, "explanation": "Symptom-based, SLO-driven alerting reduces noise and pages only on real impact." },
+    { "id": "monitoring-q6", "type": "mcq", "question": "What does 'rate(http_requests_total[5m])' compute?", "options": ["Total requests ever", "Per-second request rate over a 5-minute window", "The 95th percentile", "Number of targets"], "answer": 1, "explanation": "rate() gives the per-second average increase of a counter over the range." },
+    { "id": "monitoring-q7", "type": "truefalse", "question": "High-cardinality labels like unique user IDs can overwhelm Prometheus.", "options": ["True", "False"], "answer": true, "explanation": "Each label combination is a separate series; unbounded cardinality explodes memory/storage." },
+    { "id": "monitoring-q8", "type": "mcq", "question": "What is an exporter?", "options": ["A dashboard", "A component that exposes a system's metrics in Prometheus format", "A log shipper", "An alert route"], "answer": 1, "explanation": "Exporters (e.g., node_exporter) translate system metrics into the scrape format." },
+    { "id": "monitoring-q9", "type": "mcq", "question": "Which PromQL finds targets that are down?", "options": ["down()", "up == 0", "target_down", "scrape == fail"], "answer": 1, "explanation": "The 'up' metric is 1 when a scrape succeeds; up == 0 means the target is down." },
+    { "id": "monitoring-q10", "type": "scenario", "question": "After a deploy, error rate jumps. How do dashboards help confirm causation?", "options": ["They can't", "Overlay the deploy time with the error-rate graph to correlate", "Restart Prometheus", "Delete the alert"], "answer": 1, "explanation": "Correlating the deploy annotation with the metric change points to the deploy as the cause." },
+    { "id": "monitoring-q11", "type": "truefalse", "question": "Every alert should be actionable and ideally linked to a runbook.", "options": ["True", "False"], "answer": true, "explanation": "Non-actionable alerts cause fatigue; actionable alerts with runbooks speed resolution." },
+    { "id": "monitoring-q12", "type": "mcq", "question": "The RED method tracks which three per request?", "options": ["Reads, Edits, Deletes", "Rate, Errors, Duration", "Requests, Endpoints, Data", "Retries, Errors, Downtime"], "answer": 1, "explanation": "RED = Rate, Errors, Duration — a request-focused monitoring method." },
+    { "id": "monitoring-q13", "type": "scenario", "question": "You want to page only when an SLO is truly at risk, not on every blip. Which approach?", "options": ["Static threshold on CPU", "Multi-window burn-rate alerting against the error budget", "Alert on every 5xx", "No alerts at all"], "answer": 1, "explanation": "Burn-rate alerting on the error budget pages proportionally to real SLO risk." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Expose and scrape metrics", "goal": "Get a target into Prometheus.", "steps": ["Run Prometheus locally (binary or container)", "Run node_exporter or an app exposing /metrics", "Add a scrape_config for the target", "Confirm the target is UP in the Prometheus UI"], "successCriteria": ["The target shows state UP", "Metrics are queryable in the expression browser"] },
+    { "level": "intermediate", "title": "Build a Grafana dashboard", "goal": "Visualize the golden signals.", "steps": ["Add Prometheus as a Grafana data source", "Create panels for request rate and error rate using PromQL", "Add a p95 latency panel from a histogram", "Save the dashboard and set a time range"], "successCriteria": ["Dashboard renders live data from Prometheus", "Panels show rate, errors, and latency"] },
+    { "level": "advanced", "title": "Write an alerting rule", "goal": "Get paged on real problems.", "steps": ["Write a PromQL alert for high error rate over 5m", "Add an Alertmanager route to a receiver (e.g., a webhook)", "Trigger the condition and observe the alert fire", "Add a runbook link to the alert annotations"], "successCriteria": ["The alert fires and routes to the receiver", "The alert includes an actionable runbook link"] },
+    { "level": "simulation", "title": "Run an observability incident", "goal": "Detect and diagnose a simulated outage.", "steps": ["Deploy a change that increases latency/errors", "Watch the dashboard and let the alert fire", "Use metrics and logs to localize the failing component", "Roll back and confirm recovery on the dashboard"], "successCriteria": ["The alert detected the issue before manual discovery", "Dashboards confirmed recovery after rollback"] }
+  ]
+}

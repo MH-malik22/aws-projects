@@ -1,0 +1,86 @@
+{
+  "slug": "sre-foundations",
+  "title": "SRE Foundations",
+  "order": 10,
+  "level": "advanced",
+  "concept": {
+    "overview": "Site Reliability Engineering (SRE) is a discipline, pioneered at Google, that applies software engineering practices to operations problems. Rather than treating reliability as a vague goal, SRE makes it measurable and budgeted: define Service Level Objectives (SLOs), measure them with Service Level Indicators (SLIs), and manage the gap with an error budget. When the budget is healthy, teams ship fast; when it is exhausted, they slow down and invest in reliability. SRE also emphasizes eliminating toil through automation, blameless postmortems, and engineering for graceful failure.",
+    "whyItMatters": "Perfect reliability is impossible and, beyond a point, not worth the cost — the last fraction of a nine can be astronomically expensive and users rarely notice. SRE gives organizations a rational, data-driven way to balance feature velocity against reliability using error budgets, replacing arguments with numbers. It scales operations by automating away repetitive work and turns incidents into systemic learning rather than blame.",
+    "useCases": [
+      "Defining SLOs and error budgets to balance releases against reliability",
+      "Reducing manual toil through automation and self-healing systems",
+      "Running blameless postmortems that produce durable fixes",
+      "Capacity planning and load testing to survive traffic spikes",
+      "Practicing chaos engineering to validate resilience before real failures"
+    ],
+    "architecture": "Reliability is engineered as a feedback loop. SLIs (e.g., request success rate, latency) are measured from monitoring data. SLOs set targets on those SLIs (e.g., 99.9% of requests succeed over 30 days). The error budget is the allowed unreliability (100% minus the SLO); consuming it too fast triggers alerts and a policy response (freeze risky changes). On-call rotations, backed by runbooks and dashboards, respond to incidents; severity levels drive escalation. After incidents, blameless postmortems capture root cause and action items. Toil is tracked and capped so engineers spend time automating rather than firefighting. Redundancy, graceful degradation, load shedding, and circuit breakers are designed in to fail safely."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "SLI", "def": "Service Level Indicator — a measured metric of service behavior (e.g., success rate)." },
+      { "term": "SLO", "def": "Service Level Objective — a target value/range for an SLI over a window." },
+      { "term": "SLA", "def": "Service Level Agreement — a contractual promise with consequences, usually looser than the SLO." },
+      { "term": "Error budget", "def": "The allowed amount of unreliability: 100% minus the SLO." },
+      { "term": "Toil", "def": "Manual, repetitive, automatable operational work that scales with load." },
+      { "term": "Postmortem", "def": "A blameless write-up of an incident's cause, impact, and action items." },
+      { "term": "MTTR", "def": "Mean Time To Recovery — how long it takes to restore service after failure." }
+    ],
+    "commands": [
+      { "cmd": "SLO = 99.9% over 30 days", "desc": "Example objective: 0.1% error budget per month." },
+      { "cmd": "error_budget = 1 - SLO", "desc": "Compute the allowed unreliability." },
+      { "cmd": "budget_minutes = (1-SLO) * 30d", "desc": "99.9%/30d ~= 43 minutes of allowed downtime." },
+      { "cmd": "burn_rate = observed_error / budget", "desc": "How fast the error budget is being consumed." },
+      { "cmd": "SLI = good_events / valid_events", "desc": "Ratio form of a reliability indicator." },
+      { "cmd": "availability = uptime / total_time", "desc": "Classic availability calculation." },
+      { "cmd": "kubectl drain <node>", "desc": "Safely evacuate a node during maintenance to protect reliability." },
+      { "cmd": "chaos inject latency", "desc": "Conceptual: inject failure to test resilience." },
+      { "cmd": "circuit_breaker.open()", "desc": "Stop calling a failing dependency to prevent cascading failure." },
+      { "cmd": "runbook: step 1..n", "desc": "Documented, repeatable incident response procedure." },
+      { "cmd": "load_test --rps 1000", "desc": "Validate capacity against a target request rate." },
+      { "cmd": "postmortem template: impact/cause/actions", "desc": "Structure for a blameless review." }
+    ],
+    "bestPractices": [
+      "Define a small number of user-centric SLOs; measure them and drive decisions with the error budget.",
+      "Cap toil (e.g., <50% of time) and invest the rest in automation and engineering.",
+      "Run blameless postmortems focused on systems and process, not individuals.",
+      "Design for failure: redundancy, graceful degradation, timeouts, retries with backoff, circuit breakers.",
+      "Practice incident response and chaos experiments before real outages happen."
+    ],
+    "pitfalls": [
+      "Chasing 100% reliability — hugely expensive and users can't tell the difference.",
+      "Vanity SLOs based on internal metrics instead of what users actually experience.",
+      "Blameful postmortems that discourage honesty and hide root causes.",
+      "Unbounded toil, leaving no time to automate, which creates more toil.",
+      "Ignoring the error budget and shipping risky changes during an outage."
+    ],
+    "cheatSheet": [
+      "Nines vs downtime/month: 99.9% ~= 43m, 99.99% ~= 4.3m, 99.999% ~= 26s",
+      "Error budget = 100% - SLO; spend it on velocity, protect it under pressure",
+      "Burn-rate alerting pages when the budget drains too fast",
+      "Blameless postmortem: timeline, impact, root cause, action items, owners",
+      "Golden signals feed your SLIs: latency, traffic, errors, saturation",
+      "Reduce MTTR with runbooks, good alerts, and practiced on-call"
+    ]
+  },
+  "quiz": [
+    { "id": "sre-foundations-q1", "type": "mcq", "question": "What is an error budget?", "options": ["Money spent on bugs", "The allowed amount of unreliability: 100% minus the SLO", "The number of open tickets", "A type of alert"], "answer": 1, "explanation": "The error budget is the tolerance for failure that the SLO permits." },
+    { "id": "sre-foundations-q2", "type": "mcq", "question": "Which is measured, and which is the target?", "options": ["SLI is the target, SLO is measured", "SLI is measured, SLO is the target", "Both are contracts", "Neither is measurable"], "answer": 1, "explanation": "SLIs are measured indicators; SLOs are the objectives set on them." },
+    { "id": "sre-foundations-q3", "type": "truefalse", "question": "Aiming for 100% reliability is usually not cost-effective.", "options": ["True", "False"], "answer": true, "explanation": "The cost of the last fraction of a nine is enormous and users rarely notice." },
+    { "id": "sre-foundations-q4", "type": "mcq", "question": "What is toil?", "options": ["Any hard work", "Manual, repetitive, automatable operational work that scales with load", "Writing code", "Attending meetings"], "answer": 1, "explanation": "Toil is repetitive ops work with no lasting value; SRE aims to automate it away." },
+    { "id": "sre-foundations-q5", "type": "scenario", "question": "Your service has burned its entire monthly error budget in week one. Policy response?", "options": ["Ship even faster", "Freeze risky changes and focus on reliability until the budget recovers", "Delete the SLO", "Ignore it"], "answer": 1, "explanation": "An exhausted budget signals slowing feature risk and investing in reliability." },
+    { "id": "sre-foundations-q6", "type": "truefalse", "question": "Postmortems should be blameless, focusing on systems and processes.", "options": ["True", "False"], "answer": true, "explanation": "Blameless culture encourages honesty and produces real systemic fixes." },
+    { "id": "sre-foundations-q7", "type": "mcq", "question": "Roughly how much downtime per month does a 99.9% SLO allow?", "options": ["About 43 minutes", "About 4 hours", "About 5 seconds", "Zero"], "answer": 0, "explanation": "99.9% over 30 days is roughly 43 minutes of allowed downtime." },
+    { "id": "sre-foundations-q8", "type": "mcq", "question": "What does MTTR measure?", "options": ["Mean time to release", "Mean time to recovery after a failure", "Maximum test time ratio", "Mean traffic throughput rate"], "answer": 1, "explanation": "MTTR is how long it takes to restore service after an incident." },
+    { "id": "sre-foundations-q9", "type": "scenario", "question": "A downstream dependency starts failing and slowing all requests. Which pattern helps?", "options": ["Retry forever with no limit", "A circuit breaker that stops calling the failing dependency", "Remove all timeouts", "Scale the failing dependency to zero"], "answer": 1, "explanation": "Circuit breakers prevent cascading failures by cutting off a failing dependency." },
+    { "id": "sre-foundations-q10", "type": "truefalse", "question": "An SLA is typically a contractual promise, often looser than the internal SLO.", "options": ["True", "False"], "answer": true, "explanation": "Teams keep SLOs stricter than SLAs to have a safety margin before breaching contracts." },
+    { "id": "sre-foundations-q11", "type": "mcq", "question": "Why practice chaos engineering?", "options": ["To cause outages for fun", "To validate resilience by injecting controlled failures before real ones", "To increase toil", "To replace monitoring"], "answer": 1, "explanation": "Controlled failure experiments reveal weaknesses safely, before real incidents." },
+    { "id": "sre-foundations-q12", "type": "mcq", "question": "Good SLOs should be based on:", "options": ["Internal CPU metrics", "What users actually experience (e.g., success rate, latency)", "Number of deploys", "Lines of code"], "answer": 1, "explanation": "User-centric SLIs make SLOs meaningful; internal vanity metrics don't." },
+    { "id": "sre-foundations-q13", "type": "scenario", "question": "On-call resolution is slow because responders improvise each time. Best improvement?", "options": ["Remove on-call", "Create runbooks and actionable alerts to lower MTTR", "Page more people", "Disable alerts"], "answer": 1, "explanation": "Runbooks and good alerting make response repeatable and fast, reducing MTTR." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Define an SLI and SLO", "goal": "Make reliability measurable.", "steps": ["Pick a user-facing SLI (e.g., request success rate)", "Set an SLO target and window (e.g., 99.9% over 30 days)", "Compute the resulting error budget in minutes", "Document how you would measure the SLI from metrics"], "successCriteria": ["A clear SLI/SLO pair is written down", "The error budget is calculated correctly"] },
+    { "level": "intermediate", "title": "Track and burn an error budget", "goal": "Operate against a budget.", "steps": ["Instrument success/total request metrics", "Build a burn-rate query against the SLO", "Add a multi-window burn-rate alert", "Simulate errors and watch the budget deplete"], "successCriteria": ["Burn rate is visible on a dashboard", "The alert fires when the budget drains too fast"] },
+    { "level": "advanced", "title": "Run a blameless postmortem", "goal": "Turn an incident into learning.", "steps": ["Take a recent (or simulated) incident", "Build a timeline of detection, impact, and recovery", "Identify the systemic root cause without blaming individuals", "List action items with owners and due dates"], "successCriteria": ["A complete, blameless postmortem document exists", "Action items have clear owners"] },
+    { "level": "simulation", "title": "Game-day resilience test", "goal": "Validate reliability under failure.", "steps": ["Define a hypothesis (e.g., losing one node causes no user impact)", "Inject a controlled failure (kill a node/dependency)", "Observe SLIs, error budget, and alerting during the test", "Capture findings and fix any weaknesses discovered"], "successCriteria": ["The system degraded gracefully or the gap was found", "Findings produced concrete reliability improvements"] }
+  ]
+}

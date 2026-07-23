@@ -1,0 +1,86 @@
+{
+  "slug": "linux",
+  "title": "Linux Fundamentals",
+  "order": 2,
+  "level": "beginner",
+  "concept": {
+    "overview": "Linux is the open-source operating system that runs the overwhelming majority of servers, containers, and cloud workloads. As a DevOps engineer you interact with Linux constantly: through the shell to navigate the filesystem, manage processes, control permissions, inspect logs, and script repetitive work. Understanding the kernel/user-space split, the filesystem hierarchy, and the permission model is foundational to everything that runs on top — Docker, Kubernetes, CI runners, and cloud VMs are almost all Linux underneath.",
+    "whyItMatters": "Nearly every production system you will operate is a Linux host or container. Debugging a failing pod, tuning a web server, securing an EC2 instance, or writing a deployment script all require comfort at the command line. Fluency in Linux is the difference between guessing and diagnosing.",
+    "useCases": [
+      "Administering cloud VMs and bare-metal servers over SSH",
+      "Writing shell scripts to automate builds, backups, and deployments",
+      "Diagnosing performance and resource issues with process and I/O tools",
+      "Managing users, permissions, and services on production hosts",
+      "Building minimal, secure base images for containers"
+    ],
+    "architecture": "Think in layers. At the bottom is hardware. Above it the Linux kernel manages CPU scheduling, memory, devices, and the filesystem, exposing them through system calls. User space runs everything else: the shell (bash/zsh), utilities (ls, grep, systemd), and your applications, which talk to the kernel via those system calls. The filesystem is a single tree rooted at '/': /etc holds config, /var holds logs and variable data, /home holds user files, /bin and /usr/bin hold executables, /proc and /sys expose kernel state as virtual files. Permissions gate every file with owner/group/other read-write-execute bits."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Shell", "def": "A command interpreter (e.g., bash) that reads commands and asks the kernel to run them." },
+      { "term": "Kernel", "def": "The core of the OS that manages hardware, memory, processes, and the filesystem." },
+      { "term": "Process", "def": "A running instance of a program, identified by a PID and owned by a user." },
+      { "term": "File permissions", "def": "Read (r), write (w), execute (x) bits for owner, group, and others, e.g., rwxr-xr-x." },
+      { "term": "systemd", "def": "The init system and service manager that starts and supervises daemons via units." },
+      { "term": "stdin/stdout/stderr", "def": "The three standard streams: input (0), normal output (1), and error output (2)." },
+      { "term": "Environment variable", "def": "A key=value setting in a process's environment, e.g., PATH or HOME." }
+    ],
+    "commands": [
+      { "cmd": "ls -la", "desc": "List files with details, permissions, and hidden entries." },
+      { "cmd": "cd / pwd", "desc": "Change directory / print the working directory." },
+      { "cmd": "grep -r \"pattern\" .", "desc": "Recursively search file contents for a pattern." },
+      { "cmd": "find . -name '*.log'", "desc": "Locate files by name or other criteria." },
+      { "cmd": "chmod 640 file", "desc": "Set permissions numerically (owner rw, group r, other none)." },
+      { "cmd": "chown user:group file", "desc": "Change file owner and group." },
+      { "cmd": "ps aux / top / htop", "desc": "Inspect running processes and resource usage." },
+      { "cmd": "kill -9 <pid>", "desc": "Send SIGKILL to forcibly terminate a process." },
+      { "cmd": "systemctl status <svc>", "desc": "Check a systemd service's state and recent logs." },
+      { "cmd": "journalctl -u <svc> -f", "desc": "Follow the live logs for a service." },
+      { "cmd": "tail -f /var/log/syslog", "desc": "Stream new lines appended to a log file." },
+      { "cmd": "df -h / du -sh *", "desc": "Show disk free space / directory sizes." }
+    ],
+    "bestPractices": [
+      "Prefer least privilege: run services as non-root users and use sudo only when needed.",
+      "Use absolute paths in scripts and quote variables (\"$var\") to avoid word-splitting bugs.",
+      "Redirect and rotate logs; never let /var fill the disk.",
+      "Make scripts idempotent and add 'set -euo pipefail' for safer bash.",
+      "Manage services with systemd rather than nohup/background hacks."
+    ],
+    "pitfalls": [
+      "Running everything as root, turning a small mistake into a system-wide disaster.",
+      "'rm -rf' with a wrong or unquoted path — irreversible data loss.",
+      "Forgetting execute permission on a script (Permission denied).",
+      "Editing config in /etc without a backup, then breaking a service on restart.",
+      "Ignoring exit codes in scripts so failures pass silently."
+    ],
+    "cheatSheet": [
+      "Pipe and filter: cat access.log | grep 500 | wc -l",
+      "Chmod numeric: r=4 w=2 x=1, so 755 = rwxr-xr-x",
+      "Find and delete: find . -name '*.tmp' -delete",
+      "Watch a command: watch -n 2 df -h",
+      "SSH into a host: ssh -i key.pem user@host",
+      "Make a script executable: chmod +x deploy.sh"
+    ]
+  },
+  "quiz": [
+    { "id": "linux-q1", "type": "mcq", "question": "What does 'chmod 755 script.sh' grant?", "options": ["Owner rwx, group and others r-x", "Everyone full access", "Owner read-only", "Group write, others none"], "answer": 0, "explanation": "7=rwx for owner, 5=r-x for group and others." },
+    { "id": "linux-q2", "type": "truefalse", "question": "The directory /etc typically stores system configuration files.", "options": ["True", "False"], "answer": true, "explanation": "/etc is the conventional location for host and service configuration." },
+    { "id": "linux-q3", "type": "mcq", "question": "Which command follows a service's live logs under systemd?", "options": ["tail -n /etc", "journalctl -u nginx -f", "systemctl logs", "cat /proc/logs"], "answer": 1, "explanation": "journalctl -u <unit> -f streams the running log for a systemd unit." },
+    { "id": "linux-q4", "type": "mcq", "question": "What is stderr's file descriptor number?", "options": ["0", "1", "2", "3"], "answer": 2, "explanation": "stdin=0, stdout=1, stderr=2." },
+    { "id": "linux-q5", "type": "scenario", "question": "A disk is full and a service crashed. Which command best identifies the biggest consumers in /var?", "options": ["ls -l /var", "du -sh /var/* | sort -h", "cat /var/*", "chmod -R 777 /var"], "answer": 1, "explanation": "du -sh on each entry, sorted, reveals the largest directories quickly." },
+    { "id": "linux-q6", "type": "truefalse", "question": "'set -euo pipefail' makes a bash script exit on errors and unset variables.", "options": ["True", "False"], "answer": true, "explanation": "-e exits on error, -u errors on unset vars, pipefail catches failures in pipelines." },
+    { "id": "linux-q7", "type": "mcq", "question": "Which signal does 'kill -9' send?", "options": ["SIGTERM (graceful)", "SIGHUP", "SIGKILL (forceful, uncatchable)", "SIGINT"], "answer": 2, "explanation": "-9 is SIGKILL, which the process cannot trap or ignore." },
+    { "id": "linux-q8", "type": "mcq", "question": "What does the pipe operator '|' do?", "options": ["Runs commands in parallel", "Sends one command's stdout to the next command's stdin", "Redirects output to a file", "Comments out a line"], "answer": 1, "explanation": "The pipe connects stdout of the left command to stdin of the right command." },
+    { "id": "linux-q9", "type": "scenario", "question": "You need to run a web server as a non-root user for security. What is the recommended approach?", "options": ["Run it as root; it's simpler", "Create a dedicated service user and grant only needed permissions", "chmod 777 the web root", "Disable the firewall"], "answer": 1, "explanation": "Least privilege: a dedicated non-root user limits blast radius if the service is compromised." },
+    { "id": "linux-q10", "type": "mcq", "question": "Which virtual filesystem exposes running kernel and process information?", "options": ["/home", "/proc", "/opt", "/tmp"], "answer": 1, "explanation": "/proc presents live kernel and per-process data as files." },
+    { "id": "linux-q11", "type": "truefalse", "question": "Environment variables like PATH are inherited by child processes.", "options": ["True", "False"], "answer": true, "explanation": "Child processes inherit the parent's exported environment." },
+    { "id": "linux-q12", "type": "mcq", "question": "How do you count how many lines contain 'ERROR' in app.log?", "options": ["grep ERROR app.log -c only counts files", "grep -c ERROR app.log", "wc ERROR app.log", "find ERROR in app.log"], "answer": 1, "explanation": "grep -c prints the number of matching lines." },
+    { "id": "linux-q13", "type": "scenario", "question": "A cron job runs but 'command not found' appears in its log, though it works in your shell. Likely cause?", "options": ["The command was deleted", "cron has a minimal PATH; use the absolute path or set PATH", "cron cannot run scripts", "The disk is full"], "answer": 1, "explanation": "cron runs with a stripped-down environment; specify absolute paths or export PATH in the job." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Navigate and inspect the filesystem", "goal": "Get comfortable moving around and reading files.", "steps": ["Use pwd, cd, and ls -la to explore /etc and /var/log", "Print the last 20 lines of a log with tail -n 20", "Search a file for a keyword using grep", "Check disk usage with df -h"], "successCriteria": ["You can list, read, and search files without errors", "You identified the largest directory under /var/log"] },
+    { "level": "intermediate", "title": "Manage permissions and users", "goal": "Practice the permission model safely.", "steps": ["Create a file and view its permissions with ls -l", "Change its mode with chmod to 640", "Change ownership with chown (using sudo)", "Create a script, make it executable, and run it"], "successCriteria": ["Permissions match the intended rwx pattern", "The script runs from ./script.sh"] },
+    { "level": "advanced", "title": "Write a robust bash script", "goal": "Automate a task with error handling.", "steps": ["Start the script with 'set -euo pipefail'", "Accept an argument and validate it is provided", "Loop over files matching a pattern with find", "Log actions to a file and check exit codes"], "successCriteria": ["Script exits non-zero on invalid input", "Actions are logged and idempotent on re-run"] },
+    { "level": "simulation", "title": "Triage a struggling server", "goal": "Diagnose a host under load like an on-call engineer.", "steps": ["Use top/htop to find the top CPU and memory consumers", "Check disk with df -h and du -sh for a full partition", "Inspect a failing service with systemctl status and journalctl", "Free space or restart the service, then confirm recovery"], "successCriteria": ["Root cause identified (CPU, memory, or disk)", "Service returns to active/running state"] }
+  ]
+}

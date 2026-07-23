@@ -1,0 +1,86 @@
+{
+  "slug": "security-devsecops",
+  "title": "Security & DevSecOps",
+  "order": 9,
+  "level": "advanced",
+  "concept": {
+    "overview": "DevSecOps integrates security into every stage of the software delivery lifecycle instead of bolting it on at the end. The philosophy is 'shift left': find and fix vulnerabilities as early as possible — in code, dependencies, containers, and infrastructure — where they are cheapest to remediate. It combines automated scanning (SAST, DAST, SCA, secret detection), secure defaults, least-privilege access, and a culture where security is everyone's responsibility, embedded directly into CI/CD pipelines.",
+    "whyItMatters": "Software supply chains and cloud misconfigurations are among the most exploited attack surfaces today. Treating security as a final gate creates bottlenecks and lets vulnerabilities reach production. By automating security checks in the pipeline and codifying secure practices, DevSecOps catches issues in minutes rather than after a breach, keeps velocity high, and produces auditable evidence for compliance.",
+    "useCases": [
+      "Scanning source code for vulnerabilities (SAST) on every pull request",
+      "Detecting vulnerable dependencies and container image CVEs (SCA/image scanning)",
+      "Catching hardcoded secrets before they reach the repository",
+      "Enforcing least-privilege IAM and secure infrastructure via policy-as-code",
+      "Managing secrets centrally with rotation instead of scattering them in configs"
+    ],
+    "architecture": "Security controls attach at each pipeline stage. Pre-commit hooks and secret scanners catch credentials before commit. In CI: SAST analyzes source code, SCA/dependency scanning checks libraries against vulnerability databases, and IaC scanners (e.g., checkov/tfsec) inspect Terraform for misconfigurations. On build: container images are scanned for known CVEs and signed for provenance. Secrets are pulled at runtime from a vault (HashiCorp Vault, AWS Secrets Manager) rather than baked in. In production: DAST probes the running app, runtime security tools watch for anomalies, and least-privilege IAM plus network segmentation limit blast radius. Findings feed back as pipeline gates and tracked issues, closing the loop."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Shift left", "def": "Moving security testing earlier in the lifecycle, closer to development." },
+      { "term": "SAST", "def": "Static Application Security Testing — analyzes source code without running it." },
+      { "term": "DAST", "def": "Dynamic Application Security Testing — probes a running application for flaws." },
+      { "term": "SCA", "def": "Software Composition Analysis — finds known vulnerabilities in dependencies." },
+      { "term": "CVE", "def": "Common Vulnerabilities and Exposures — a public identifier for a known flaw." },
+      { "term": "Secrets management", "def": "Centralized, audited storage and rotation of credentials (e.g., Vault)." },
+      { "term": "Policy as code", "def": "Security/compliance rules expressed as code and enforced automatically." }
+    ],
+    "commands": [
+      { "cmd": "trivy image myapp:1.0", "desc": "Scan a container image for known CVEs." },
+      { "cmd": "git secrets --scan / gitleaks detect", "desc": "Detect secrets committed to a repo." },
+      { "cmd": "npm audit / pip-audit", "desc": "Report vulnerable dependencies in a project." },
+      { "cmd": "checkov -d . / tfsec .", "desc": "Scan Terraform/IaC for misconfigurations." },
+      { "cmd": "docker scout cves myapp:1.0", "desc": "Analyze an image's vulnerabilities and remediation." },
+      { "cmd": "semgrep --config auto", "desc": "Run SAST rules against source code." },
+      { "cmd": "cosign sign / verify", "desc": "Sign and verify container image provenance." },
+      { "cmd": "vault kv get secret/app", "desc": "Retrieve a secret from HashiCorp Vault." },
+      { "cmd": "aws iam simulate-principal-policy", "desc": "Test what an IAM principal is allowed to do." },
+      { "cmd": "openssl x509 -in cert.pem -text", "desc": "Inspect a TLS certificate." },
+      { "cmd": "kube-bench run", "desc": "Check a Kubernetes cluster against CIS benchmarks." },
+      { "cmd": "syft packages myapp:1.0", "desc": "Generate an SBOM (software bill of materials)." }
+    ],
+    "bestPractices": [
+      "Automate SAST, SCA, secret, and IaC scans as required CI gates on every change.",
+      "Store secrets in a vault with rotation; never commit them or bake them into images.",
+      "Apply least privilege everywhere — IAM, service accounts, network policies.",
+      "Keep dependencies and base images patched; track an SBOM for what you ship.",
+      "Fail builds on high/critical findings, but triage to avoid blocking on noise."
+    ],
+    "pitfalls": [
+      "Treating security as a final manual gate that blocks releases and gets bypassed.",
+      "Hardcoded secrets and API keys in code, configs, or images.",
+      "Ignoring dependency CVEs until an exploit forces an emergency patch.",
+      "Overly permissive IAM (wildcard actions/resources) expanding blast radius.",
+      "Alert/scan fatigue: so many low-severity findings that critical ones are missed."
+    ],
+    "cheatSheet": [
+      "Scan pipeline order: secrets -> SAST -> SCA -> IaC -> image scan -> DAST",
+      "Never log secrets; redact tokens in CI output",
+      "Rotate credentials on any suspected exposure, immediately",
+      "Pin and verify base images by digest (sha256)",
+      "SBOM: syft generates, grype scans it for CVEs",
+      "Least privilege IAM: explicit Action + Resource, deny by default"
+    ]
+  },
+  "quiz": [
+    { "id": "security-devsecops-q1", "type": "mcq", "question": "What does 'shift left' mean in DevSecOps?", "options": ["Deploy to the left region", "Move security testing earlier in the lifecycle", "Use left-handed keyboards", "Delay security to production"], "answer": 1, "explanation": "Shift left finds and fixes issues earlier, where they are cheaper to remediate." },
+    { "id": "security-devsecops-q2", "type": "mcq", "question": "Which technique analyzes source code without executing it?", "options": ["DAST", "SAST", "Load testing", "Chaos engineering"], "answer": 1, "explanation": "SAST inspects static source code; DAST tests a running app." },
+    { "id": "security-devsecops-q3", "type": "truefalse", "question": "SCA (Software Composition Analysis) finds known vulnerabilities in dependencies.", "options": ["True", "False"], "answer": true, "explanation": "SCA checks your libraries against vulnerability databases." },
+    { "id": "security-devsecops-q4", "type": "mcq", "question": "Where should application secrets be stored?", "options": ["In the source code", "In the Docker image", "In a secrets manager/vault, fetched at runtime", "In the README"], "answer": 2, "explanation": "Centralized vaults provide secure storage, rotation, and audit; never bake secrets in." },
+    { "id": "security-devsecops-q5", "type": "scenario", "question": "A dependency has a critical CVE. Best pipeline behavior?", "options": ["Silently ignore it", "Fail the build on critical findings and require remediation", "Log it and deploy anyway", "Disable the scanner"], "answer": 1, "explanation": "Critical findings should block release and drive a patch or mitigation." },
+    { "id": "security-devsecops-q6", "type": "mcq", "question": "What does a container image scanner like Trivy detect?", "options": ["Slow code", "Known CVEs in the image's packages", "Test coverage", "Network latency"], "answer": 1, "explanation": "Image scanners match installed packages against CVE databases." },
+    { "id": "security-devsecops-q7", "type": "truefalse", "question": "Least privilege reduces the blast radius when credentials are compromised.", "options": ["True", "False"], "answer": true, "explanation": "Fewer permissions mean an attacker with stolen creds can do less." },
+    { "id": "security-devsecops-q8", "type": "mcq", "question": "What is an SBOM?", "options": ["A backup format", "A software bill of materials listing components you ship", "A scanning algorithm", "A secret store"], "answer": 1, "explanation": "An SBOM inventories all components/dependencies, aiding vulnerability response." },
+    { "id": "security-devsecops-q9", "type": "scenario", "question": "gitleaks flags an AWS key in a commit that was just pushed. First step?", "options": ["Delete the file only", "Rotate/revoke the key immediately, then purge it from history", "Ignore it", "Make the repo private"], "answer": 1, "explanation": "Treat it as compromised: revoke first, then scrub history — deletion alone leaves it in history." },
+    { "id": "security-devsecops-q10", "type": "mcq", "question": "Which tool category probes a running application for vulnerabilities?", "options": ["SAST", "SCA", "DAST", "SBOM"], "answer": 2, "explanation": "DAST exercises the live app from the outside, like an attacker." },
+    { "id": "security-devsecops-q11", "type": "truefalse", "question": "Policy as code lets you enforce security rules automatically in pipelines.", "options": ["True", "False"], "answer": true, "explanation": "Rules expressed as code (e.g., OPA, checkov) are enforced consistently and automatically." },
+    { "id": "security-devsecops-q12", "type": "scenario", "question": "Your team is overwhelmed by thousands of low-severity findings. Best response?", "options": ["Turn off scanning", "Prioritize by severity/exploitability and gate only on critical/high", "Fix them in random order", "Ignore all findings"], "answer": 1, "explanation": "Risk-based triage focuses effort and prevents fatigue that hides critical issues." },
+    { "id": "security-devsecops-q13", "type": "mcq", "question": "Why sign container images with a tool like cosign?", "options": ["To make them smaller", "To verify provenance and integrity before running them", "To speed up builds", "To encrypt the app"], "answer": 1, "explanation": "Signing lets you verify an image came from a trusted source and wasn't tampered with." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Scan for secrets and CVEs", "goal": "Run your first security scans.", "steps": ["Run a secret scanner (gitleaks) on a repo", "Run npm audit / pip-audit on a project", "Scan a container image with Trivy", "Review and categorize the findings by severity"], "successCriteria": ["Scans complete and produce a report", "You can name the highest-severity finding"] },
+    { "level": "intermediate", "title": "Add security gates to CI", "goal": "Automate scanning in the pipeline.", "steps": ["Add SAST (semgrep) and image scanning steps to CI", "Fail the build on critical/high findings", "Add a secret-scan step that blocks commits with credentials", "Verify a deliberately vulnerable change is blocked"], "successCriteria": ["A critical finding fails the pipeline", "A committed secret is caught before merge"] },
+    { "level": "advanced", "title": "Centralize secrets and least privilege", "goal": "Remove secrets from code and tighten access.", "steps": ["Move a hardcoded secret into a vault/secrets manager", "Fetch it at runtime instead of from config", "Scope an IAM policy to least privilege and test it", "Scan IaC with checkov/tfsec and fix misconfigurations"], "successCriteria": ["No secrets remain in code or images", "IaC scan passes and IAM is least-privilege"] },
+    { "level": "simulation", "title": "Respond to a supply-chain alert", "goal": "Handle a real-world vulnerability disclosure.", "steps": ["A critical CVE is announced in a base image you use", "Generate an SBOM and identify affected services", "Patch/pin the base image and rebuild", "Verify with a re-scan and document the remediation"], "successCriteria": ["Affected services are identified via the SBOM", "Re-scan confirms the CVE is remediated"] }
+  ]
+}
