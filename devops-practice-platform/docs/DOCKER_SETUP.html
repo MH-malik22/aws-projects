@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Docker Setup — DevOps Practice Platform</title>
+<style>
+  :root {
+    --bg: #ffffff; --surface: #f6f8fa; --surface-2: #eef1f4; --border: #d7dde3;
+    --text: #1f2733; --muted: #5b6675; --primary: #0e9e6f; --accent: #4f46e5;
+    --code-bg: #0f1420; --code-text: #e6eaf2; --code-green: #34d399; --code-purple: #a5b4fc;
+    --warn-bg: #fff7ed; --warn-border: #f59e0b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1420; --surface: #1a2130; --surface-2: #222b3d; --border: #2e3a52;
+      --text: #e6eaf2; --muted: #97a3b8; --primary: #34d399; --accent: #818cf8;
+      --code-bg: #0b0f18; --code-text: #e6eaf2; --code-green: #34d399; --code-purple: #a5b4fc;
+      --warn-bg: rgba(245,158,11,.12); --warn-border: #f59e0b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text); line-height: 1.6;
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.page { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+  header.page .eyebrow { color: var(--primary); font-weight: 700; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
+  h1 { font-size: 2rem; margin: 6px 0 8px; }
+  header.page p { color: var(--muted); margin: 0; }
+  h2 { font-size: 1.3rem; margin: 38px 0 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  h2:first-of-type { border-top: none; }
+  h3 { font-size: 1.02rem; margin: 22px 0 8px; }
+  p, li { color: var(--text); }
+  a { color: var(--accent); }
+  code {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .88em; background: var(--surface-2); padding: 2px 6px; border-radius: 5px;
+  }
+  pre {
+    background: var(--code-bg); color: var(--code-text); padding: 16px 18px; border-radius: 10px;
+    overflow-x: auto; border: 1px solid var(--border); margin: 14px 0;
+  }
+  pre code { background: none; padding: 0; font-size: .86rem; color: var(--code-text); }
+  pre .cmt { color: #6b7a90; }
+  .tldr {
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--primary);
+    border-radius: 10px; padding: 16px 18px; margin: 0 0 28px;
+  }
+  .tldr strong { color: var(--primary); }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .94rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface); font-weight: 700; }
+  td code { white-space: nowrap; }
+  .note {
+    background: var(--warn-bg); border: 1px solid var(--warn-border); border-radius: 10px;
+    padding: 12px 16px; margin: 16px 0; color: var(--text);
+  }
+  .note strong { color: var(--warn-border); }
+  .callout { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin: 16px 0; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 5px 0; }
+  .diagram { font-size: .8rem; line-height: 1.5; }
+  footer.page { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: .88rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="page">
+  <div class="eyebrow">DevOps Practice Platform</div>
+  <h1>Running the Platform with Docker</h1>
+  <p>A complete, step-by-step guide to run the whole app — PostgreSQL, the API, and the web UI — with a single command using Docker Compose.</p>
+</header>
+
+<div class="tldr">
+  <strong>TL;DR</strong>
+<pre><code>cd devops-practice-platform
+cp .env.example .env          <span class="cmt"># optional; sensible defaults are baked in</span>
+docker compose up --build</code></pre>
+  Web UI → <a href="http://localhost:8080">http://localhost:8080</a> · API → <a href="http://localhost:4000/api">http://localhost:4000/api</a><br>
+  The API container migrates the schema and seeds all 10 modules automatically.
+</div>
+
+<h2>1. Prerequisites</h2>
+<p>Install <strong>Docker</strong> (Docker Desktop on macOS/Windows, or Docker Engine on Linux). It must include <strong>Compose v2</strong> (the <code>docker compose</code> subcommand).</p>
+<p>Verify both are present and the daemon is running:</p>
+<pre><code>docker --version          <span class="cmt"># e.g. Docker version 27.x</span>
+docker compose version    <span class="cmt"># e.g. Docker Compose version v2.x</span></code></pre>
+<p>Make sure Docker Desktop (or the Docker daemon on Linux via <code>sudo systemctl start docker</code>) is actually running before continuing.</p>
+
+<h2>2. Get the code</h2>
+<pre><code>git clone https://github.com/MH-malik22/aws-projects.git
+cd aws-projects/devops-practice-platform</code></pre>
+<p>If you already cloned the repo, pull the latest <code>master</code> and change into the app directory:</p>
+<pre><code>git pull origin master
+cd devops-practice-platform</code></pre>
+
+<h2>3. (Optional) create the env file</h2>
+<p>Sensible defaults are baked into <code>docker-compose.yml</code>, so this step is optional:</p>
+<pre><code>cp .env.example .env</code></pre>
+<p>Only edit <code>.env</code> if you want to change the database name/password or the exposed ports. Compose automatically loads a file named <code>.env</code> from this directory.</p>
+
+<h2>4. Build and start everything</h2>
+<pre><code>docker compose up --build</code></pre>
+<p>This builds the images and starts <strong>three containers</strong>:</p>
+<table>
+  <thead><tr><th>Service</th><th>What it is</th><th>Port (host → container)</th></tr></thead>
+  <tbody>
+    <tr><td><code>db</code></td><td>PostgreSQL 16</td><td><code>5432 → 5432</code></td></tr>
+    <tr><td><code>api</code></td><td>Node/Express REST API</td><td><code>4000 → 4000</code></td></tr>
+    <tr><td><code>web</code></td><td>React SPA served by nginx</td><td><code>8080 → 80</code></td></tr>
+  </tbody>
+</table>
+<p><strong>What happens automatically:</strong></p>
+<ol>
+  <li><code>db</code> starts, and Compose waits for its healthcheck (<code>pg_isready</code>) to pass.</li>
+  <li><code>api</code> then runs <code>npm run setup</code> (applies the schema <strong>and</strong> seeds all 10 modules), then <code>npm start</code>.</li>
+  <li><code>web</code> serves the pre-built React app.</li>
+</ol>
+<p>The first build takes a couple of minutes (pulling base images, <code>npm install</code>). Leave the terminal open to watch live logs from all three services.</p>
+<div class="callout">
+  To run detached (in the background) instead:
+<pre><code>docker compose up --build -d
+docker compose logs -f          <span class="cmt"># follow logs</span></code></pre>
+</div>
+
+<h2>5. Confirm it's up</h2>
+<p>Watch the <code>api</code> logs for these lines — they confirm the database seeded correctly:</p>
+<pre><code>[migrate] schema applied successfully
+[seed] loading 10 modules ...
+[seed] done
+[server] DevOps Practice Platform API listening on :4000</code></pre>
+<p>Then check it:</p>
+<ul>
+  <li><strong>Web UI</strong> → open <a href="http://localhost:8080">http://localhost:8080</a> — you should see the Dashboard with 10 module cards.</li>
+  <li><strong>API health:</strong>
+<pre><code>curl http://localhost:4000/api/health
+<span class="cmt"># {"status":"ok","db":"up"}</span></code></pre>
+  </li>
+  <li><strong>API data:</strong>
+<pre><code>curl http://localhost:4000/api/modules
+<span class="cmt"># returns 10 modules</span></code></pre>
+  </li>
+</ul>
+<p>Click into a module (e.g. Docker) → the <strong>Concept / Notes / Quiz / Labs</strong> tabs should all work, and taking the quiz should advance the progress bar.</p>
+
+<h2>6. Everyday commands</h2>
+<pre><code><span class="cmt"># Stop the stack (Ctrl+C if running in the foreground), or:</span>
+docker compose down
+
+<span class="cmt"># Stop AND wipe the database (fresh start; re-seeds on next up):</span>
+docker compose down -v
+
+<span class="cmt"># Rebuild images after code changes and restart:</span>
+docker compose up --build
+
+<span class="cmt"># Tail logs for a single service:</span>
+docker compose logs -f api
+
+<span class="cmt"># Open a shell inside a running container:</span>
+docker compose exec api sh
+docker compose exec db psql -U devops -d devops_platform
+
+<span class="cmt"># Re-run only the content seed (after editing content/*.json):</span>
+docker compose exec api npm run seed</code></pre>
+
+<h2>7. Troubleshooting</h2>
+
+<h3>Port already in use</h3>
+<p>(<code>bind: address already in use</code> for 8080, 4000, or 5432) — another process holds that port. Either stop it, or change the host port in <code>docker-compose.yml</code> (e.g. <code>"9090:80"</code> for <code>web</code>) and re-run. If you remap the <strong>API</strong> port, also update <code>VITE_API_BASE_URL</code> under the <code>web</code> service — the browser calls the API directly at <code>http://localhost:4000/api</code>, and that value is baked in at build time, so rebuild with <code>--build</code> afterward.</p>
+
+<h3>Web loads but shows "Could not load modules"</h3>
+<p>The API container isn't healthy yet. Check <code>docker compose logs api</code> — it's usually still waiting on the DB or the seed failed. A clean slate fixes most cases:</p>
+<pre><code>docker compose down -v &amp;&amp; docker compose up --build</code></pre>
+
+<h3><code>docker compose</code> not found</h3>
+<p>You have the old standalone tool — use <code>docker-compose</code> (with a hyphen), or update Docker Desktop to get Compose v2.</p>
+
+<h3>Daemon not running</h3>
+<p>Start Docker Desktop, or on Linux: <code>sudo systemctl start docker</code>.</p>
+
+<h3>Changed a <code>content/*.json</code> and want it reloaded</h3>
+<p>Run <code>docker compose exec api npm run seed</code>, or <code>docker compose down -v</code> followed by <code>docker compose up</code> for a full reset.</p>
+
+<hr>
+
+<h2>How the pieces connect</h2>
+<pre class="diagram"><code>  Browser ──▶ http://localhost:8080  (web: nginx serving the React SPA)
+      │
+      └─────▶ http://localhost:4000/api  (api: Express, called directly by the browser)
+                          │
+                          └──▶ db:5432  (postgres, internal Docker network)</code></pre>
+<ul>
+  <li>The <strong>web</strong> container serves static files only; the browser talks to the <strong>API</strong> directly, which is why <code>VITE_API_BASE_URL</code> points at <code>http://localhost:4000/api</code>.</li>
+  <li>The <strong>api</strong> container reaches the database over the internal Compose network at hostname <code>db</code>, using <code>DATABASE_URL</code> defined in <code>docker-compose.yml</code>.</li>
+  <li>Database data persists in the named volume <code>pgdata</code> between runs (until you <code>docker compose down -v</code>).</li>
+</ul>
+
+<footer class="page">
+  For the full architecture, data model, and API contract, see <a href="SYSTEM_DESIGN.md">SYSTEM_DESIGN.md</a>.
+  A Markdown version of this guide is available at <a href="DOCKER_SETUP.md">DOCKER_SETUP.md</a>.
+</footer>
+
+</div>
+</body>
+</html>
