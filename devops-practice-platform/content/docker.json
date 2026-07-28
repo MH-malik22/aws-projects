@@ -1,0 +1,86 @@
+{
+  "slug": "docker",
+  "title": "Docker",
+  "order": 3,
+  "level": "beginner",
+  "concept": {
+    "overview": "Docker packages an application together with its dependencies, libraries, and runtime into a portable, immutable image. From that image you run containers: isolated processes that share the host kernel but have their own filesystem, network, and process space. Unlike virtual machines, containers do not bundle a full guest OS, so they start in milliseconds and are far lighter. 'Build once, run anywhere' — the same image runs identically on a laptop, a CI runner, and a Kubernetes cluster.",
+    "whyItMatters": "Containers eliminate the classic 'works on my machine' problem by making the environment part of the artifact. They are the unit of deployment for modern DevOps: CI builds an image, a registry stores it, and orchestrators like Kubernetes run it. Immutability and reproducibility make rollbacks trivial and pipelines fast.",
+    "useCases": [
+      "Packaging microservices as portable, versioned images",
+      "Creating identical dev, test, and production environments",
+      "Running build and test steps in clean, disposable CI containers",
+      "Shipping the deployable unit that Kubernetes and ECS schedule",
+      "Bundling databases and tools locally without polluting the host"
+    ],
+    "architecture": "The Docker client (CLI) talks to the Docker daemon (dockerd) over a socket. The daemon builds images from a Dockerfile, stores them locally, pulls/pushes them to a registry (like Docker Hub or ECR), and runs them as containers. An image is a stack of read-only layers; each Dockerfile instruction adds a layer, and identical layers are cached and shared. When you run a container, Docker adds a thin writable layer on top. Containers get isolation from Linux namespaces (PID, network, mount) and resource limits from cgroups. Volumes and bind mounts provide persistent storage outside the container's ephemeral layer."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Image", "def": "An immutable, layered template containing the app and its dependencies." },
+      { "term": "Container", "def": "A running (or stopped) instance of an image with its own isolated namespace." },
+      { "term": "Dockerfile", "def": "A text recipe of instructions used to build an image." },
+      { "term": "Layer", "def": "A cached, read-only filesystem change produced by one Dockerfile instruction." },
+      { "term": "Registry", "def": "A store for images (Docker Hub, Amazon ECR, GHCR) that you push to and pull from." },
+      { "term": "Volume", "def": "Docker-managed persistent storage that outlives the container." },
+      { "term": "Multi-stage build", "def": "A Dockerfile pattern that uses a build stage and copies only artifacts into a slim final image." }
+    ],
+    "commands": [
+      { "cmd": "docker build -t app:1.0 .", "desc": "Build an image from the Dockerfile in the current directory and tag it." },
+      { "cmd": "docker run -d -p 8080:80 app:1.0", "desc": "Run a container detached, mapping host port 8080 to container 80." },
+      { "cmd": "docker ps -a", "desc": "List running and stopped containers." },
+      { "cmd": "docker logs -f <container>", "desc": "Follow a container's stdout/stderr." },
+      { "cmd": "docker exec -it <container> sh", "desc": "Open an interactive shell inside a running container." },
+      { "cmd": "docker images", "desc": "List local images and their sizes." },
+      { "cmd": "docker pull / push <image>", "desc": "Download from or upload to a registry." },
+      { "cmd": "docker volume create data", "desc": "Create a named persistent volume." },
+      { "cmd": "docker compose up -d", "desc": "Start a multi-container app defined in compose.yaml." },
+      { "cmd": "docker system prune", "desc": "Remove unused containers, networks, and dangling images." },
+      { "cmd": "docker inspect <object>", "desc": "Show detailed low-level JSON metadata." },
+      { "cmd": "docker tag app:1.0 registry/app:1.0", "desc": "Add a registry-qualified tag before pushing." }
+    ],
+    "bestPractices": [
+      "Use small base images (alpine, distroless) and multi-stage builds to shrink final images.",
+      "Order Dockerfile instructions from least to most frequently changing to maximize layer cache hits.",
+      "Never bake secrets into images; pass them at runtime via env vars or secret stores.",
+      "Run containers as a non-root user with a dedicated USER instruction.",
+      "Pin base image versions/digests instead of relying on 'latest'."
+    ],
+    "pitfalls": [
+      "Storing important data inside the container's writable layer — it vanishes when the container is removed.",
+      "Using ':latest' everywhere, making deployments non-reproducible.",
+      "Copying the whole context (including node_modules) without a .dockerignore, bloating images and cache.",
+      "Running as root inside the container, expanding the attack surface.",
+      "Putting 'COPY . .' before dependency install, busting the cache on every source change."
+    ],
+    "cheatSheet": [
+      "Stop and remove all containers: docker rm -f $(docker ps -aq)",
+      "See image layer history: docker history app:1.0",
+      "Bind mount for live dev: docker run -v $(pwd):/app app:1.0",
+      "Limit resources: docker run --memory=256m --cpus=0.5 app",
+      "Build without cache: docker build --no-cache -t app .",
+      "Clean everything unused: docker system prune -a --volumes"
+    ]
+  },
+  "quiz": [
+    { "id": "docker-q1", "type": "mcq", "question": "What is the key difference between a container and a virtual machine?", "options": ["Containers include a full guest OS", "Containers share the host kernel and are lighter", "VMs start faster than containers", "They are the same thing"], "answer": 1, "explanation": "Containers share the host kernel via namespaces/cgroups; VMs virtualize hardware and run a full guest OS." },
+    { "id": "docker-q2", "type": "truefalse", "question": "Data written to a container's writable layer is lost when the container is removed.", "options": ["True", "False"], "answer": true, "explanation": "The writable layer is ephemeral; use volumes for persistence." },
+    { "id": "docker-q3", "type": "mcq", "question": "Which Dockerfile ordering maximizes build cache reuse?", "options": ["COPY source before installing dependencies", "Install dependencies before copying frequently changing source", "Random order", "Always use --no-cache"], "answer": 1, "explanation": "Put stable steps (dependency install) first so source changes don't invalidate them." },
+    { "id": "docker-q4", "type": "mcq", "question": "What does 'docker run -p 8080:80' do?", "options": ["Maps container port 8080 to host 80", "Maps host port 8080 to container port 80", "Opens 80 ports", "Sets a memory limit"], "answer": 1, "explanation": "The format is host:container, so host 8080 forwards to container 80." },
+    { "id": "docker-q5", "type": "truefalse", "question": "A multi-stage build can produce a smaller final image by discarding build tools.", "options": ["True", "False"], "answer": true, "explanation": "You build in one stage and copy only the artifacts into a slim final stage." },
+    { "id": "docker-q6", "type": "scenario", "question": "Your image is 1.2 GB and slow to deploy. Which change helps MOST?", "options": ["Use a bigger base image", "Switch to an alpine/distroless base and multi-stage build", "Add more layers", "Disable the cache"], "answer": 1, "explanation": "A minimal base plus multi-stage builds dramatically reduces final image size." },
+    { "id": "docker-q7", "type": "mcq", "question": "Where should secrets like DB passwords come from?", "options": ["Hardcoded in the Dockerfile", "Baked into the image", "Injected at runtime via env vars or a secret store", "Committed to the registry"], "answer": 2, "explanation": "Secrets must never live in the image; supply them at runtime." },
+    { "id": "docker-q8", "type": "mcq", "question": "What is a Docker registry?", "options": ["A running container", "A store for images you push and pull", "A network driver", "The build cache"], "answer": 1, "explanation": "Registries (Docker Hub, ECR, GHCR) store and distribute images." },
+    { "id": "docker-q9", "type": "scenario", "question": "You need to debug a running container's filesystem. Which command?", "options": ["docker build -it", "docker exec -it <container> sh", "docker rm <container>", "docker images"], "answer": 1, "explanation": "docker exec -it opens an interactive shell in the live container." },
+    { "id": "docker-q10", "type": "truefalse", "question": "Running containers as root is a security best practice.", "options": ["True", "False"], "answer": false, "explanation": "Prefer a non-root USER to reduce the impact of a container compromise." },
+    { "id": "docker-q11", "type": "mcq", "question": "What does a .dockerignore file do?", "options": ["Encrypts the image", "Excludes files from the build context", "Lists ports to expose", "Names the base image"], "answer": 1, "explanation": "It keeps unneeded files (node_modules, .git) out of the build context for speed and smaller images." },
+    { "id": "docker-q12", "type": "mcq", "question": "Which command starts a multi-container app from compose.yaml?", "options": ["docker run compose", "docker compose up -d", "docker build compose", "docker stack"], "answer": 1, "explanation": "docker compose up -d starts all services defined in the compose file." },
+    { "id": "docker-q13", "type": "scenario", "question": "Every source code change rebuilds all layers slowly. What is the likely cause?", "options": ["Base image too small", "'COPY . .' appears before dependency install, invalidating the cache", "Too few layers", "Registry is offline"], "answer": 1, "explanation": "Copying source early busts the cache; copy dependency manifests and install first." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Run and inspect a container", "goal": "Pull an image and interact with a container.", "steps": ["Pull the official nginx image", "Run it detached mapping port 8080:80", "Open localhost:8080 in a browser", "View logs and exec a shell into the container"], "successCriteria": ["The nginx welcome page loads", "You obtained an interactive shell inside the container"] },
+    { "level": "intermediate", "title": "Write a Dockerfile", "goal": "Containerize a small application.", "steps": ["Create a Dockerfile with a slim base image", "Copy dependency manifest and install before copying source", "Set a non-root USER and an EXPOSE port", "Build and tag the image, then run it"], "successCriteria": ["Image builds successfully", "The app responds on the exposed port"] },
+    { "level": "advanced", "title": "Optimize with a multi-stage build", "goal": "Cut image size and add persistence.", "steps": ["Add a build stage that compiles/bundles the app", "Copy only artifacts into a minimal final stage", "Attach a named volume for persistent data", "Compare image sizes before and after"], "successCriteria": ["Final image is significantly smaller", "Data persists across container restarts via the volume"] },
+    { "level": "simulation", "title": "Compose a multi-service stack", "goal": "Run an app plus a database like a real environment.", "steps": ["Define an app and a postgres service in compose.yaml", "Use a volume for the database and env vars for credentials", "Add a healthcheck and depends_on ordering", "Bring the stack up and verify the app connects to the DB"], "successCriteria": ["Both services start and pass healthchecks", "The app reads/writes data through the database"] }
+  ]
+}

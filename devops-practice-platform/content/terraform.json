@@ -1,0 +1,86 @@
+{
+  "slug": "terraform",
+  "title": "Terraform",
+  "order": 6,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Terraform is an Infrastructure as Code (IaC) tool that lets you define cloud and on-prem infrastructure — servers, networks, databases, DNS — in declarative configuration files. You describe the desired end state in HCL (HashiCorp Configuration Language), and Terraform figures out the create/update/delete actions needed to reach it, then applies them through provider APIs. Because the configuration is version-controlled code, infrastructure becomes reproducible, reviewable, and automatable, the same way application code is.",
+    "whyItMatters": "Manually clicking through cloud consoles is slow, error-prone, and impossible to audit or reproduce. Terraform makes infrastructure declarative and idempotent: the same config yields the same environment every time, whether it's the first apply or the hundredth. It enables safe change previews (plan), team collaboration through shared state, and multi-cloud provisioning from one workflow — the foundation of modern platform engineering.",
+    "useCases": [
+      "Provisioning entire environments (VPC, subnets, EC2, RDS) reproducibly",
+      "Spinning up identical dev/staging/prod stacks from the same modules",
+      "Managing DNS, IAM, and Kubernetes clusters as versioned code",
+      "Previewing and reviewing infrastructure changes before they happen",
+      "Tearing down ephemeral environments to control cost"
+    ],
+    "architecture": "You write .tf files declaring providers (AWS, GCP, etc.) and resources. 'terraform init' downloads provider plugins and configures the backend. Terraform maintains a state file that maps your configuration to real-world resource IDs. 'terraform plan' diffs desired config against state and shows the exact changes; 'terraform apply' executes them via provider APIs and updates state. State should live in a remote backend (e.g., S3 with DynamoDB locking) so teams share one source of truth and avoid concurrent corruption. Reusable groups of resources are packaged as modules; variables and outputs parameterize and expose values."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Provider", "def": "A plugin that lets Terraform manage a specific platform's resources (AWS, Azure, etc.)." },
+      { "term": "Resource", "def": "A single infrastructure object declared in HCL, e.g., aws_instance." },
+      { "term": "State", "def": "Terraform's record mapping config to real resource IDs; the source of truth for diffs." },
+      { "term": "Plan", "def": "A preview of the actions Terraform will take to reach the desired state." },
+      { "term": "Module", "def": "A reusable, parameterized bundle of resources." },
+      { "term": "Variable / Output", "def": "Inputs that parameterize config and values exposed after apply." },
+      { "term": "Backend", "def": "Where state is stored (local or remote like S3), often with locking." }
+    ],
+    "commands": [
+      { "cmd": "terraform init", "desc": "Initialize the working directory, download providers, configure backend." },
+      { "cmd": "terraform fmt", "desc": "Format .tf files to canonical style." },
+      { "cmd": "terraform validate", "desc": "Check configuration syntax and consistency." },
+      { "cmd": "terraform plan -out=tfplan", "desc": "Preview changes and save the plan to a file." },
+      { "cmd": "terraform apply tfplan", "desc": "Apply exactly the reviewed, saved plan." },
+      { "cmd": "terraform destroy", "desc": "Tear down all managed infrastructure." },
+      { "cmd": "terraform state list", "desc": "List resources tracked in state." },
+      { "cmd": "terraform import <addr> <id>", "desc": "Bring an existing resource under Terraform management." },
+      { "cmd": "terraform workspace new staging", "desc": "Create an isolated state workspace for an environment." },
+      { "cmd": "terraform output", "desc": "Print declared output values." },
+      { "cmd": "terraform plan -target=<addr>", "desc": "Scope a plan to a specific resource (use sparingly)." },
+      { "cmd": "terraform taint / -replace", "desc": "Force a resource to be recreated on next apply." }
+    ],
+    "bestPractices": [
+      "Store state remotely (e.g., S3) with locking (DynamoDB) so teams don't corrupt it.",
+      "Always run and review 'terraform plan' before apply; commit plans in CI.",
+      "Never edit resources by hand in the console — it causes state drift.",
+      "Use modules and variables to keep environments DRY and consistent.",
+      "Keep secrets out of state where possible and never commit .tfstate to Git."
+    ],
+    "pitfalls": [
+      "Committing terraform.tfstate to Git — it can contain secrets and causes conflicts.",
+      "Manual console changes that drift from state, breaking the next apply.",
+      "Running apply without reading the plan and destroying production resources.",
+      "No state locking, letting two applies corrupt shared state.",
+      "Hardcoding values instead of using variables, blocking reuse across environments."
+    ],
+    "cheatSheet": [
+      "Safe workflow: init -> fmt -> validate -> plan -> apply",
+      "Remote state (S3): backend \"s3\" { bucket, key, region, dynamodb_table }",
+      "Reference a variable: var.instance_type",
+      "Reference a resource attribute: aws_instance.web.public_ip",
+      "Loop with count: count = 3 ; each = count.index",
+      "Loop with for_each over a set/map for named resources"
+    ]
+  },
+  "quiz": [
+    { "id": "terraform-q1", "type": "mcq", "question": "What does 'terraform plan' do?", "options": ["Applies changes immediately", "Previews the actions needed to reach desired state", "Deletes all resources", "Formats the code"], "answer": 1, "explanation": "plan diffs config against state and shows what would change, without applying." },
+    { "id": "terraform-q2", "type": "truefalse", "question": "The Terraform state file maps your configuration to real resource IDs.", "options": ["True", "False"], "answer": true, "explanation": "State is how Terraform tracks which real resources correspond to your config." },
+    { "id": "terraform-q3", "type": "mcq", "question": "Why store state in a remote backend like S3 with locking?", "options": ["It's faster to type", "So teams share one state and avoid concurrent corruption", "It encrypts your code", "It's required to run plan"], "answer": 1, "explanation": "Remote state with locking gives a shared source of truth and prevents simultaneous corrupting applies." },
+    { "id": "terraform-q4", "type": "truefalse", "question": "You should commit terraform.tfstate to your Git repository.", "options": ["True", "False"], "answer": false, "explanation": "State can contain secrets and causes conflicts; keep it in a remote backend, not Git." },
+    { "id": "terraform-q5", "type": "mcq", "question": "What is state drift?", "options": ["State file too large", "Real infrastructure changed outside Terraform, diverging from state", "A syntax error", "A provider update"], "answer": 1, "explanation": "Drift happens when resources are changed manually, so state no longer matches reality." },
+    { "id": "terraform-q6", "type": "mcq", "question": "What does a Terraform module provide?", "options": ["A remote backend", "A reusable, parameterized group of resources", "A CLI plugin", "A state lock"], "answer": 1, "explanation": "Modules package resources for reuse across environments and projects." },
+    { "id": "terraform-q7", "type": "scenario", "question": "A teammate manually resized an instance in the console. Next 'terraform apply' will:", "options": ["Ignore it forever", "Detect drift and try to revert it to the config's value", "Delete the instance", "Fail to run"], "answer": 1, "explanation": "Terraform reconciles to desired state, so it plans to change the resource back unless config is updated." },
+    { "id": "terraform-q8", "type": "mcq", "question": "Which command safely applies exactly what you reviewed?", "options": ["terraform apply -auto-approve", "terraform plan -out=tfplan then terraform apply tfplan", "terraform destroy", "terraform refresh"], "answer": 1, "explanation": "Saving the plan and applying that file guarantees you apply exactly the reviewed changes." },
+    { "id": "terraform-q9", "type": "truefalse", "question": "Terraform is declarative and idempotent — re-running apply on unchanged config makes no changes.", "options": ["True", "False"], "answer": true, "explanation": "If reality matches desired state, apply is a no-op." },
+    { "id": "terraform-q10", "type": "mcq", "question": "How do you bring an existing, manually created resource under Terraform?", "options": ["terraform new", "terraform import", "terraform adopt", "terraform apply"], "answer": 1, "explanation": "terraform import maps an existing resource ID into state." },
+    { "id": "terraform-q11", "type": "scenario", "question": "You must provision identical staging and prod stacks. Best approach?", "options": ["Copy-paste all .tf files per environment", "Use modules with variables and separate state/workspaces", "Hardcode everything twice", "Click through the console"], "answer": 1, "explanation": "Modules plus variables and per-environment state keep stacks DRY and consistent." },
+    { "id": "terraform-q12", "type": "mcq", "question": "What does 'terraform init' primarily do?", "options": ["Applies changes", "Downloads providers and configures the backend", "Destroys resources", "Prints outputs"], "answer": 1, "explanation": "init prepares the working directory: providers, modules, and backend." },
+    { "id": "terraform-q13", "type": "scenario", "question": "Two engineers run 'terraform apply' at the same time on shared local state. Risk?", "options": ["Nothing, it's safe", "State corruption from concurrent writes; use remote state with locking", "Faster provisioning", "Automatic merge"], "answer": 1, "explanation": "Concurrent applies on unlocked shared state can corrupt it; remote locking prevents this." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Provision a single resource", "goal": "Run the core Terraform workflow.", "steps": ["Write a provider block and one resource (e.g., a local_file or a cloud resource in a sandbox)", "Run terraform init", "Run terraform plan and read the output", "Run terraform apply and then terraform destroy"], "successCriteria": ["plan shows the resource to be created", "apply creates it and destroy removes it"] },
+    { "level": "intermediate", "title": "Parameterize with variables and outputs", "goal": "Make config reusable.", "steps": ["Extract hardcoded values into variables with defaults", "Add an outputs.tf exposing a useful attribute", "Override a variable via -var or a tfvars file", "Confirm outputs after apply"], "successCriteria": ["Changing a variable changes the plan", "terraform output prints the exposed value"] },
+    { "level": "advanced", "title": "Refactor into a module with remote state", "goal": "Adopt team-grade practices.", "steps": ["Move resources into a reusable module directory", "Configure an S3 (or equivalent) remote backend with locking", "Call the module for two workspaces/environments", "Verify state is stored remotely and locked during apply"], "successCriteria": ["The same module provisions two environments", "State lives in the remote backend, not locally"] },
+    { "level": "simulation", "title": "Build a small VPC stack", "goal": "Provision a realistic network foundation.", "steps": ["Declare a VPC, public and private subnets, and a route table", "Add an EC2 instance in the public subnet with a security group", "Plan, review, and apply the stack", "Destroy it to control cost when done"], "successCriteria": ["The network and instance are created as planned", "A clean destroy removes all managed resources"] }
+  ]
+}

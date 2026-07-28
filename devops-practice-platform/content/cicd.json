@@ -1,0 +1,86 @@
+{
+  "slug": "cicd",
+  "title": "CI/CD (GitHub Actions + Jenkins)",
+  "order": 5,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Continuous Integration (CI) means every code change is automatically built and tested the moment it is pushed, catching integration problems early. Continuous Delivery/Deployment (CD) extends that pipeline so validated changes are automatically released to staging or production. A pipeline is a sequence of stages — build, test, scan, package, deploy — triggered by events like a push or pull request. GitHub Actions is a cloud-native, YAML-defined CI/CD service tightly integrated with GitHub; Jenkins is a mature, self-hosted automation server driven by pipelines-as-code (Jenkinsfile) and a huge plugin ecosystem.",
+    "whyItMatters": "CI/CD is the engine that turns Git commits into running software safely and repeatedly. It removes manual, error-prone release steps, shortens feedback loops from days to minutes, and enforces quality gates (tests, security scans, approvals) automatically. High-performing teams deploy many times a day precisely because their pipelines are fast and trustworthy.",
+    "useCases": [
+      "Automatically building and testing every pull request before merge",
+      "Producing versioned, immutable build artifacts and container images",
+      "Running security and quality scans as required gates",
+      "Deploying to staging automatically and to production on approval",
+      "Rolling back quickly by redeploying a previous known-good artifact"
+    ],
+    "architecture": "An event (push, PR, tag, schedule) triggers the pipeline. In GitHub Actions, a workflow YAML in .github/workflows defines jobs; each job runs on a runner (hosted or self-hosted) and contains steps that use reusable actions or shell commands. Jobs can run in parallel and pass artifacts between them. In Jenkins, a controller schedules work onto agents; a declarative Jenkinsfile defines stages and steps, with plugins for SCM, credentials, and notifications. Both pull code, cache dependencies, run stages, publish artifacts to a registry, and call out to deployment targets (Kubernetes, cloud, servers). Secrets are injected from a secure store, never committed."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Pipeline", "def": "An automated sequence of stages that takes code from commit to deployment." },
+      { "term": "Workflow (Actions)", "def": "A YAML file defining triggers, jobs, and steps in GitHub Actions." },
+      { "term": "Job / Step", "def": "A job runs on one runner; steps are the individual commands or actions within it." },
+      { "term": "Runner / Agent", "def": "The machine that executes pipeline jobs (GitHub-hosted, self-hosted, or Jenkins agent)." },
+      { "term": "Jenkinsfile", "def": "A pipeline-as-code script (declarative or scripted) defining Jenkins stages." },
+      { "term": "Artifact", "def": "A build output (binary, image, package) passed between stages or published." },
+      { "term": "Quality gate", "def": "A required check (tests, coverage, security scan) that must pass to proceed." }
+    ],
+    "commands": [
+      { "cmd": "on: [push, pull_request]", "desc": "GitHub Actions trigger declaration for a workflow." },
+      { "cmd": "runs-on: ubuntu-latest", "desc": "Selects the runner image for an Actions job." },
+      { "cmd": "uses: actions/checkout@v4", "desc": "Reusable action step to check out the repository." },
+      { "cmd": "actions/upload-artifact@v4", "desc": "Publish build outputs from a job." },
+      { "cmd": "pipeline { agent any stages { ... } }", "desc": "Declarative Jenkins pipeline skeleton." },
+      { "cmd": "stage('Test') { steps { sh 'npm test' } }", "desc": "A Jenkins stage running a shell command." },
+      { "cmd": "sh 'docker build -t app:$GIT_SHA .'", "desc": "Build a tagged image inside a pipeline step." },
+      { "cmd": "withCredentials([...]) { ... }", "desc": "Inject Jenkins secrets scoped to a block." },
+      { "cmd": "needs: build", "desc": "Make an Actions job depend on another job finishing first." },
+      { "cmd": "if: github.ref == 'refs/heads/main'", "desc": "Conditionally run a step/job only on main." },
+      { "cmd": "environment { REGISTRY = 'ghcr.io' }", "desc": "Define environment variables in a Jenkinsfile." },
+      { "cmd": "matrix: { node: [18, 20] }", "desc": "Run a job across multiple versions in parallel." }
+    ],
+    "bestPractices": [
+      "Keep pipelines fast: cache dependencies, parallelize jobs, and fail early on cheap checks.",
+      "Make builds reproducible and artifacts immutable; tag images with the commit SHA.",
+      "Store secrets in the platform's secret manager, never in the YAML or repo.",
+      "Require green checks and reviews before merging via branch protection.",
+      "Promote the same artifact through environments rather than rebuilding per stage."
+    ],
+    "pitfalls": [
+      "Flaky tests that erode trust and get ignored, defeating the pipeline's purpose.",
+      "Hardcoding credentials in workflow files or Jenkinsfiles.",
+      "Rebuilding a different artifact for prod than the one you tested.",
+      "Overly long pipelines with no caching, slowing every merge.",
+      "Deploying on every commit to main without a gate or approval for production."
+    ],
+    "cheatSheet": [
+      "Actions secret usage: ${{ secrets.MY_TOKEN }}",
+      "Run only on tags: on: push: tags: ['v*']",
+      "Cache deps (Actions): actions/cache@v4 with a lockfile key",
+      "Jenkins post block: post { failure { mail ... } }",
+      "Manual approval (Jenkins): input message: 'Deploy to prod?'",
+      "Reuse workflows: uses: org/repo/.github/workflows/ci.yml@main"
+    ]
+  },
+  "quiz": [
+    { "id": "cicd-q1", "type": "mcq", "question": "What does Continuous Integration primarily ensure?", "options": ["Automatic production deploys", "Every change is built and tested automatically", "Manual QA before merge", "Servers auto-scale"], "answer": 1, "explanation": "CI automatically builds and tests each change to catch integration issues early." },
+    { "id": "cicd-q2", "type": "truefalse", "question": "In GitHub Actions, workflows are defined as YAML files under .github/workflows.", "options": ["True", "False"], "answer": true, "explanation": "Actions reads workflow YAML from the .github/workflows directory." },
+    { "id": "cicd-q3", "type": "mcq", "question": "In Jenkins, what file typically defines a pipeline as code?", "options": ["pipeline.json", "Jenkinsfile", "workflow.yml", "Dockerfile"], "answer": 1, "explanation": "A Jenkinsfile holds the declarative or scripted pipeline." },
+    { "id": "cicd-q4", "type": "mcq", "question": "Why tag container images with the Git commit SHA?", "options": ["It looks nicer", "It makes builds reproducible and traceable to a commit", "It speeds up builds", "It is required by Docker"], "answer": 1, "explanation": "SHA tags give immutable, traceable artifacts tied to exact source." },
+    { "id": "cicd-q5", "type": "scenario", "question": "You tested artifact v42 in staging. For production you should:", "options": ["Rebuild from main again", "Promote the exact v42 artifact you tested", "Deploy the latest commit", "Skip staging next time"], "answer": 1, "explanation": "Promote the same tested artifact to avoid drift between what you tested and shipped." },
+    { "id": "cicd-q6", "type": "truefalse", "question": "Secrets should be stored directly in the workflow YAML for convenience.", "options": ["True", "False"], "answer": false, "explanation": "Use the platform secret manager; YAML lives in the repo and would leak secrets." },
+    { "id": "cicd-q7", "type": "mcq", "question": "What does 'needs: build' do in a GitHub Actions job?", "options": ["Installs dependencies", "Makes the job wait for the build job to succeed", "Caches artifacts", "Selects a runner"], "answer": 1, "explanation": "needs creates a dependency so the job runs after build completes." },
+    { "id": "cicd-q8", "type": "mcq", "question": "What is a quality gate?", "options": ["A firewall rule", "A required check that must pass before proceeding", "A deployment server", "A type of runner"], "answer": 1, "explanation": "Quality gates (tests, coverage, scans) block progress until they pass." },
+    { "id": "cicd-q9", "type": "scenario", "question": "Your pipeline takes 40 minutes and blocks merges. Which change helps MOST first?", "options": ["Remove the tests", "Cache dependencies and parallelize independent jobs", "Deploy less often", "Use a slower runner"], "answer": 1, "explanation": "Caching and parallelism cut wall-clock time without sacrificing checks." },
+    { "id": "cicd-q10", "type": "truefalse", "question": "A matrix build can run the same job across multiple language versions in parallel.", "options": ["True", "False"], "answer": true, "explanation": "Matrix strategies fan out a job over combinations like Node 18 and 20." },
+    { "id": "cicd-q11", "type": "mcq", "question": "How can a Jenkins pipeline pause for a human approval before prod?", "options": ["sh 'approve'", "input message: 'Deploy to prod?'", "when { approved }", "post { approve }"], "answer": 1, "explanation": "The input step pauses the pipeline until a user approves." },
+    { "id": "cicd-q12", "type": "mcq", "question": "What triggers a workflow to run only on version tags?", "options": ["on: push: branches: ['*']", "on: push: tags: ['v*']", "on: schedule", "on: pull_request"], "answer": 1, "explanation": "Filtering tags with 'v*' runs the workflow only on version tag pushes." },
+    { "id": "cicd-q13", "type": "scenario", "question": "A test passes locally but fails intermittently in CI. Best practice?", "options": ["Add a retry to always pass", "Mark it skipped forever", "Diagnose and fix the flaky test, isolating shared state/timing", "Delete CI"], "answer": 2, "explanation": "Flaky tests must be fixed; masking them erodes trust in the pipeline." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Create a CI workflow", "goal": "Run tests automatically on every push.", "steps": ["Add .github/workflows/ci.yml", "Trigger on push and pull_request", "Check out code, install dependencies, run tests", "Push and watch the run in the Actions tab"], "successCriteria": ["The workflow runs on push", "A failing test turns the check red"] },
+    { "level": "intermediate", "title": "Build and publish an artifact", "goal": "Produce a versioned image in CI.", "steps": ["Add a build job that builds a Docker image tagged with the commit SHA", "Log in to a registry using a stored secret", "Push the image", "Upload build logs/artifacts for later jobs"], "successCriteria": ["An image tagged with the SHA appears in the registry", "The registry login uses a secret, not plaintext"] },
+    { "level": "advanced", "title": "Multi-stage pipeline with gates", "goal": "Build, test, scan, and deploy to staging.", "steps": ["Create dependent jobs: build -> test -> scan -> deploy", "Make deploy conditional on the main branch", "Add a security scan as a required gate", "Promote the same artifact to staging"], "successCriteria": ["Deploy runs only after all gates pass on main", "The staging deploy uses the tested artifact"] },
+    { "level": "simulation", "title": "Blue/green release with approval", "goal": "Ship to production safely.", "steps": ["Extend the pipeline with a production stage behind a manual approval", "Deploy to a green environment alongside blue", "Run smoke tests against green", "Switch traffic to green and keep blue for rollback"], "successCriteria": ["Production deploy requires explicit approval", "A rollback path to the previous version exists"] }
+  ]
+}
