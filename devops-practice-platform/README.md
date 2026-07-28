@@ -43,6 +43,9 @@ docker compose up --build
 - API    → http://localhost:4000/api
 - The API container runs migrations and seeds all 10 modules automatically.
 
+For a detailed, step-by-step Docker walkthrough (prerequisites, verification,
+and troubleshooting), see [`docs/DOCKER_SETUP.md`](docs/DOCKER_SETUP.md).
+
 ### Option B — Run locally
 
 Prerequisites: Node.js 18+ and a running PostgreSQL.
