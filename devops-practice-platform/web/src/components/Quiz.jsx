@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client.js';
 
-// Interactive quiz: fetch questions, collect answers, submit for grading, and
-// show per-question explanations. Notifies the parent when progress changes.
+// Interactive quiz. Grading is server-side; results show correctness as text +
+// icon (not colour alone), and the verdict is announced via role="status".
 export default function Quiz({ slug, onProgress }) {
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -14,7 +14,7 @@ export default function Quiz({ slug, onProgress }) {
   }, [slug]);
 
   function choose(qid, value) {
-    if (result) return; // locked after submit
+    if (result) return;
     setAnswers((a) => ({ ...a, [qid]: value }));
   }
 
@@ -22,53 +22,60 @@ export default function Quiz({ slug, onProgress }) {
     try {
       const res = await api.submitQuiz(slug, answers);
       setResult(res);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       if (onProgress) onProgress(res.progress);
-    } catch (e) {
-      setError(e.message);
-    }
+    } catch (e) { setError(e.message); }
   }
 
-  function retake() {
-    setAnswers({});
-    setResult(null);
-  }
+  function retake() { setAnswers({}); setResult(null); }
 
-  if (error) return <div className="panel error">{error}</div>;
-  if (!quiz) return <div className="panel">Loading quiz…</div>;
+  if (error) return <div className="panel-msg error">! {error}</div>;
+  if (!quiz) return <div className="panel-msg">loading quiz…</div>;
 
-  const answeredCount = Object.keys(answers).length;
-  const resultById = result
-    ? Object.fromEntries(result.results.map((r) => [r.id, r]))
-    : {};
+  const answered = Object.keys(answers).length;
+  const byId = result ? Object.fromEntries(result.results.map((r) => [r.id, r])) : {};
+  const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
   return (
     <div className="quiz">
+      {!result && (
+        <div className="quiz-progress">
+          <span>{answered}/{quiz.total} answered</span>
+          <span className="qp-track"><span className="qp-fill" style={{ width: `${(answered / quiz.total) * 100}%` }} /></span>
+        </div>
+      )}
+
       {result && (
-        <div className={`quiz-score ${result.passed ? 'pass' : 'fail'}`}>
-          <strong>{result.score}/{result.total}</strong> correct ({result.percentage}%) —{' '}
-          {result.passed ? 'Passed! 🎉' : 'Keep practicing (70% to pass)'}
+        <div className={`score-banner ${result.passed ? 'pass' : 'fail'}`} role="status" aria-live="polite">
+          <span className="verdict">{result.passed ? 'PASS' : 'FAIL'}</span>
+          <span>{result.score}/{result.total} · {result.percentage}%</span>
+          <span className="exit">{result.passed ? 'exit 0 · +40%' : 'exit 1 · 70% to pass'}</span>
         </div>
       )}
 
       {quiz.questions.map((q, idx) => {
-        const r = resultById[q.id];
+        const r = byId[q.id];
+        const options = q.type === 'truefalse'
+          ? [{ label: 'True', value: true }, { label: 'False', value: false }]
+          : q.options.map((opt, i) => ({ label: opt, value: i }));
         return (
           <div key={q.id} className={`quiz-q ${r ? (r.correct ? 'correct' : 'incorrect') : ''}`}>
-            <p className="quiz-q-text">
-              <span className="q-num">{idx + 1}</span>
-              {q.question}
-              <span className={`q-type type-${q.type}`}>{q.type}</span>
-            </p>
-            <div className="quiz-options">
-              {(q.type === 'truefalse' ? [{ label: 'True', value: true }, { label: 'False', value: false }]
-                : q.options.map((opt, i) => ({ label: opt, value: i }))
-              ).map((opt) => {
-                const selected = answers[q.id] === opt.value;
-                const isCorrectOpt = r && JSON.stringify(r.correctAnswer) === JSON.stringify(opt.value);
-                let cls = 'quiz-option';
-                if (selected) cls += ' selected';
-                if (r && isCorrectOpt) cls += ' answer-correct';
-                if (r && selected && !r.correct) cls += ' answer-wrong';
+            <div className="quiz-q-head">
+              <span className="q-num">{String(idx + 1).padStart(2, '0')}</span>
+              <p className="q-text">{q.question}</p>
+              {r
+                ? <span className={`q-mark ${r.correct ? 'ok' : 'no'}`}>{r.correct ? '✓ correct' : '✗ wrong'}</span>
+                : <span className="q-type">{q.type}</span>}
+            </div>
+            <div className="opts">
+              {options.map((opt) => {
+                const selected = eq(answers[q.id], opt.value);
+                const isCorrect = r && eq(r.correctAnswer, opt.value);
+                const isWrongPick = r && selected && !r.correct;
+                let cls = 'opt';
+                if (!r && selected) cls += ' selected';
+                if (isCorrect) cls += ' correct';
+                else if (isWrongPick) cls += ' wrong';
                 return (
                   <label key={String(opt.value)} className={cls}>
                     <input
@@ -78,24 +85,22 @@ export default function Quiz({ slug, onProgress }) {
                       onChange={() => choose(q.id, opt.value)}
                       disabled={!!result}
                     />
-                    <span>{opt.label}</span>
+                    <span className="opt-label">{opt.label}</span>
+                    {isCorrect && <span className={`opt-tag ${r.correct ? 'ok' : 'miss'}`}>{r.correct ? '✓ correct' : 'correct answer'}</span>}
+                    {isWrongPick && <span className="opt-tag no">✗ your answer</span>}
                   </label>
                 );
               })}
             </div>
-            {r && <p className="quiz-explanation">{r.explanation}</p>}
+            {r && <p className="explain">{r.explanation}</p>}
           </div>
         );
       })}
 
       <div className="quiz-actions">
-        {!result ? (
-          <button className="btn primary" onClick={submit} disabled={answeredCount === 0}>
-            Submit ({answeredCount}/{quiz.total} answered)
-          </button>
-        ) : (
-          <button className="btn" onClick={retake}>Retake quiz</button>
-        )}
+        {!result
+          ? <button className="btn primary" onClick={submit} disabled={answered === 0}>submit {answered}/{quiz.total} ▸</button>
+          : <button className="btn" onClick={retake}>↺ retake</button>}
       </div>
     </div>
   );

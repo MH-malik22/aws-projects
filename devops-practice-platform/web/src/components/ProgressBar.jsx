@@ -1,16 +1,15 @@
-// Animated progress bar with a percent label and a "complete" state.
-export default function ProgressBar({ percent = 0, showLabel = true, size = 'md' }) {
+// Progress bar with a monospace label. Colour is never the only signal — the
+// label always spells out the percent or "exit 0".
+export default function ProgressBar({ percent = 0, showLabel = true }) {
   const clamped = Math.max(0, Math.min(100, Math.round(percent)));
-  const complete = clamped >= 100;
+  const done = clamped >= 100;
   return (
-    <div className={`progress ${size} ${complete ? 'is-complete' : ''}`}>
-      <div className="progress-track">
-        <div className="progress-fill" style={{ width: `${clamped}%` }} />
+    <div className={`bar ${done ? 'done' : ''}`}>
+      <div className="bar-track">
+        <div className="bar-fill" style={{ width: `${clamped}%` }} />
       </div>
       {showLabel && (
-        <span className="progress-label">
-          {complete ? '✓ Complete' : `${clamped}%`}
-        </span>
+        <span className="bar-label">{done ? 'exit 0' : `${clamped}%`}</span>
       )}
     </div>
   );

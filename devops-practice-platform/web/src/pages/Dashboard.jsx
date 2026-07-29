@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/client.js';
-import ModuleCard from '../components/ModuleCard.jsx';
+import PipelineTrack from '../components/PipelineTrack.jsx';
+import StageCard from '../components/StageCard.jsx';
 import ProgressBar from '../components/ProgressBar.jsx';
+import { resumeTarget, nextTab, statusOf } from '../lib/status.js';
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -11,29 +14,52 @@ export default function Dashboard() {
     api.listModules().then(setData).catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div className="panel error">Could not load modules: {error}</div>;
-  if (!data) return <div className="panel">Loading…</div>;
+  if (error) return <div className="panel-msg error">! could not load pipeline: {error}</div>;
+  if (!data) return <div className="panel-msg">connecting…</div>;
 
-  const completed = data.modules.filter((m) => m.complete).length;
+  const passed = data.modules.filter((m) => statusOf(m) === 'passed').length;
+  const resume = resumeTarget(data.modules);
+  const resumeStatus = resume ? statusOf(resume) : null;
 
   return (
     <div className="dashboard">
-      <section className="hero">
-        <div className="hero-text">
-          <h1>Your DevOps Journey</h1>
-          <p>Work through 10 modules from beginner to advanced. Read the notes, pass the quiz, and finish the hands-on labs to complete each module.</p>
+      {/* Signature: your path as a live pipeline run */}
+      <section className="pipeline" aria-label="Learning pipeline">
+        <div className="run-head">
+          <span className="eyebrow">run · your path</span>
+          <span className="exit">{passed === data.count ? 'exit 0' : `exit — · ${data.overallPercent}%`}</span>
         </div>
-        <div className="hero-stat">
-          <div className="stat-big">{data.overallPercent}%</div>
-          <ProgressBar percent={data.overallPercent} showLabel={false} />
-          <div className="stat-sub">{completed} of {data.count} modules complete</div>
-        </div>
+
+        <PipelineTrack modules={data.modules} />
+
+        {resume && (
+          <div className="resume">
+            <div className="r-meta">
+              <div className="r-label">
+                {resumeStatus === 'running' ? 'now running' : resumeStatus === 'queued' ? 'next up' : 'all stages passed'}
+              </div>
+              <div className="r-title">{String(resume.order).padStart(2, '0')} · {resume.title}</div>
+              <div className="r-bar"><ProgressBar percent={resume.percent} /></div>
+            </div>
+            <Link
+              className="btn primary"
+              to={`/modules/${resume.slug}`}
+              state={{ tab: nextTab(resume) }}
+            >
+              {resumeStatus === 'passed' ? 'review ▸' : resumeStatus === 'running' ? 'resume ▸' : 'start ▸'}
+            </Link>
+          </div>
+        )}
       </section>
 
-      <h2 className="section-title">Modules</h2>
-      <div className="module-grid">
+      <div className="stages-head">
+        <h2>stages</h2>
+        <span className="eyebrow">{passed}/{data.count} passed</span>
+      </div>
+
+      <div className="stage-grid">
         {data.modules.map((m) => (
-          <ModuleCard key={m.slug} module={m} />
+          <StageCard key={m.slug} module={m} isNext={resume && m.slug === resume.slug && resumeStatus !== 'passed'} />
         ))}
       </div>
     </div>

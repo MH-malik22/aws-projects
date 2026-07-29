@@ -3,7 +3,7 @@ import { api } from '../api/client.js';
 
 const LEVEL_ORDER = ['beginner', 'intermediate', 'advanced', 'simulation'];
 
-// Hands-on labs with a completion checkbox that updates progress.
+// Hands-on labs with a completion toggle that updates pipeline progress.
 export default function Tasks({ slug, onProgress }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -21,9 +21,7 @@ export default function Tasks({ slug, onProgress }) {
         : await api.completeTask(slug, task.position);
       setData((d) => ({
         ...d,
-        tasks: d.tasks.map((t) =>
-          t.position === task.position ? { ...t, completed: !t.completed } : t
-        ),
+        tasks: d.tasks.map((t) => (t.position === task.position ? { ...t, completed: !t.completed } : t)),
       }));
       if (onProgress) onProgress(res.progress);
     } catch (e) {
@@ -33,8 +31,8 @@ export default function Tasks({ slug, onProgress }) {
     }
   }
 
-  if (error) return <div className="panel error">{error}</div>;
-  if (!data) return <div className="panel">Loading labs…</div>;
+  if (error) return <div className="panel-msg error">! {error}</div>;
+  if (!data) return <div className="panel-msg">loading labs…</div>;
 
   const sorted = [...data.tasks].sort(
     (a, b) => LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level)
@@ -45,25 +43,24 @@ export default function Tasks({ slug, onProgress }) {
       {sorted.map((t) => (
         <div key={t.position} className={`task-card ${t.completed ? 'done' : ''}`}>
           <div className="task-head">
-            <span className={`level-pill level-${t.level === 'simulation' ? 'advanced' : t.level}`}>{t.level}</span>
+            <span className="lab-tag">{t.level}</span>
             <h3>{t.title}</h3>
             <button
               className={`task-toggle ${t.completed ? 'checked' : ''}`}
               onClick={() => toggle(t)}
               disabled={busy === t.position}
-              aria-label={t.completed ? 'Mark incomplete' : 'Mark complete'}
             >
-              {t.completed ? '✓ Done' : 'Mark done'}
+              {t.completed ? '✓ done' : 'mark done'}
             </button>
           </div>
           <p className="task-goal">{t.goal}</p>
           <div className="task-cols">
             <div>
-              <h4>Steps</h4>
+              <h4>steps</h4>
               <ol>{t.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
             </div>
             <div>
-              <h4>Success criteria</h4>
+              <h4>success criteria</h4>
               <ul>{t.successCriteria.map((s, i) => <li key={i}>{s}</li>)}</ul>
             </div>
           </div>
