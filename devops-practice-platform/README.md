@@ -7,6 +7,28 @@ through **concept notes, cheat sheets, quizzes, and hands-on labs**, with
 > Part of the `aws-projects` repository. This app is self-contained under
 > `devops-practice-platform/` and does not touch the existing AWS project docs.
 
+![Pipeline dashboard](docs/img/dashboard-dark.png)
+
+## Design — "control plane, after dark"
+
+The UI is themed around the world its learners live in. Your path is rendered
+as a **live CI/CD pipeline run**: the ten modules are stages that move from
+`queued (○)` → `running (◍)` → `passed (●)`, and finishing a module is an
+`exit 0`. A "now running" panel re-attaches you to your current stage.
+
+- **Type:** IBM Plex Mono for the terminal/label voice, IBM Plex Sans for body.
+- **Color:** a warm blue-graphite field with an amber "running" accent; green
+  and red are reserved for pass/fail status only. Difficulty is a 1–3
+  signal-bar meter, never a traffic light.
+- **Themes:** light and dark (respects `prefers-color-scheme`, with a toggle).
+- **Accessible:** correctness shown as icon **and** text (not colour alone),
+  status announced to screen readers, visible focus rings, 44px targets, and
+  reduced-motion honored.
+
+| Graded quiz | Mobile |
+|-------------|--------|
+| ![Graded quiz](docs/img/quiz-graded.png) | ![Mobile](docs/img/mobile.png) |
+
 ## What's inside
 
 | Layer      | Tech                        | Location   |

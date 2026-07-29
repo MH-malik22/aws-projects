@@ -136,7 +136,7 @@ docker compose logs -f          <span class="cmt"># follow logs</span></code></p
 [server] DevOps Practice Platform API listening on :4000</code></pre>
 <p>Then check it:</p>
 <ul>
-  <li><strong>Web UI</strong> → open <a href="http://localhost:8080">http://localhost:8080</a> — you should see the Dashboard with 10 module cards.</li>
+  <li><strong>Web UI</strong> → open <a href="http://localhost:8080">http://localhost:8080</a> — you should see the pipeline dashboard with all ten stages (<code>git</code> → <code>sre</code>).</li>
   <li><strong>API health:</strong>
 <pre><code>curl http://localhost:4000/api/health
 <span class="cmt"># {"status":"ok","db":"up"}</span></code></pre>
@@ -146,7 +146,7 @@ docker compose logs -f          <span class="cmt"># follow logs</span></code></p
 <span class="cmt"># returns 10 modules</span></code></pre>
   </li>
 </ul>
-<p>Click into a module (e.g. Docker) → the <strong>Concept / Notes / Quiz / Labs</strong> tabs should all work, and taking the quiz should advance the progress bar.</p>
+<p>Click into a stage (e.g. Docker) → the <strong>Concept / Notes / Quiz / Labs</strong> tabs should all work, and taking the quiz should advance the stage's progress.</p>
 
 <h2>6. Everyday commands</h2>
 <pre><code><span class="cmt"># Stop the stack (Ctrl+C if running in the foreground), or:</span>

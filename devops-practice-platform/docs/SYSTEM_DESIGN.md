@@ -229,30 +229,47 @@ Errors use `{ "error": "message" }` with appropriate status codes (400/404/500).
 
 ## 7. UI screens
 
-**Dashboard (`/`)** — hero panel with an overall progress ring/number and
-"X of 10 complete", followed by a responsive grid of module cards. Each card
-shows order number, level pill (color-coded beginner/intermediate/advanced),
-title, quiz/lab counts, and a small progress bar. Clicking opens the module.
+Visual identity: **"control plane, after dark."** The learner's path is
+rendered as a live CI/CD pipeline run — stages move `queued (○) → running (◍) →
+passed (●)`, and a completed module is an `exit 0`. Type is IBM Plex Mono
+(labels/terminal voice) + IBM Plex Sans (body); the field is warm blue-graphite
+with an amber "running" accent, and green/red are reserved for pass/fail only.
+Light and dark themes are supported via `prefers-color-scheme` and a toggle.
 
-**Learning Path (`/path`)** — the same modules as a vertical, connected roadmap
-(numbered nodes, checkmarks when complete) emphasizing the beginner → advanced
-sequence. Each step is clickable and shows its progress bar.
+**Dashboard (`/`)** — a shell-prompt top bar (`devops@practice:~$ learn`), then
+the signature **pipeline hero**: a horizontal track of the ten stages by status,
+a "now running / next up" panel that deep-links you back into your current
+stage, and a status/percent readout. Below is a responsive grid of **stage
+cards**, each showing the stage number, a status chip (`exit 0` / `running` /
+`queued`), title, a 1–3 signal-bar difficulty meter, quiz/lab counts, and a
+progress bar. The next stage to tackle is badged `next`.
 
-**Module (`/modules/:slug`)** — header with level pill, title, and a live
-progress bar, then four tabs:
+**Learning Path (`/path`)** — the same pipeline as a vertical roadmap: numbered
+nodes that turn green when a stage passes, each row clickable with its progress
+bar. A different read of the beginner → advanced sequence.
+
+**Module (`/modules/:slug`)** — a job-detail header (`run / <slug>` breadcrumb,
+stage number, difficulty, live progress bar), then four tabs that show a green
+tick when complete, plus a contextual next-step prompt:
 - **Concept** — overview, why it matters, real-world use cases, and an
   architecture description in a highlighted callout.
-- **Notes** — definitions table, commands table, best-practices and pitfalls
-  columns, and a cheat sheet; a "Mark notes as read (+20%)" button.
-- **Quiz** — one card per question with radio options; on submit, shows the
-  score banner, marks correct/incorrect options, and reveals explanations; a
-  "Retake quiz" action resets it.
+- **Notes** — definitions table, a horizontally-scrolling commands table,
+  best-practices and pitfalls columns, and a cheat sheet; a "mark notes as read
+  · +20%" button.
+- **Quiz** — an answered-progress bar, one card per question with radio options,
+  and a sticky submit. On submit a `PASS/FAIL · exit 0/1` banner (announced via
+  `role="status"`) appears and each option is marked with an **icon and text
+  label** ("✓ correct" / "✗ your answer" / "correct answer") — never colour
+  alone — with explanations; a "retake" action resets it.
 - **Labs** — a card per hands-on task (beginner → simulation) with goal, steps,
-  success criteria, and a "Mark done" toggle that updates progress.
+  success criteria, and a "mark done" toggle (44px target) that updates progress.
 
-**Progress bar component** — an animated fill with a percent label that switches
-to an accent color and "✓ Complete" at 100%. Reused on cards, path, and module
-header.
+**Progress bar component** — an animated fill with a monospace label that reads
+the percent, switching to `exit 0` (green) at 100%. The label always carries the
+value, so meaning never depends on colour. Reused on stage cards, path, module
+header, and the resume panel.
+
+Screenshots of the current design live in [`img/`](img/).
 
 ---
 

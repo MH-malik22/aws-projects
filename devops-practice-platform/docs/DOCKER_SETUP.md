@@ -100,8 +100,8 @@ correctly:
 
 Then check it:
 
-- **Web UI** → open **http://localhost:8080** — you should see the Dashboard
-  with 10 module cards.
+- **Web UI** → open **http://localhost:8080** — you should see the pipeline
+  dashboard with all ten stages (`git` → `sre`).
 - **API health:**
   ```bash
   curl http://localhost:4000/api/health
@@ -113,8 +113,8 @@ Then check it:
   # returns 10 modules
   ```
 
-Click into a module (e.g. Docker) → the **Concept / Notes / Quiz / Labs** tabs
-should all work, and taking the quiz should advance the progress bar.
+Click into a stage (e.g. Docker) → the **Concept / Notes / Quiz / Labs** tabs
+should all work, and taking the quiz should advance the stage's progress.
 
 ## 6. Everyday commands
 
