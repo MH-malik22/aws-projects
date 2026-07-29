@@ -70,6 +70,19 @@ docker compose up --build
 For a detailed, step-by-step Docker walkthrough (prerequisites, verification,
 and troubleshooting), see [`docs/DOCKER_SETUP.md`](docs/DOCKER_SETUP.md).
 
+### Deploy to Azure
+
+Host it on **Azure Container Apps** (+ managed PostgreSQL, + Container Registry)
+with one command — plus a GitHub Actions pipeline for continuous deploys:
+
+```bash
+PG_PASSWORD='Str0ng_Passw0rd!' ./deploy/deploy.sh
+```
+
+Infrastructure is defined as Bicep in [`deploy/bicep/main.bicep`](deploy/bicep/main.bicep);
+the full guide (CI/CD OIDC setup, seeding, custom domains, cost, teardown) is in
+[`deploy/README.md`](deploy/README.md).
+
 ### Option B — Run locally
 
 Prerequisites: Node.js 18+ and a running PostgreSQL.
