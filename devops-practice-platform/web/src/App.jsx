@@ -20,8 +20,8 @@ export default function App() {
 
         <div className="topbar-right">
           <nav className="topnav" aria-label="Primary">
-            <NavLink to="/" end>dashboard</NavLink>
-            <NavLink to="/path">path</NavLink>
+            <NavLink to="/" end>Dashboard</NavLink>
+            <NavLink to="/path">Path</NavLink>
           </nav>
           <ThemeToggle />
         </div>
