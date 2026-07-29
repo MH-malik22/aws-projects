@@ -1,0 +1,83 @@
+{
+  "slug": "nexus",
+  "title": "Nexus Repository",
+  "order": 9,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Sonatype Nexus Repository is a repository manager: a central server that stores, organizes, and serves the binary artifacts and dependencies your software depends on and produces. It hosts your own build outputs (JARs, npm packages, Docker images), proxies and caches packages from public registries (Maven Central, npmjs, Docker Hub), and groups both behind a single URL. It sits between your CI/CD pipeline and the outside world as the source of truth for binaries.",
+    "whyItMatters": "Builds should not pull straight from the public internet every time — it is slow, flaky, and a supply-chain risk. A repository manager gives you fast local caching, reproducible builds, a private place to publish internal artifacts, and a control point for security policies and cleanup. Nexus is one of the two dominant repository managers (with JFrog Artifactory) and a common part of enterprise pipelines.",
+    "useCases": [
+      "Hosting internal build artifacts (Maven, npm, NuGet, PyPI) privately",
+      "Proxying and caching public registries to speed up and stabilize builds",
+      "Serving as a private Docker registry for container images",
+      "Providing reproducible dependencies decoupled from public uptime",
+      "Enforcing cleanup and retention policies to control storage growth"
+    ],
+    "architecture": "Nexus organizes storage into repositories of three kinds. A hosted repository stores artifacts you publish (your internal releases and snapshots). A proxy repository caches artifacts fetched on demand from a remote (e.g., Maven Central); the first request pulls and stores them, later requests serve the cache. A group repository aggregates several hosted and proxy repos behind one URL, so clients configure a single endpoint. Artifacts live in a blob store on disk (or cloud storage), while metadata lives in Nexus's database. CI tools and developers authenticate and pull dependencies from a group URL and publish outputs to hosted repos; cleanup policies prune old snapshots to reclaim space."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Repository manager", "def": "A server that stores and serves binary artifacts and proxies external registries." },
+      { "term": "Hosted repository", "def": "A repo that stores artifacts you publish (internal releases/snapshots)." },
+      { "term": "Proxy repository", "def": "A repo that caches artifacts fetched from a remote registry on demand." },
+      { "term": "Group repository", "def": "An aggregate of hosted and proxy repos exposed under one URL." },
+      { "term": "Blob store", "def": "The on-disk (or cloud) storage backing repository content." },
+      { "term": "Format", "def": "The package type a repo serves: maven2, npm, docker, pypi, nuget, etc." },
+      { "term": "Cleanup policy", "def": "Rules that delete old/unused artifacts to control storage." }
+    ],
+    "commands": [
+      { "cmd": "GET /service/rest/v1/repositories", "desc": "List repositories via the Nexus REST API." },
+      { "cmd": "mvn deploy -DaltDeploymentRepository=nexus::...", "desc": "Publish a Maven artifact to a hosted repo." },
+      { "cmd": "npm config set registry http://nexus/repository/npm-group/", "desc": "Point npm at a Nexus group." },
+      { "cmd": "docker login nexus-host:8082", "desc": "Authenticate to the Nexus Docker registry." },
+      { "cmd": "docker push nexus-host:8082/team/app:1.0", "desc": "Push an image to a hosted Docker repo." },
+      { "cmd": "pip install pkg --index-url http://nexus/repository/pypi/simple", "desc": "Install from a PyPI proxy." },
+      { "cmd": "settings.xml <mirror>…nexus…</mirror>", "desc": "Route all Maven traffic through Nexus." },
+      { "cmd": "curl -u user:pass -T file 'http://nexus/repository/raw-hosted/path'", "desc": "Upload to a raw hosted repo." },
+      { "cmd": "nexus.vmoptions -Xmx settings", "desc": "Tune JVM heap for the Nexus service." },
+      { "cmd": "Admin ▸ Cleanup Policies", "desc": "Configure retention to prune old artifacts." },
+      { "cmd": "Admin ▸ Blob Stores", "desc": "Manage where artifact content is stored." },
+      { "cmd": "GET /service/rest/v1/status", "desc": "Health check the Nexus instance." }
+    ],
+    "bestPractices": [
+      "Point all builds at a group URL so you have one endpoint and a single cache.",
+      "Use proxy repos for public registries to speed builds and reduce external dependence.",
+      "Publish releases and snapshots to separate hosted repos with clear retention.",
+      "Apply cleanup policies so storage doesn't grow without bound.",
+      "Back up blob stores and the database, and secure repos with authentication/roles."
+    ],
+    "pitfalls": [
+      "Letting builds pull directly from the internet, causing slow, flaky, unreproducible builds.",
+      "No cleanup policy, so snapshots fill the disk over time.",
+      "Mixing releases and snapshots in one repo, breaking reproducibility.",
+      "Anonymous write access, allowing anyone to publish artifacts.",
+      "Forgetting to back up blob stores — losing every stored artifact."
+    ],
+    "cheatSheet": [
+      "One endpoint for clients: use a group repo URL",
+      "Three repo types: hosted (yours), proxy (cache), group (aggregate)",
+      "Maven mirror in settings.xml routes all traffic through Nexus",
+      "Separate release vs snapshot hosted repos",
+      "Cleanup policies + blob store backups keep it healthy",
+      "Nexus can be a private Docker registry too"
+    ]
+  },
+  "quiz": [
+    { "id": "nexus-q1", "type": "mcq", "question": "What is Nexus Repository primarily used for?", "options": ["Running containers", "Storing and serving binary artifacts and proxying registries", "Provisioning servers", "Monitoring metrics"], "answer": 1, "explanation": "Nexus is a repository manager for binaries and dependencies." },
+    { "id": "nexus-q2", "type": "mcq", "question": "Which repository type caches artifacts from a remote registry?", "options": ["Hosted", "Proxy", "Group", "Blob"], "answer": 1, "explanation": "A proxy repo fetches from a remote on demand and caches the result." },
+    { "id": "nexus-q3", "type": "mcq", "question": "What does a group repository do?", "options": ["Stores only your releases", "Aggregates hosted and proxy repos behind one URL", "Encrypts artifacts", "Runs builds"], "answer": 1, "explanation": "A group exposes multiple repos through a single endpoint for clients." },
+    { "id": "nexus-q4", "type": "truefalse", "question": "Proxying public registries makes builds faster and more reproducible.", "options": ["True", "False"], "answer": true, "explanation": "Caching reduces external calls and shields builds from public registry outages." },
+    { "id": "nexus-q5", "type": "mcq", "question": "Where does Nexus store the actual artifact content?", "options": ["In the group URL", "In a blob store", "In the Jenkinsfile", "In the proxy only"], "answer": 1, "explanation": "Content lives in blob stores; metadata lives in the database." },
+    { "id": "nexus-q6", "type": "scenario", "question": "Your Nexus disk keeps filling with old snapshot builds. Best fix?", "options": ["Delete the whole repo", "Configure a cleanup policy to prune old artifacts", "Stop building", "Add anonymous access"], "answer": 1, "explanation": "Cleanup policies automatically remove old/unused artifacts to reclaim space." },
+    { "id": "nexus-q7", "type": "truefalse", "question": "Nexus can act as a private Docker registry.", "options": ["True", "False"], "answer": true, "explanation": "Nexus supports the docker format for hosting and proxying images." },
+    { "id": "nexus-q8", "type": "mcq", "question": "Why should builds point at a group URL instead of many separate repos?", "options": ["It's mandatory", "One endpoint plus a single cache simplifies client config", "It disables proxies", "It removes authentication"], "answer": 1, "explanation": "A group gives clients a single URL that aggregates hosted and proxy repos." },
+    { "id": "nexus-q9", "type": "scenario", "question": "Anyone on the network can publish artifacts to your hosted repo. What's wrong?", "options": ["Nothing", "Anonymous write access should be disabled; require auth/roles", "The blob store is too big", "Proxies are misconfigured"], "answer": 1, "explanation": "Write access must be authenticated and role-controlled to protect the supply chain." },
+    { "id": "nexus-q10", "type": "mcq", "question": "Releases and snapshots should generally be stored...", "options": ["In the same repo", "In separate hosted repos with clear retention", "Only in proxies", "Never stored"], "answer": 1, "explanation": "Separating them keeps releases immutable/reproducible and snapshots prunable." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Stand up Nexus and browse repos", "goal": "Run Nexus and explore its default repositories.", "steps": ["Start Nexus (container or install) and log in", "Explore the default hosted, proxy, and group repos", "Identify the format of each (maven, npm, etc.)", "Find the URL clients would use for the group"], "successCriteria": ["Nexus is reachable and you can log in", "You can name the three repository types present"] },
+    { "level": "intermediate", "title": "Proxy a public registry", "goal": "Speed up and stabilize dependency resolution.", "steps": ["Create a proxy repo for a public registry (e.g., npm or Maven Central)", "Add it to a group repository", "Point a client (npm/mvn) at the group URL", "Install a dependency and confirm it is cached in Nexus"], "successCriteria": ["The dependency resolves through Nexus", "A second install is served from the cache"] },
+    { "level": "advanced", "title": "Publish internal artifacts", "goal": "Host your own builds.", "steps": ["Create hosted repos for releases and snapshots", "Configure your build tool with credentials to deploy", "Publish an artifact from a CI job", "Verify another project can consume it from the group"], "successCriteria": ["The artifact appears in the hosted repo", "A consumer resolves it via the group URL"] },
+    { "level": "simulation", "title": "Harden and maintain the repository", "goal": "Operate Nexus like production.", "steps": ["Add roles/users and disable anonymous write", "Configure cleanup policies for snapshots", "Set up blob store and database backups", "Use it as a private Docker registry for a pipeline image"], "successCriteria": ["Only authorized users can publish", "Old snapshots are pruned and backups are configured"] }
+  ]
+}

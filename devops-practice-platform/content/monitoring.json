@@ -1,7 +1,7 @@
 {
   "slug": "monitoring",
   "title": "Monitoring & Logging (Prometheus, Grafana)",
-  "order": 8,
+  "order": 15,
   "level": "advanced",
   "concept": {
     "overview": "Observability is the ability to understand what a system is doing from the outside using its telemetry: metrics, logs, and traces. Prometheus is a time-series database and monitoring system that scrapes numeric metrics from your applications and infrastructure, stores them, and evaluates alerting rules. Grafana is the visualization layer that turns those metrics into dashboards and graphs. Together with a logging stack (like Loki or the ELK stack), they let you see trends, spot anomalies, and get paged before users notice an outage.",

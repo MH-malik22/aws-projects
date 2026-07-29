@@ -1,0 +1,84 @@
+{
+  "slug": "ansible",
+  "title": "Ansible",
+  "order": 7,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Ansible is an open-source automation tool for configuration management, application deployment, and orchestration. You describe the desired state of your servers in YAML playbooks, and Ansible connects over SSH (no agent required) to make each host match that state. Because tasks are idempotent, running a playbook repeatedly converges every machine to the same configuration without causing drift or duplicate changes.",
+    "whyItMatters": "Configuring servers by hand does not scale and cannot be reviewed or reproduced. Ansible turns configuration into version-controlled code that runs identically across one host or a thousand. Its agentless SSH model and readable YAML make it one of the easiest automation tools to adopt, and it is a staple of DevOps interviews and real infrastructure.",
+    "useCases": [
+      "Provisioning and configuring servers consistently (packages, users, services)",
+      "Deploying applications and rolling out updates across fleets",
+      "Enforcing a known-good state and remediating configuration drift",
+      "Orchestrating multi-tier rollouts with ordering and handlers",
+      "Ad-hoc operational tasks across many hosts (patching, restarts)"
+    ],
+    "architecture": "Ansible runs from a control node — your laptop or a CI runner — and manages inventory hosts with no agent installed on them. The inventory lists hosts and groups (static INI/YAML or dynamic from a cloud). A playbook is an ordered list of plays; each play targets a host group and runs tasks, where each task invokes a module (e.g., apt, copy, service) that does the actual work idempotently. Ansible gathers facts (system data) about each host, connects over SSH (or WinRM), and executes modules by pushing small programs, running them, and removing them. Roles package reusable tasks, templates, and variables; handlers run only when notified (e.g., restart a service after its config changes). Ansible Vault encrypts secrets in the repo."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Control node", "def": "The machine that runs Ansible and connects out to managed hosts." },
+      { "term": "Inventory", "def": "The list of managed hosts and groups, static or dynamically generated." },
+      { "term": "Playbook", "def": "A YAML file of plays and tasks describing the desired state." },
+      { "term": "Module", "def": "A unit of work Ansible executes (apt, copy, service, etc.), designed to be idempotent." },
+      { "term": "Role", "def": "A reusable, structured bundle of tasks, templates, handlers, and variables." },
+      { "term": "Handler", "def": "A task that runs only when notified by another task (e.g., restart on config change)." },
+      { "term": "Facts", "def": "System information Ansible gathers about each host before running tasks." }
+    ],
+    "commands": [
+      { "cmd": "ansible all -m ping", "desc": "Ad-hoc check that hosts are reachable." },
+      { "cmd": "ansible-playbook site.yml", "desc": "Run a playbook against the inventory." },
+      { "cmd": "ansible-playbook -i inventory site.yml", "desc": "Use a specific inventory file." },
+      { "cmd": "ansible-playbook site.yml --check", "desc": "Dry run: report changes without applying (check mode)." },
+      { "cmd": "ansible-playbook site.yml --limit web", "desc": "Restrict a run to a host group." },
+      { "cmd": "ansible web -m service -a 'name=nginx state=restarted'", "desc": "Ad-hoc module invocation." },
+      { "cmd": "ansible-vault encrypt secrets.yml", "desc": "Encrypt a file of secrets." },
+      { "cmd": "ansible-galaxy install geerlingguy.nginx", "desc": "Install a community role." },
+      { "cmd": "ansible-playbook site.yml --tags deploy", "desc": "Run only tasks with a given tag." },
+      { "cmd": "ansible-playbook site.yml -e env=prod", "desc": "Pass extra variables at runtime." },
+      { "cmd": "ansible-inventory --list", "desc": "Show the resolved inventory." },
+      { "cmd": "ansible-playbook site.yml --diff", "desc": "Show file changes as they are applied." }
+    ],
+    "bestPractices": [
+      "Design tasks to be idempotent; prefer modules over raw shell/command.",
+      "Organize reusable configuration into roles with clear variables and defaults.",
+      "Encrypt secrets with Ansible Vault; never commit plaintext credentials.",
+      "Use --check (and --diff) to preview changes before applying to production.",
+      "Keep inventories and group_vars in version control alongside playbooks."
+    ],
+    "pitfalls": [
+      "Overusing the shell/command modules, breaking idempotency and check mode.",
+      "Hardcoding secrets in playbooks instead of using Vault.",
+      "No inventory grouping, so you can't target subsets safely.",
+      "Ignoring handler notifications, so services don't restart after config changes.",
+      "Running against 'all' by mistake and changing every host at once."
+    ],
+    "cheatSheet": [
+      "Reachability: ansible all -m ping",
+      "Dry run: ansible-playbook site.yml --check --diff",
+      "Target a group: --limit web",
+      "Run tagged tasks: --tags deploy",
+      "Encrypt secrets: ansible-vault encrypt secrets.yml",
+      "Notify + handler: task 'notify: restart nginx' → handler restarts it"
+    ]
+  },
+  "quiz": [
+    { "id": "ansible-q1", "type": "truefalse", "question": "Ansible is agentless and connects to managed hosts over SSH.", "options": ["True", "False"], "answer": true, "explanation": "No agent is installed on hosts; Ansible pushes modules over SSH (or WinRM)." },
+    { "id": "ansible-q2", "type": "mcq", "question": "What language are Ansible playbooks written in?", "options": ["JSON", "YAML", "HCL", "Python"], "answer": 1, "explanation": "Playbooks are YAML files describing plays and tasks." },
+    { "id": "ansible-q3", "type": "mcq", "question": "What does 'idempotent' mean for an Ansible task?", "options": ["It runs only once ever", "Re-running it converges to the same state without duplicate changes", "It cannot fail", "It runs in parallel"], "answer": 1, "explanation": "Idempotent tasks make a change only if needed, so repeated runs are safe." },
+    { "id": "ansible-q4", "type": "mcq", "question": "What is an Ansible role?", "options": ["A user permission", "A reusable bundle of tasks, templates, handlers, and variables", "A host group", "A secret store"], "answer": 1, "explanation": "Roles package reusable configuration for use across playbooks and projects." },
+    { "id": "ansible-q5", "type": "mcq", "question": "Which flag previews changes without applying them?", "options": ["--force", "--check", "--now", "--apply"], "answer": 1, "explanation": "--check is dry-run/check mode; pair with --diff to see file changes." },
+    { "id": "ansible-q6", "type": "truefalse", "question": "Ansible Vault encrypts sensitive data so it can live safely in version control.", "options": ["True", "False"], "answer": true, "explanation": "Vault encrypts files/variables so secrets aren't stored in plaintext." },
+    { "id": "ansible-q7", "type": "mcq", "question": "What triggers a handler to run?", "options": ["Every play", "A notify from another task", "The inventory", "A cron schedule"], "answer": 1, "explanation": "Handlers run only when a task notifies them, typically at the end of a play." },
+    { "id": "ansible-q8", "type": "scenario", "question": "You want to restart nginx only when its config file changes. Best approach?", "options": ["Always restart nginx every run", "Use a handler notified by the config task", "Restart it manually", "Use the shell module unconditionally"], "answer": 1, "explanation": "A handler notified on config change restarts the service only when needed, preserving idempotency." },
+    { "id": "ansible-q9", "type": "mcq", "question": "What does the inventory define?", "options": ["The tasks to run", "The managed hosts and groups", "The secrets", "The modules available"], "answer": 1, "explanation": "Inventory lists hosts and groups Ansible manages." },
+    { "id": "ansible-q10", "type": "scenario", "question": "Why prefer the 'service' module over 'shell: systemctl restart'?", "options": ["It's slower", "It's idempotent and works with check mode", "It needs root", "There's no difference"], "answer": 1, "explanation": "Purpose-built modules are idempotent and report changes correctly; raw shell is not." },
+    { "id": "ansible-q11", "type": "mcq", "question": "How do you limit a run to only the 'web' group?", "options": ["--group web", "--limit web", "--only web", "--hosts web"], "answer": 1, "explanation": "--limit restricts execution to matching hosts/groups." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Ping an inventory", "goal": "Get Ansible talking to hosts.", "steps": ["Create an inventory listing one or more hosts", "Set up SSH access to them", "Run 'ansible all -m ping'", "Confirm each host returns pong"], "successCriteria": ["All hosts respond to the ping module", "Inventory groups are defined"] },
+    { "level": "intermediate", "title": "Write a configuration playbook", "goal": "Install and configure a service declaratively.", "steps": ["Write a playbook that installs nginx via the package module", "Template the config with the template module", "Add a handler to restart nginx on config change", "Run with --check, then apply"], "successCriteria": ["nginx is installed and running", "The handler restarts nginx only when the config changes"] },
+    { "level": "advanced", "title": "Refactor into a role with Vault", "goal": "Adopt reusable, secure structure.", "steps": ["Move tasks/templates/vars into a role", "Store a secret in an Ansible Vault file", "Reference the encrypted variable from the role", "Run the playbook using the vault password"], "successCriteria": ["The role is reused across host groups", "No plaintext secrets exist in the repo"] },
+    { "level": "simulation", "title": "Rolling multi-tier deployment", "goal": "Orchestrate a real rollout.", "steps": ["Define web and db groups in inventory", "Use serial to update web hosts in batches", "Order plays so the database is configured first", "Verify zero-downtime by checking health between batches"], "successCriteria": ["Web hosts update in controlled batches", "The service stays available throughout the rollout"] }
+  ]
+}

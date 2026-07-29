@@ -82,7 +82,7 @@
 cp .env.example .env          <span class="cmt"># optional; sensible defaults are baked in</span>
 docker compose up --build</code></pre>
   Web UI → <a href="http://localhost:8080">http://localhost:8080</a> · API → <a href="http://localhost:4000/api">http://localhost:4000/api</a><br>
-  The API container migrates the schema and seeds all 10 modules automatically.
+  The API container migrates the schema and seeds all 17 modules automatically.
 </div>
 
 <h2>1. Prerequisites</h2>
@@ -118,7 +118,7 @@ cd devops-practice-platform</code></pre>
 <p><strong>What happens automatically:</strong></p>
 <ol>
   <li><code>db</code> starts, and Compose waits for its healthcheck (<code>pg_isready</code>) to pass.</li>
-  <li><code>api</code> then runs <code>npm run setup</code> (applies the schema <strong>and</strong> seeds all 10 modules), then <code>npm start</code>.</li>
+  <li><code>api</code> then runs <code>npm run setup</code> (applies the schema <strong>and</strong> seeds all 17 modules), then <code>npm start</code>.</li>
   <li><code>web</code> serves the pre-built React app.</li>
 </ol>
 <p>The first build takes a couple of minutes (pulling base images, <code>npm install</code>). Leave the terminal open to watch live logs from all three services.</p>
@@ -131,19 +131,19 @@ docker compose logs -f          <span class="cmt"># follow logs</span></code></p
 <h2>5. Confirm it's up</h2>
 <p>Watch the <code>api</code> logs for these lines — they confirm the database seeded correctly:</p>
 <pre><code>[migrate] schema applied successfully
-[seed] loading 10 modules ...
+[seed] loading 17 modules ...
 [seed] done
 [server] DevOps Practice Platform API listening on :4000</code></pre>
 <p>Then check it:</p>
 <ul>
-  <li><strong>Web UI</strong> → open <a href="http://localhost:8080">http://localhost:8080</a> — you should see the pipeline dashboard with all ten stages (<code>git</code> → <code>sre</code>).</li>
+  <li><strong>Web UI</strong> → open <a href="http://localhost:8080">http://localhost:8080</a> — you should see the pipeline dashboard with all seventeen stages (<code>git</code> → <code>sre</code>).</li>
   <li><strong>API health:</strong>
 <pre><code>curl http://localhost:4000/api/health
 <span class="cmt"># {"status":"ok","db":"up"}</span></code></pre>
   </li>
   <li><strong>API data:</strong>
 <pre><code>curl http://localhost:4000/api/modules
-<span class="cmt"># returns 10 modules</span></code></pre>
+<span class="cmt"># returns 17 modules</span></code></pre>
   </li>
 </ul>
 <p>Click into a stage (e.g. Docker) → the <strong>Concept / Notes / Quiz / Labs</strong> tabs should all work, and taking the quiz should advance the stage's progress.</p>

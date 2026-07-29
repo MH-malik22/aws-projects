@@ -1,7 +1,7 @@
 {
   "slug": "terraform",
   "title": "Terraform",
-  "order": 6,
+  "order": 8,
   "level": "intermediate",
   "concept": {
     "overview": "Terraform is an Infrastructure as Code (IaC) tool that lets you define cloud and on-prem infrastructure — servers, networks, databases, DNS — in declarative configuration files. You describe the desired end state in HCL (HashiCorp Configuration Language), and Terraform figures out the create/update/delete actions needed to reach it, then applies them through provider APIs. Because the configuration is version-controlled code, infrastructure becomes reproducible, reviewable, and automatable, the same way application code is.",

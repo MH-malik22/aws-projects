@@ -1,0 +1,83 @@
+{
+  "slug": "artifactory",
+  "title": "JFrog Artifactory",
+  "order": 10,
+  "level": "intermediate",
+  "concept": {
+    "overview": "JFrog Artifactory is a universal binary repository manager that stores, versions, and serves the artifacts your pipelines produce and consume across dozens of package formats (Maven, npm, Docker, PyPI, Go, Helm, and more). Like Nexus, it hosts your internal artifacts and caches remote registries, but it emphasizes being the single system of record for binaries across an entire organization, with strong CI/CD integration, artifact promotion, and — via JFrog Xray — security and license scanning.",
+    "whyItMatters": "Modern software is assembled from thousands of binary dependencies, and the artifacts you ship are themselves binaries that must be stored, traced, and secured. Artifactory provides reproducible builds, a private and cached source of dependencies, and a promotion path from dev to production for the exact same artifact you tested. It is a leading enterprise choice and frequently appears alongside Jenkins and Kubernetes in delivery pipelines.",
+    "useCases": [
+      "Serving as the organization-wide store for all build artifacts and images",
+      "Caching remote registries for fast, reliable, reproducible builds",
+      "Promoting a tested artifact through dev → staging → prod without rebuilding",
+      "Scanning artifacts for vulnerabilities and license issues with Xray",
+      "Recording build info to trace exactly what went into each release"
+    ],
+    "architecture": "Artifactory models storage as repositories of three kinds. Local repositories hold artifacts you publish. Remote repositories proxy and cache external registries. Virtual repositories aggregate local and remote repos under one URL that clients resolve against and (optionally) deploy to. Binaries are stored once in a checksum-based, deduplicated filestore, with metadata in a database, so identical files aren't duplicated. CI tools publish build outputs and attach build info (what was built, from which sources, with which dependencies); artifacts can then be promoted between repositories rather than rebuilt. Xray integrates to scan stored artifacts recursively for known CVEs and license violations, gating promotion when policy is violated."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Binary repository manager", "def": "A system that stores, versions, and serves build artifacts across formats." },
+      { "term": "Local repository", "def": "A repo hosting artifacts your organization publishes." },
+      { "term": "Remote repository", "def": "A repo that proxies and caches an external registry." },
+      { "term": "Virtual repository", "def": "An aggregate of local and remote repos exposed under one URL." },
+      { "term": "Build info", "def": "Metadata Artifactory records about a build: sources, dependencies, and outputs." },
+      { "term": "Promotion", "def": "Moving/copying a tested artifact between repos (e.g., dev → prod) without rebuilding." },
+      { "term": "Xray", "def": "JFrog's security/license scanner that analyzes stored artifacts for issues." }
+    ],
+    "commands": [
+      { "cmd": "jf rt ping", "desc": "Check connectivity with the JFrog CLI." },
+      { "cmd": "jf rt upload 'target/*.jar' libs-release-local/", "desc": "Upload artifacts to a local repo." },
+      { "cmd": "jf rt download libs-release/app.jar", "desc": "Download an artifact." },
+      { "cmd": "jf rt build-publish my-build 12", "desc": "Publish build info for a build run." },
+      { "cmd": "jf rt build-promote my-build 12 prod-local", "desc": "Promote a build to another repo." },
+      { "cmd": "docker push art.example.com/docker-local/app:1.0", "desc": "Push an image to a Docker repo." },
+      { "cmd": "npm config set registry https://art/api/npm/npm-virtual/", "desc": "Resolve npm through a virtual repo." },
+      { "cmd": "mvn deploy -DrepositoryId=central ...", "desc": "Deploy a Maven artifact to Artifactory." },
+      { "cmd": "jf rt search 'libs-release-local/*.jar'", "desc": "Search artifacts with AQL/patterns." },
+      { "cmd": "GET /api/system/ping", "desc": "REST health check." },
+      { "cmd": "jf xr scan target/app.jar", "desc": "Scan an artifact with Xray." },
+      { "cmd": "GET /api/repositories", "desc": "List configured repositories via REST." }
+    ],
+    "bestPractices": [
+      "Resolve builds through a virtual repo so clients have one endpoint with caching.",
+      "Publish build info so every artifact is traceable to its sources and dependencies.",
+      "Promote the tested artifact between repos instead of rebuilding for each environment.",
+      "Gate promotion on Xray scans for vulnerabilities and license compliance.",
+      "Separate local repos by maturity (dev/staging/prod) and apply retention."
+    ],
+    "pitfalls": [
+      "Rebuilding artifacts per environment instead of promoting the tested one.",
+      "Skipping build info, losing traceability of what shipped.",
+      "No security scanning, letting vulnerable dependencies flow to production.",
+      "Unbounded storage with no retention/cleanup policies.",
+      "Granting broad deploy permissions instead of scoping by repo and role."
+    ],
+    "cheatSheet": [
+      "Three repo types: local (yours), remote (cache), virtual (aggregate)",
+      "Promote, don't rebuild: jf rt build-promote",
+      "Trace everything: publish build info",
+      "Scan before promote: Xray policy gates",
+      "One client endpoint: virtual repo URL",
+      "Dedup filestore stores identical binaries once"
+    ]
+  },
+  "quiz": [
+    { "id": "artifactory-q1", "type": "mcq", "question": "What is JFrog Artifactory?", "options": ["A CI server", "A universal binary repository manager", "A container runtime", "A monitoring tool"], "answer": 1, "explanation": "Artifactory stores, versions, and serves build artifacts across many formats." },
+    { "id": "artifactory-q2", "type": "mcq", "question": "Which repository type proxies and caches an external registry?", "options": ["Local", "Remote", "Virtual", "Build"], "answer": 1, "explanation": "Remote repositories cache artifacts fetched from external registries." },
+    { "id": "artifactory-q3", "type": "mcq", "question": "What does a virtual repository provide?", "options": ["Encryption", "One URL aggregating local and remote repos", "A CI pipeline", "A container registry only"], "answer": 1, "explanation": "Virtual repos aggregate local and remote repos behind a single endpoint." },
+    { "id": "artifactory-q4", "type": "truefalse", "question": "Promotion moves a tested artifact between repos without rebuilding it.", "options": ["True", "False"], "answer": true, "explanation": "Promotion ships the exact artifact you tested, avoiding drift from rebuilds." },
+    { "id": "artifactory-q5", "type": "mcq", "question": "What is 'build info' in Artifactory?", "options": ["A log file", "Metadata about a build's sources, dependencies, and outputs", "A repo type", "A user role"], "answer": 1, "explanation": "Build info records traceability for each build run." },
+    { "id": "artifactory-q6", "type": "mcq", "question": "What does JFrog Xray do?", "options": ["Runs builds", "Scans artifacts for vulnerabilities and license issues", "Stores images", "Balances load"], "answer": 1, "explanation": "Xray analyzes stored artifacts recursively for CVEs and license violations." },
+    { "id": "artifactory-q7", "type": "scenario", "question": "You tested artifact v9 in staging. For production you should:", "options": ["Rebuild from source", "Promote v9 to the prod repo", "Build a new artifact", "Skip prod"], "answer": 1, "explanation": "Promoting the tested artifact avoids drift between what you tested and shipped." },
+    { "id": "artifactory-q8", "type": "truefalse", "question": "A checksum-based filestore can store identical binaries only once.", "options": ["True", "False"], "answer": true, "explanation": "Deduplication stores each unique file once regardless of how many repos reference it." },
+    { "id": "artifactory-q9", "type": "scenario", "question": "A critical CVE is found in a dependency during promotion. What should happen?", "options": ["Promote anyway", "Xray policy blocks promotion until remediated", "Delete Artifactory", "Ignore it"], "answer": 1, "explanation": "Security gates should block promotion of vulnerable artifacts." },
+    { "id": "artifactory-q10", "type": "mcq", "question": "Why resolve builds through a virtual repo?", "options": ["It's required by Maven", "One endpoint with caching simplifies client configuration", "It disables scanning", "It removes local repos"], "answer": 1, "explanation": "A virtual repo gives clients a single URL that aggregates local and remote repos." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Explore repository types", "goal": "Understand local, remote, and virtual repos.", "steps": ["Start Artifactory (or use a cloud trial) and log in", "Identify a local, a remote, and a virtual repo", "Note the virtual repo URL clients would use", "Find where Docker vs Maven formats are configured"], "successCriteria": ["You can distinguish the three repo types", "You can locate the client resolution URL"] },
+    { "level": "intermediate", "title": "Publish and resolve artifacts", "goal": "Use Artifactory in a build.", "steps": ["Create a local repo and configure credentials", "Upload an artifact with the JFrog CLI or your build tool", "Configure a client to resolve through a virtual repo", "Download the artifact to confirm resolution"], "successCriteria": ["The artifact appears in the local repo", "A client resolves it via the virtual repo"] },
+    { "level": "advanced", "title": "Build info and promotion", "goal": "Trace and promote a build.", "steps": ["Run a CI build that publishes build info", "Inspect the recorded dependencies and outputs", "Promote the build from a dev repo to a staging repo", "Verify the same artifact (same checksum) moved"], "successCriteria": ["Build info is visible for the run", "The identical artifact is promoted, not rebuilt"] },
+    { "level": "simulation", "title": "Secure delivery with Xray gates", "goal": "Enforce security in the pipeline.", "steps": ["Enable Xray scanning on a repo", "Create a policy that fails on critical vulnerabilities", "Attempt to promote a vulnerable artifact and observe the block", "Remediate, re-scan, and promote successfully"], "successCriteria": ["A vulnerable artifact is blocked from promotion", "A clean artifact promotes to production"] }
+  ]
+}

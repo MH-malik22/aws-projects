@@ -1,0 +1,83 @@
+{
+  "slug": "sonarqube",
+  "title": "SonarQube",
+  "order": 12,
+  "level": "intermediate",
+  "concept": {
+    "overview": "SonarQube is a platform for continuous inspection of code quality and security. A scanner analyzes your source code statically — without running it — and reports bugs, security vulnerabilities, and 'code smells' (maintainability issues), along with test coverage and duplication. Results are tracked over time on a dashboard, and a configurable Quality Gate turns those metrics into a pass/fail decision that CI/CD pipelines enforce, so quality problems are caught before they merge or ship.",
+    "whyItMatters": "Bugs and vulnerabilities are far cheaper to fix in review than in production. SonarQube shifts quality and security left, giving teams objective, trend-tracked metrics and an automated gate instead of relying on manual review alone. It is one of the most common code-quality tools in DevSecOps pipelines and a frequent interview topic.",
+    "useCases": [
+      "Scanning every pull request for bugs, vulnerabilities, and code smells",
+      "Enforcing a Quality Gate that blocks merges/releases on failure",
+      "Tracking technical debt, coverage, and duplication over time",
+      "Standardizing rules across teams via shared Quality Profiles",
+      "Feeding security findings into a DevSecOps workflow"
+    ],
+    "architecture": "SonarQube has three parts. A scanner runs in your build (SonarScanner CLI, or Maven/Gradle/CI plugins), analyzes the source using language-specific rules, and uploads results. The SonarQube server processes and stores those results in its database, computes metrics, and serves the web dashboard. A Quality Profile is the set of active rules applied to a language; a Quality Gate is a set of conditions on new code (e.g., no new bugs, coverage ≥ 80%, no new vulnerabilities) that yields a pass/fail status. The recommended 'Clean as You Code' model focuses the gate on new/changed code so quality improves incrementally. CI pipelines run the scanner and then check the gate via the API, failing the build if the gate is red."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Static analysis", "def": "Inspecting source code without executing it to find issues." },
+      { "term": "Bug / Vulnerability / Code smell", "def": "Reliability defects / security weaknesses / maintainability issues SonarQube reports." },
+      { "term": "Quality Gate", "def": "Pass/fail conditions on metrics (esp. new code) that CI enforces." },
+      { "term": "Quality Profile", "def": "The set of active analysis rules applied to a language." },
+      { "term": "Technical debt", "def": "Estimated effort to fix maintainability issues, tracked over time." },
+      { "term": "Coverage", "def": "The percentage of code exercised by tests, imported into SonarQube." },
+      { "term": "Clean as You Code", "def": "Focusing quality gates on new/changed code so quality improves incrementally." }
+    ],
+    "commands": [
+      { "cmd": "sonar-scanner -Dsonar.projectKey=app", "desc": "Run analysis with the SonarScanner CLI." },
+      { "cmd": "mvn sonar:sonar", "desc": "Analyze a Maven project." },
+      { "cmd": "gradle sonar", "desc": "Analyze a Gradle project." },
+      { "cmd": "sonar.host.url=http://sonarqube:9000", "desc": "Point the scanner at the server." },
+      { "cmd": "sonar.login=<token>", "desc": "Authenticate the scanner with a token." },
+      { "cmd": "sonar.sources=src", "desc": "Tell the scanner which directories to analyze." },
+      { "cmd": "sonar.coverage.jacoco.xmlReportPaths=...", "desc": "Import test coverage results." },
+      { "cmd": "GET /api/qualitygates/project_status?projectKey=app", "desc": "Check a project's gate status." },
+      { "cmd": "sonar.qualitygate.wait=true", "desc": "Make the scanner wait for and honor the gate." },
+      { "cmd": "sonar.pullrequest.key=123", "desc": "Analyze a specific pull request." },
+      { "cmd": "docker run -p 9000:9000 sonarqube", "desc": "Run a SonarQube server for evaluation." },
+      { "cmd": "Admin ▸ Quality Gates", "desc": "Define pass/fail conditions on metrics." }
+    ],
+    "bestPractices": [
+      "Adopt 'Clean as You Code': gate on new code so quality improves without a huge backlog.",
+      "Run analysis on every PR and fail the build when the Quality Gate is red.",
+      "Import test coverage so the gate reflects real test quality, not just static rules.",
+      "Standardize Quality Profiles across teams for consistent rules.",
+      "Store the scanner token as a secret; never commit it."
+    ],
+    "pitfalls": [
+      "Treating the dashboard as advisory and never failing the build on a red gate.",
+      "Gating on all legacy code at once, creating an unactionable mountain of debt.",
+      "Not importing coverage, so the gate misses untested code.",
+      "Committing the SonarQube token into the repository.",
+      "Chasing a green gate by disabling rules instead of fixing issues."
+    ],
+    "cheatSheet": [
+      "Analyze: sonar-scanner -Dsonar.projectKey=app",
+      "Wait for gate in CI: sonar.qualitygate.wait=true",
+      "Focus on new code: Clean as You Code gate",
+      "Import coverage: sonar.coverage.*ReportPaths",
+      "Gate status API: /api/qualitygates/project_status",
+      "Three issue types: bug, vulnerability, code smell"
+    ]
+  },
+  "quiz": [
+    { "id": "sonarqube-q1", "type": "mcq", "question": "What does SonarQube primarily do?", "options": ["Run containers", "Continuously inspect code quality and security via static analysis", "Store artifacts", "Provision servers"], "answer": 1, "explanation": "SonarQube statically analyzes code for bugs, vulnerabilities, and code smells." },
+    { "id": "sonarqube-q2", "type": "mcq", "question": "What is a Quality Gate?", "options": ["A firewall", "Pass/fail conditions on metrics that CI enforces", "A code formatter", "A repository"], "answer": 1, "explanation": "A Quality Gate turns metrics into a pass/fail decision to block bad code." },
+    { "id": "sonarqube-q3", "type": "mcq", "question": "Which are SonarQube's three main issue types?", "options": ["Errors, warnings, info", "Bugs, vulnerabilities, code smells", "High, medium, low", "Unit, integration, e2e"], "answer": 1, "explanation": "SonarQube classifies issues as bugs, vulnerabilities, and code smells." },
+    { "id": "sonarqube-q4", "type": "truefalse", "question": "Static analysis inspects code without executing it.", "options": ["True", "False"], "answer": true, "explanation": "SonarQube analyzes source statically, unlike running/dynamic tests." },
+    { "id": "sonarqube-q5", "type": "mcq", "question": "What is the 'Clean as You Code' approach?", "options": ["Rewrite everything", "Gate on new/changed code so quality improves incrementally", "Disable all rules", "Only scan releases"], "answer": 1, "explanation": "Focusing the gate on new code avoids an unactionable backlog while steadily improving quality." },
+    { "id": "sonarqube-q6", "type": "scenario", "question": "A PR introduces a new critical vulnerability. With a proper gate, what happens in CI?", "options": ["It merges anyway", "The Quality Gate fails and the build is blocked", "SonarQube deletes the code", "Nothing"], "answer": 1, "explanation": "A red gate should fail the pipeline, preventing the merge until fixed." },
+    { "id": "sonarqube-q7", "type": "truefalse", "question": "Importing test coverage makes the Quality Gate reflect real test quality.", "options": ["True", "False"], "answer": true, "explanation": "Without coverage data the gate can't judge how well new code is tested." },
+    { "id": "sonarqube-q8", "type": "mcq", "question": "What is a Quality Profile?", "options": ["A user account", "The set of active analysis rules for a language", "A dashboard theme", "A coverage report"], "answer": 1, "explanation": "Quality Profiles define which rules are applied during analysis." },
+    { "id": "sonarqube-q9", "type": "scenario", "question": "The team turns the gate green by disabling failing rules. Why is this bad?", "options": ["It isn't", "It hides real issues instead of fixing them, defeating the purpose", "It speeds builds", "It improves coverage"], "answer": 1, "explanation": "Suppressing rules to pass the gate removes the signal the gate exists to provide." },
+    { "id": "sonarqube-q10", "type": "mcq", "question": "Which setting makes the scanner wait for and honor the gate result in CI?", "options": ["sonar.wait=false", "sonar.qualitygate.wait=true", "sonar.gate.skip=true", "sonar.ci=on"], "answer": 1, "explanation": "sonar.qualitygate.wait=true blocks until the gate result is known so CI can fail on red." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Run SonarQube and scan a project", "goal": "Get your first analysis on the dashboard.", "steps": ["Start a SonarQube server (container) and log in", "Create a project and generate a token", "Run sonar-scanner against a small codebase", "Explore the reported bugs, vulnerabilities, and smells"], "successCriteria": ["Analysis appears on the dashboard", "You can identify each issue type"] },
+    { "level": "intermediate", "title": "Add coverage and a Quality Gate", "goal": "Make the gate meaningful.", "steps": ["Generate test coverage and import it into the scan", "Configure a Quality Gate on new code (e.g., coverage and no new bugs)", "Introduce a deliberate issue and re-scan", "Confirm the gate turns red"], "successCriteria": ["Coverage shows on the dashboard", "The gate fails when the issue is present"] },
+    { "level": "advanced", "title": "Enforce the gate in CI", "goal": "Block bad code automatically.", "steps": ["Add a SonarQube analysis step to your pipeline", "Set sonar.qualitygate.wait=true and store the token as a secret", "Fail the build when the gate is red", "Analyze a pull request specifically"], "successCriteria": ["A red gate fails the pipeline", "The token is stored as a secret, not committed"] },
+    { "level": "simulation", "title": "Adopt Clean as You Code across a team", "goal": "Roll out sustainable quality.", "steps": ["Standardize a Quality Profile for the language", "Configure gates focused on new code only", "Wire PR analysis so results post back to the PR", "Track debt and coverage trends over a few iterations"], "successCriteria": ["New code is gated without a legacy backlog blocking work", "Quality trends are visible and improving"] }
+  ]
+}

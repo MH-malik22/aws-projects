@@ -1,0 +1,83 @@
+{
+  "slug": "tomcat",
+  "title": "Apache Tomcat",
+  "order": 11,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Apache Tomcat is an open-source web server and servlet container that runs Java web applications. It implements the Jakarta Servlet, JSP, and WebSocket specifications, providing the runtime that turns a packaged Java web app (a WAR file) into a live HTTP service. Lightweight and ubiquitous, Tomcat is the default way countless Java applications are served, either standalone or embedded (as in Spring Boot).",
+    "whyItMatters": "A huge portion of enterprise software is Java, and Tomcat is where much of it runs. DevOps engineers deploy WARs to Tomcat, tune its connectors and JVM, wire it into pipelines, and troubleshoot it in production. Understanding its directory layout, configuration, and deployment model is a practical, frequently-needed skill for operating Java workloads.",
+    "useCases": [
+      "Serving Java web applications packaged as WAR files",
+      "Hosting REST APIs and server-rendered Java (JSP) apps",
+      "Acting as the servlet container behind a reverse proxy or load balancer",
+      "Running as the embedded server inside Spring Boot applications",
+      "Providing a target for CI/CD pipelines to deploy Java builds"
+    ],
+    "architecture": "Tomcat's configuration lives under CATALINA_HOME/CATALINA_BASE. server.xml defines the top-level Server, which contains a Service that binds Connectors (HTTP on 8080, HTTPS on 8443, AJP) to an Engine. The Engine routes requests to Hosts (virtual hosts), which contain Contexts — each deployed web application. Apps are deployed by dropping a WAR into the webapps/ directory (auto-deploy expands it) or via the Manager application/REST. Each app runs in its own classloader for isolation. Requests flow: Connector accepts the socket → Engine/Host/Context routing → the app's servlets handle it. Logs go to the logs/ directory (catalina.out), and the JVM's heap and thread pools are the main things you tune for performance."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Servlet container", "def": "The runtime that loads and runs Java servlets/JSPs handling HTTP requests." },
+      { "term": "WAR", "def": "Web Application Archive — the packaged Java web app deployed to Tomcat." },
+      { "term": "Connector", "def": "A component that binds a protocol/port (HTTP 8080, HTTPS 8443, AJP)." },
+      { "term": "Catalina", "def": "Tomcat's servlet-container engine; catalina.sh/.out are its script and log." },
+      { "term": "Context", "def": "A single deployed web application within a Host." },
+      { "term": "webapps/", "def": "The directory where WARs are dropped for (auto) deployment." },
+      { "term": "Manager app", "def": "Tomcat's built-in app to deploy/undeploy and inspect running apps." }
+    ],
+    "commands": [
+      { "cmd": "bin/startup.sh / shutdown.sh", "desc": "Start and stop Tomcat." },
+      { "cmd": "bin/catalina.sh run", "desc": "Run Tomcat in the foreground (good for containers)." },
+      { "cmd": "cp app.war webapps/", "desc": "Deploy an app by copying its WAR into webapps." },
+      { "cmd": "tail -f logs/catalina.out", "desc": "Follow the main Tomcat log." },
+      { "cmd": "conf/server.xml", "desc": "Configure connectors, ports, and hosts." },
+      { "cmd": "conf/tomcat-users.xml", "desc": "Define users/roles for the Manager app." },
+      { "cmd": "curl http://host:8080/app/health", "desc": "Hit a deployed app's endpoint." },
+      { "cmd": "export CATALINA_OPTS='-Xms512m -Xmx1024m'", "desc": "Set JVM heap for Tomcat." },
+      { "cmd": "Manager ▸ /manager/text/deploy", "desc": "Deploy via the Manager REST endpoint." },
+      { "cmd": "conf/context.xml", "desc": "Configure resources (datasources) for apps." },
+      { "cmd": "keytool -genkeypair ... (HTTPS)", "desc": "Create a keystore for the HTTPS connector." },
+      { "cmd": "ps -ef | grep catalina", "desc": "Confirm the Tomcat JVM is running." }
+    ],
+    "bestPractices": [
+      "Run Tomcat as a dedicated non-root user and restrict file permissions.",
+      "Change/secure the Manager app credentials or disable it in production.",
+      "Terminate TLS properly (at Tomcat or a fronting proxy) and disable weak ciphers.",
+      "Right-size the JVM heap and connector thread pools for your load.",
+      "Externalize configuration and secrets; keep WARs immutable across environments."
+    ],
+    "pitfalls": [
+      "Running as root, so a compromised app has full host access.",
+      "Leaving default Manager credentials enabled and internet-exposed.",
+      "Under-sized heap causing OutOfMemoryError under load.",
+      "Deploying different WARs per environment instead of promoting one build.",
+      "Ignoring catalina.out until the disk fills or the app has already crashed."
+    ],
+    "cheatSheet": [
+      "Deploy: copy app.war into webapps/",
+      "Main log: logs/catalina.out",
+      "Ports/hosts: conf/server.xml (HTTP 8080, HTTPS 8443)",
+      "Heap: CATALINA_OPTS='-Xms512m -Xmx1024m'",
+      "Foreground (containers): catalina.sh run",
+      "Manager users: conf/tomcat-users.xml"
+    ]
+  },
+  "quiz": [
+    { "id": "tomcat-q1", "type": "mcq", "question": "What does Apache Tomcat primarily run?", "options": ["Python apps", "Java web applications (servlets/JSP)", "Static sites only", "Databases"], "answer": 1, "explanation": "Tomcat is a servlet container that runs Java web applications." },
+    { "id": "tomcat-q2", "type": "mcq", "question": "How is a Java web app typically deployed to Tomcat?", "options": ["Copy a WAR into webapps/", "Run docker build", "Edit /etc/hosts", "Restart the kernel"], "answer": 0, "explanation": "Dropping a WAR into webapps/ triggers (auto) deployment." },
+    { "id": "tomcat-q3", "type": "mcq", "question": "Which file configures connectors and ports?", "options": ["web.xml", "server.xml", "pom.xml", "context.xml"], "answer": 1, "explanation": "conf/server.xml defines the Server, Service, Connectors, Engine, and Hosts." },
+    { "id": "tomcat-q4", "type": "mcq", "question": "What is Tomcat's default HTTP port?", "options": ["80", "8080", "8443", "22"], "answer": 1, "explanation": "8080 is the default HTTP connector port (8443 for HTTPS)." },
+    { "id": "tomcat-q5", "type": "truefalse", "question": "A WAR is the packaged Java web application deployed to Tomcat.", "options": ["True", "False"], "answer": true, "explanation": "WAR = Web Application Archive, the deployable unit." },
+    { "id": "tomcat-q6", "type": "scenario", "question": "Under load the app dies with OutOfMemoryError. First thing to check/tune?", "options": ["The HTTP port", "The JVM heap (Xmx) via CATALINA_OPTS", "The WAR filename", "DNS"], "answer": 1, "explanation": "OOM usually means the heap is too small or leaking; tune Xmx or fix the leak." },
+    { "id": "tomcat-q7", "type": "mcq", "question": "Which log file is the main place to see Tomcat output?", "options": ["/var/log/syslog", "logs/catalina.out", "server.xml", "webapps/"], "answer": 1, "explanation": "catalina.out captures Tomcat and app stdout/stderr." },
+    { "id": "tomcat-q8", "type": "scenario", "question": "The Manager app is internet-exposed with default credentials. Risk?", "options": ["None", "Anyone can deploy/undeploy apps — remote takeover", "Slower startup", "Higher memory"], "answer": 1, "explanation": "Default Manager creds allow arbitrary deploys; secure or disable it in production." },
+    { "id": "tomcat-q9", "type": "truefalse", "question": "Running Tomcat as root is a security best practice.", "options": ["True", "False"], "answer": false, "explanation": "Run as a dedicated non-root user to limit the impact of a compromise." },
+    { "id": "tomcat-q10", "type": "mcq", "question": "Which command runs Tomcat in the foreground (useful in containers)?", "options": ["startup.sh", "catalina.sh run", "shutdown.sh", "service tomcat stop"], "answer": 1, "explanation": "catalina.sh run keeps Tomcat attached to the console, ideal for containers." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Run Tomcat and deploy a WAR", "goal": "Serve a Java app.", "steps": ["Download/start Tomcat (or use a container)", "Copy a sample WAR into webapps/", "Browse to http://localhost:8080/<app>", "Follow logs/catalina.out to watch deployment"], "successCriteria": ["The app responds on 8080", "The log shows the WAR deploying"] },
+    { "level": "intermediate", "title": "Configure connectors and the Manager", "goal": "Customize Tomcat safely.", "steps": ["Edit server.xml to adjust the HTTP connector", "Enable an HTTPS connector with a keystore", "Set Manager credentials in tomcat-users.xml", "Deploy an app through the Manager app"], "successCriteria": ["HTTPS serves the app on 8443", "You can deploy/undeploy via the Manager with credentials"] },
+    { "level": "advanced", "title": "Tune the JVM and externalize config", "goal": "Prepare Tomcat for load.", "steps": ["Set CATALINA_OPTS heap and connector thread pool sizes", "Externalize a datasource in context.xml", "Load test the app and watch heap/threads", "Adjust settings based on observed behavior"], "successCriteria": ["Heap and thread pool are sized for the load", "Config/secrets are external to the WAR"] },
+    { "level": "simulation", "title": "Containerize and pipeline-deploy Tomcat", "goal": "Ship a Java app the modern way.", "steps": ["Build an image from a Tomcat base with your WAR", "Run it as a non-root user with catalina.sh run", "Have CI build and push the image on each commit", "Deploy the image to a server or Kubernetes"], "successCriteria": ["The containerized app serves traffic", "CI deploys the same image artifact per release"] }
+  ]
+}

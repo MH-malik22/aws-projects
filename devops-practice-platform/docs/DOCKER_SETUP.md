@@ -10,7 +10,7 @@ the web UI — with a single command using Docker Compose.
 > docker compose up --build
 > ```
 > Web UI → http://localhost:8080 · API → http://localhost:4000/api
-> The API container migrates the schema and seeds all 10 modules automatically.
+> The API container migrates the schema and seeds all 17 modules automatically.
 
 ---
 
@@ -73,7 +73,7 @@ This builds the images and starts **three containers**:
 **What happens automatically:**
 
 1. `db` starts, and Compose waits for its healthcheck (`pg_isready`) to pass.
-2. `api` then runs `npm run setup` (applies the schema **and** seeds all 10
+2. `api` then runs `npm run setup` (applies the schema **and** seeds all 17
    modules), then `npm start`.
 3. `web` serves the pre-built React app.
 
@@ -93,7 +93,7 @@ correctly:
 
 ```
 [migrate] schema applied successfully
-[seed] loading 10 modules ...
+[seed] loading 17 modules ...
 [seed] done
 [server] DevOps Practice Platform API listening on :4000
 ```
@@ -101,7 +101,7 @@ correctly:
 Then check it:
 
 - **Web UI** → open **http://localhost:8080** — you should see the pipeline
-  dashboard with all ten stages (`git` → `sre`).
+  dashboard with all seventeen stages (`git` → `sre`).
 - **API health:**
   ```bash
   curl http://localhost:4000/api/health
@@ -110,7 +110,7 @@ Then check it:
 - **API data:**
   ```bash
   curl http://localhost:4000/api/modules
-  # returns 10 modules
+  # returns 17 modules
   ```
 
 Click into a stage (e.g. Docker) → the **Concept / Notes / Quiz / Labs** tabs

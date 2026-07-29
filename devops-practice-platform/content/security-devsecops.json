@@ -1,7 +1,7 @@
 {
   "slug": "security-devsecops",
   "title": "Security & DevSecOps",
-  "order": 9,
+  "order": 16,
   "level": "advanced",
   "concept": {
     "overview": "DevSecOps integrates security into every stage of the software delivery lifecycle instead of bolting it on at the end. The philosophy is 'shift left': find and fix vulnerabilities as early as possible — in code, dependencies, containers, and infrastructure — where they are cheapest to remediate. It combines automated scanning (SAST, DAST, SCA, secret detection), secure defaults, least-privilege access, and a culture where security is everyone's responsibility, embedded directly into CI/CD pipelines.",

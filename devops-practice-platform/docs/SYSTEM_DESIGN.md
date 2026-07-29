@@ -7,7 +7,7 @@ logic, and UI of the platform in enough detail to extend or reimplement it.
 
 ## 1. Goals
 
-Teach 10 DevOps tools through a repeatable module template — **Concept → Notes →
+Teach 17 DevOps tools through a repeatable module template — **Concept → Notes →
 Quiz → Hands-on Labs** — with measurable, per-learner progress along a
 beginner → advanced path.
 
@@ -177,7 +177,7 @@ header (default `demo-user`). Request/response bodies are JSON.
 ```json
 {
   "overallPercent": 24,
-  "count": 10,
+  "count": 17,
   "modules": [
     { "id": 1, "slug": "git-github", "title": "Git & GitHub", "order": 1,
       "level": "beginner", "percent": 60, "complete": false,
@@ -237,7 +237,7 @@ with an amber "running" accent, and green/red are reserved for pass/fail only.
 Light and dark themes are supported via `prefers-color-scheme` and a toggle.
 
 **Dashboard (`/`)** — a shell-prompt top bar (`devops@practice:~$ learn`), then
-the signature **pipeline hero**: a horizontal track of the ten stages by status,
+the signature **pipeline hero**: a horizontal track of the seventeen stages by status,
 a "now running / next up" panel that deep-links you back into your current
 stage, and a status/percent readout. Below is a responsive grid of **stage
 cards**, each showing the stage number, a status chip (`exit 0` / `running` /

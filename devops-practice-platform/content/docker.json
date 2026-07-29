@@ -1,7 +1,7 @@
 {
   "slug": "docker",
   "title": "Docker",
-  "order": 3,
+  "order": 4,
   "level": "beginner",
   "concept": {
     "overview": "Docker packages an application together with its dependencies, libraries, and runtime into a portable, immutable image. From that image you run containers: isolated processes that share the host kernel but have their own filesystem, network, and process space. Unlike virtual machines, containers do not bundle a full guest OS, so they start in milliseconds and are far lighter. 'Build once, run anywhere' — the same image runs identically on a laptop, a CI runner, and a Kubernetes cluster.",

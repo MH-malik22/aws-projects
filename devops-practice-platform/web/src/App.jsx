@@ -36,7 +36,7 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        beginner → advanced · 10 stages · exit 0 when your pipeline is green
+        beginner → advanced · 17 stages · exit 0 when your pipeline is green
       </footer>
     </div>
   );

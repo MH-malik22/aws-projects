@@ -1,7 +1,7 @@
 {
   "slug": "cicd",
   "title": "CI/CD (GitHub Actions + Jenkins)",
-  "order": 5,
+  "order": 6,
   "level": "intermediate",
   "concept": {
     "overview": "Continuous Integration (CI) means every code change is automatically built and tested the moment it is pushed, catching integration problems early. Continuous Delivery/Deployment (CD) extends that pipeline so validated changes are automatically released to staging or production. A pipeline is a sequence of stages — build, test, scan, package, deploy — triggered by events like a push or pull request. GitHub Actions is a cloud-native, YAML-defined CI/CD service tightly integrated with GitHub; Jenkins is a mature, self-hosted automation server driven by pipelines-as-code (Jenkinsfile) and a huge plugin ecosystem.",

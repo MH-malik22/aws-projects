@@ -1,0 +1,85 @@
+{
+  "slug": "jenkins",
+  "title": "Jenkins",
+  "order": 5,
+  "level": "intermediate",
+  "concept": {
+    "overview": "Jenkins is the most widely deployed open-source automation server, used to build, test, and deliver software through pipelines-as-code. You define a pipeline in a Jenkinsfile — a text file kept in your repository — and Jenkins executes its stages on a fleet of build agents whenever code changes. Its defining strength is an enormous plugin ecosystem (1,800+) that integrates with virtually every SCM, build tool, cloud, and notification system, making it the flexible glue of countless CI/CD setups.",
+    "whyItMatters": "Jenkins turns manual, error-prone release steps into a repeatable, auditable pipeline. It is the automation backbone in a huge share of enterprises, especially where self-hosting, on-prem builds, or deep customization are required. Knowing Jenkins — declarative pipelines, agents, credentials, and shared libraries — is a core, frequently-tested DevOps skill.",
+    "useCases": [
+      "Running build/test pipelines automatically on every commit or pull request",
+      "Orchestrating multi-stage delivery: build → test → scan → deploy with approvals",
+      "Distributing builds across many agents (Linux, Windows, containers) for scale",
+      "Integrating tools — SonarQube, Nexus/Artifactory, Docker, Kubernetes — via plugins",
+      "Scheduling periodic jobs (nightly builds, backups, report generation)"
+    ],
+    "architecture": "Jenkins uses a controller/agent model. The controller (formerly 'master') schedules jobs, stores configuration and build history, serves the web UI, and dispatches work; it should not run heavy builds itself. Agents (formerly 'slaves') are worker nodes — VMs, physical hosts, or dynamically provisioned containers/Kubernetes pods — that execute pipeline steps and report results back. A pipeline is defined declaratively in a Jenkinsfile with stages and steps; the controller checks out the repo, runs each stage on an allocated agent, streams logs, and records artifacts and test results. Credentials are stored encrypted in the controller and injected into builds. Plugins extend every part: SCM triggers, build tools, cloud agents, and post-build notifications."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Controller", "def": "The central Jenkins server that schedules jobs, holds config/history, and serves the UI." },
+      { "term": "Agent / Node", "def": "A worker that executes pipeline steps; connected to the controller over SSH/JNLP or spun up on demand." },
+      { "term": "Jenkinsfile", "def": "A pipeline defined as code (declarative or scripted) checked into the repository." },
+      { "term": "Stage / Step", "def": "A stage is a named phase (Build, Test); steps are the individual commands inside it." },
+      { "term": "Freestyle vs Pipeline", "def": "Freestyle jobs are UI-configured; Pipeline jobs are code-defined and version-controlled (preferred)." },
+      { "term": "Executor", "def": "A slot on an agent that runs one build at a time; agents can have multiple executors." },
+      { "term": "Shared Library", "def": "Reusable pipeline code (Groovy) shared across many Jenkinsfiles." }
+    ],
+    "commands": [
+      { "cmd": "pipeline { agent any; stages { ... } }", "desc": "Skeleton of a declarative pipeline." },
+      { "cmd": "stage('Build') { steps { sh 'make' } }", "desc": "A stage running a shell step." },
+      { "cmd": "agent { docker 'node:20' }", "desc": "Run the stage inside a container image." },
+      { "cmd": "environment { REGISTRY = 'ghcr.io' }", "desc": "Define environment variables for the pipeline/stage." },
+      { "cmd": "withCredentials([...]) { ... }", "desc": "Inject stored secrets scoped to a block." },
+      { "cmd": "when { branch 'main' }", "desc": "Run a stage only when a condition holds." },
+      { "cmd": "post { success { ... } failure { ... } }", "desc": "Run steps based on build outcome." },
+      { "cmd": "input message: 'Deploy to prod?'", "desc": "Pause for manual approval before continuing." },
+      { "cmd": "parallel(a: { ... }, b: { ... })", "desc": "Run branches of work concurrently." },
+      { "cmd": "sh 'docker build -t app:${GIT_COMMIT} .'", "desc": "Build a commit-tagged image in a step." },
+      { "cmd": "java -jar jenkins-cli.jar -s URL build JOB", "desc": "Trigger a job from the Jenkins CLI." },
+      { "cmd": "archiveArtifacts artifacts: 'target/*.jar'", "desc": "Publish build outputs from a run." }
+    ],
+    "bestPractices": [
+      "Define pipelines as code (Jenkinsfile) in the repo — never configure critical jobs only in the UI.",
+      "Keep the controller light: run builds on agents, not on the controller.",
+      "Store secrets in the Credentials store and inject with withCredentials; never hardcode them.",
+      "Factor shared logic into shared libraries to keep Jenkinsfiles DRY.",
+      "Back up JENKINS_HOME and pin plugin versions; test plugin upgrades in staging."
+    ],
+    "pitfalls": [
+      "Running heavy builds on the controller, making Jenkins slow and fragile.",
+      "Snowflake freestyle jobs configured by clicking, with no version control or reviewability.",
+      "Plugin sprawl and unpinned upgrades that break pipelines unexpectedly.",
+      "Secrets echoed into build logs or committed in Jenkinsfiles.",
+      "No backup of JENKINS_HOME — losing all jobs, history, and credentials on disk failure."
+    ],
+    "cheatSheet": [
+      "Declarative skeleton: pipeline { agent; stages { stage { steps } } }",
+      "Manual gate: input message: 'Approve?'",
+      "Only on main: when { branch 'main' }",
+      "Secrets: withCredentials([usernamePassword(...)]) { sh '...' }",
+      "Notify on failure: post { failure { mail to: 'team@x' } }",
+      "Reusable code: @Library('my-shared-lib') _"
+    ]
+  },
+  "quiz": [
+    { "id": "jenkins-q1", "type": "mcq", "question": "What is a Jenkinsfile?", "options": ["A plugin binary", "A pipeline defined as code, stored in the repository", "The Jenkins config database", "An agent connection file"], "answer": 1, "explanation": "A Jenkinsfile defines the pipeline (declarative or scripted) and lives in version control." },
+    { "id": "jenkins-q2", "type": "mcq", "question": "In the controller/agent model, what should the controller avoid doing?", "options": ["Serving the UI", "Scheduling jobs", "Running heavy builds itself", "Storing configuration"], "answer": 2, "explanation": "The controller schedules and coordinates; heavy builds belong on agents to keep it responsive." },
+    { "id": "jenkins-q3", "type": "truefalse", "question": "Pipeline (as-code) jobs are generally preferred over freestyle jobs for critical work.", "options": ["True", "False"], "answer": true, "explanation": "Pipelines are version-controlled, reviewable, and reproducible; freestyle jobs are UI-only snowflakes." },
+    { "id": "jenkins-q4", "type": "mcq", "question": "How should database credentials be used in a pipeline?", "options": ["Hardcoded in the Jenkinsfile", "Printed to the log", "Stored in Credentials and injected via withCredentials", "Committed to the repo"], "answer": 2, "explanation": "Secrets live in the encrypted Credentials store and are injected into a scoped block." },
+    { "id": "jenkins-q5", "type": "mcq", "question": "Which block runs steps based on whether the build succeeded or failed?", "options": ["when", "post", "environment", "agent"], "answer": 1, "explanation": "The post section defines success/failure/always handlers." },
+    { "id": "jenkins-q6", "type": "scenario", "question": "You need a human to approve before deploying to production. Which step?", "options": ["sh 'approve'", "input message: 'Deploy to prod?'", "when { approved }", "post { approve }"], "answer": 1, "explanation": "The input step pauses the pipeline until someone approves." },
+    { "id": "jenkins-q7", "type": "truefalse", "question": "Shared libraries let multiple Jenkinsfiles reuse common pipeline code.", "options": ["True", "False"], "answer": true, "explanation": "Shared libraries (Groovy) centralize reusable steps and keep pipelines DRY." },
+    { "id": "jenkins-q8", "type": "mcq", "question": "What primarily gives Jenkins its broad integrations?", "options": ["Its database", "Its plugin ecosystem", "Its UI theme", "Its REST port"], "answer": 1, "explanation": "1,800+ plugins integrate Jenkins with SCMs, build tools, clouds, and more." },
+    { "id": "jenkins-q9", "type": "scenario", "question": "A disk failure wiped the Jenkins server and all jobs/history are gone. Root cause of the pain?", "options": ["Too many agents", "No backup of JENKINS_HOME", "Using pipelines", "Too few plugins"], "answer": 1, "explanation": "JENKINS_HOME holds jobs, history, and credentials; without backups it is unrecoverable." },
+    { "id": "jenkins-q10", "type": "mcq", "question": "What does 'agent { docker 'node:20' }' do for a stage?", "options": ["Deploys to Docker Hub", "Runs the stage inside a node:20 container", "Builds a Docker image", "Installs Docker"], "answer": 1, "explanation": "It executes the stage's steps inside the specified container image." },
+    { "id": "jenkins-q11", "type": "mcq", "question": "What is an executor in Jenkins?", "options": ["A plugin", "A slot on an agent that runs one build at a time", "The pipeline file", "A credential type"], "answer": 1, "explanation": "Executors are concurrent build slots on an agent; more executors = more parallel builds." },
+    { "id": "jenkins-q12", "type": "scenario", "question": "Pipelines keep breaking after routine plugin updates. Best practice to reduce this?", "options": ["Never use plugins", "Pin plugin versions and test upgrades in staging", "Auto-update everything nightly", "Disable the controller"], "answer": 1, "explanation": "Pinning versions and testing upgrades prevents surprise breakage in production pipelines." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Create your first pipeline job", "goal": "Run a Jenkins pipeline from a Jenkinsfile.", "steps": ["Install Jenkins (or use a container) and complete setup", "Create a Pipeline job pointing at a repo with a Jenkinsfile", "Add stages for Checkout and Build with a simple sh step", "Run the job and read the stage view and console output"], "successCriteria": ["The pipeline runs and all stages pass", "Console output shows each stage executing"] },
+    { "level": "intermediate", "title": "Add credentials and conditional deploy", "goal": "Use secrets and branch conditions safely.", "steps": ["Add a secret to the Credentials store", "Use withCredentials to inject it into a step", "Add a Deploy stage guarded by when { branch 'main' }", "Verify the secret is masked in logs and deploy only runs on main"], "successCriteria": ["Secret is never printed in the console", "Deploy stage is skipped on non-main branches"] },
+    { "level": "advanced", "title": "Distribute builds and parallelize", "goal": "Scale the pipeline across agents.", "steps": ["Connect an agent (SSH or a Docker/K8s cloud)", "Label the agent and target it from a stage", "Run test suites in parallel branches", "Publish JUnit results and archive artifacts"], "successCriteria": ["Stages run on the agent, not the controller", "Parallel tests and archived artifacts appear in the build"] },
+    { "level": "simulation", "title": "Full CI/CD with approval and shared library", "goal": "Model a production delivery pipeline.", "steps": ["Extract common steps into a shared library", "Build and push a commit-tagged image, then scan it", "Deploy to staging automatically; gate production behind input approval", "Notify the team on success/failure via post handlers"], "successCriteria": ["Production deploy requires explicit approval", "Shared library is reused and notifications fire on outcome"] }
+  ]
+}

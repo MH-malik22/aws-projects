@@ -1,6 +1,6 @@
 # DevOps Practice Platform
 
-An interactive, full-stack learning platform that teaches 10 core DevOps tools
+An interactive, full-stack learning platform that teaches 17 core DevOps tools
 through **concept notes, cheat sheets, quizzes, and hands-on labs**, with
 **per-module progress tracking** along a structured beginner → advanced path.
 
@@ -12,7 +12,7 @@ through **concept notes, cheat sheets, quizzes, and hands-on labs**, with
 ## Design — "control plane, after dark"
 
 The UI is themed around the world its learners live in. Your path is rendered
-as a **live CI/CD pipeline run**: the ten modules are stages that move from
+as a **live CI/CD pipeline run**: the seventeen modules are stages that move from
 `queued (○)` → `running (◍)` → `passed (●)`, and finishing a module is an
 `exit 0`. A "now running" panel re-attaches you to your current stage.
 
@@ -36,17 +36,19 @@ as a **live CI/CD pipeline run**: the ten modules are stages that move from
 | Frontend   | React 18 + Vite + React Router | `web/`   |
 | Backend    | Node.js + Express (REST API)   | `server/` |
 | Database   | PostgreSQL                     | `server/src/db/` |
-| Content    | 10 authored modules as JSON    | `content/` |
+| Content    | 17 authored modules as JSON    | `content/` |
 | Docs       | System design & API contract   | `docs/`   |
 
 ## Modules (beginner → advanced)
 
-1. Git & GitHub · 2. Linux Fundamentals · 3. Docker · 4. Kubernetes ·
-5. CI/CD (GitHub Actions + Jenkins) · 6. Terraform ·
-7. AWS Core (EC2, S3, IAM, Lambda) · 8. Monitoring & Logging (Prometheus, Grafana) ·
-9. Security & DevSecOps · 10. SRE Foundations
+1. Git & GitHub · 2. Linux Fundamentals · 3. Shell Scripting · 4. Docker ·
+5. Jenkins · 6. CI/CD (GitHub Actions + Jenkins) · 7. Ansible · 8. Terraform ·
+9. Nexus Repository · 10. JFrog Artifactory · 11. Apache Tomcat · 12. SonarQube ·
+13. Kubernetes · 14. AWS Core (EC2, S3, IAM, Lambda) ·
+15. Monitoring & Logging (Prometheus, Grafana) · 16. Security & DevSecOps ·
+17. SRE Foundations
 
-Each module ships with a concept overview, a notes/cheat-sheet section, **13
+Each module ships with a concept overview, a notes/cheat-sheet section, **10–15
 quiz questions** (multiple-choice, true/false, and scenario-based, each with an
 explanation), and **4 hands-on labs** (beginner, intermediate, advanced, and a
 real-world simulation).
@@ -63,7 +65,7 @@ docker compose up --build
 
 - Web UI → http://localhost:8080
 - API    → http://localhost:4000/api
-- The API container runs migrations and seeds all 10 modules automatically.
+- The API container runs migrations and seeds all 17 modules automatically.
 
 For a detailed, step-by-step Docker walkthrough (prerequisites, verification,
 and troubleshooting), see [`docs/DOCKER_SETUP.md`](docs/DOCKER_SETUP.md).
@@ -145,7 +147,7 @@ and reloads every module transactionally.
 
 ```
 devops-practice-platform/
-├── content/            # 10 authored module JSON files (source of truth)
+├── content/            # 17 authored module JSON files (source of truth)
 ├── server/             # Express API, DB schema, seed, progress logic
 │   └── src/{db,routes,middleware,services}
 ├── web/                # React + Vite SPA

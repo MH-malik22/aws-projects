@@ -1,7 +1,7 @@
 {
   "slug": "kubernetes",
   "title": "Kubernetes",
-  "order": 4,
+  "order": 13,
   "level": "intermediate",
   "concept": {
     "overview": "Kubernetes (K8s) is a container orchestration platform that automates deploying, scaling, and operating containerized applications across a cluster of machines. You describe the desired state declaratively in YAML — how many replicas, which image, what resources — and Kubernetes continuously reconciles the actual state to match, restarting failed containers, rescheduling on healthy nodes, and load-balancing traffic. It turns a fleet of servers into a single logical compute pool.",

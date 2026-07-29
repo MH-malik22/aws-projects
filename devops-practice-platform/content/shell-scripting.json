@@ -1,0 +1,84 @@
+{
+  "slug": "shell-scripting",
+  "title": "Shell Scripting",
+  "order": 3,
+  "level": "beginner",
+  "concept": {
+    "overview": "Shell scripting is the art of stringing shell commands together into reusable programs — most often in Bash. A script automates the repetitive work a DevOps engineer would otherwise type by hand: provisioning steps, backups, log parsing, health checks, and CI/CD glue. Because almost every server, container, and pipeline runner is Linux, a well-written Bash script is the most portable, dependency-free automation you can write.",
+    "whyItMatters": "Before reaching for a heavier tool, a shell script often does the job in ten lines. Pipelines are full of them, container entrypoints are them, and on-call runbooks become them. Writing scripts that are correct, safe, and idempotent — with proper quoting and error handling — separates reliable automation from the kind that silently corrupts data at 3 a.m.",
+    "useCases": [
+      "Automating builds, backups, and deployments as small portable scripts",
+      "Container entrypoints and CI/CD pipeline glue steps",
+      "Parsing and filtering logs with pipes, grep, awk, and sed",
+      "Health checks and bootstrap/provisioning scripts for new hosts",
+      "Bulk file operations and scheduled cron jobs"
+    ],
+    "architecture": "A script starts with a shebang (#!/usr/bin/env bash) telling the OS which interpreter to run. The shell reads it top to bottom, expanding variables and globs, and executes each command as a process — connecting them with pipes (stdout → stdin) and redirects (>, >>, 2>&1). Every command returns an exit status (0 = success, non-zero = failure) available in $?, which control flow (if, &&, ||) and error handling depend on. Functions group reusable logic; arguments arrive as $1..$9 and $@. Safe scripts enable strict mode (set -euo pipefail) so errors and unset variables stop execution instead of silently continuing."
+  },
+  "notes": {
+    "definitions": [
+      { "term": "Shebang", "def": "The first line (#!/usr/bin/env bash) selecting the interpreter for the script." },
+      { "term": "Exit status", "def": "A command's return code: 0 success, non-zero failure, read via $?." },
+      { "term": "Variable expansion", "def": "Substituting a variable's value, e.g. $name or ${name}; always quote it." },
+      { "term": "Positional parameters", "def": "Script/function arguments: $1, $2, … and all as $@." },
+      { "term": "Strict mode", "def": "set -euo pipefail — exit on error, unset var, or pipeline failure." },
+      { "term": "Command substitution", "def": "Capturing a command's output: $(command)." },
+      { "term": "Here-doc", "def": "Inline multi-line input to a command via <<EOF … EOF." }
+    ],
+    "commands": [
+      { "cmd": "#!/usr/bin/env bash", "desc": "Shebang line at the top of every script." },
+      { "cmd": "set -euo pipefail", "desc": "Enable strict, fail-fast behavior." },
+      { "cmd": "name=\"world\"; echo \"hi $name\"", "desc": "Assign and expand a variable (quoted)." },
+      { "cmd": "if [[ -f file ]]; then …; fi", "desc": "Conditional test (file exists)." },
+      { "cmd": "for f in *.log; do echo \"$f\"; done", "desc": "Loop over matching files." },
+      { "cmd": "while read -r line; do …; done < file", "desc": "Read a file line by line safely." },
+      { "cmd": "greet() { echo \"hi $1\"; }", "desc": "Define a function taking an argument." },
+      { "cmd": "result=$(date +%F)", "desc": "Capture command output into a variable." },
+      { "cmd": "trap 'cleanup' EXIT", "desc": "Run a handler on script exit (cleanup)." },
+      { "cmd": "[[ -z \"$VAR\" ]] && { echo 'missing'; exit 1; }", "desc": "Validate a required variable." },
+      { "cmd": "cmd || { echo 'failed'; exit 1; }", "desc": "Handle a failing command explicitly." },
+      { "cmd": "${VAR:-default}", "desc": "Use a default when a variable is unset/empty." }
+    ],
+    "bestPractices": [
+      "Start every script with a shebang and 'set -euo pipefail'.",
+      "Always double-quote variable expansions (\"$var\") to prevent word-splitting and glob bugs.",
+      "Validate inputs early and fail with a clear message and non-zero exit code.",
+      "Make scripts idempotent so re-running them is safe.",
+      "Use functions, meaningful names, and shellcheck to lint before shipping."
+    ],
+    "pitfalls": [
+      "Unquoted variables that break on spaces or expand globs unexpectedly.",
+      "Ignoring exit codes so failures pass silently and corrupt later steps.",
+      "Parsing 'ls' output instead of globbing or using find safely.",
+      "Using rm -rf with an unquoted or unset path variable — catastrophic deletes.",
+      "Assuming Bash features in /bin/sh (dash), causing 'not found' errors."
+    ],
+    "cheatSheet": [
+      "Strict mode: set -euo pipefail",
+      "Default value: ${VAR:-fallback}",
+      "Numeric test: (( x > 3 ))",
+      "String test: [[ \"$a\" == \"$b\" ]]",
+      "Lint your script: shellcheck script.sh",
+      "Safe iterate files: find . -name '*.log' -print0 | xargs -0 …"
+    ]
+  },
+  "quiz": [
+    { "id": "shell-scripting-q1", "type": "mcq", "question": "What does the shebang line do?", "options": ["Sets file permissions", "Tells the OS which interpreter to run the script", "Imports libraries", "Defines variables"], "answer": 1, "explanation": "The shebang (#!/usr/bin/env bash) selects the interpreter for the script." },
+    { "id": "shell-scripting-q2", "type": "truefalse", "question": "An exit status of 0 conventionally means success.", "options": ["True", "False"], "answer": true, "explanation": "0 = success; any non-zero value indicates a failure." },
+    { "id": "shell-scripting-q3", "type": "mcq", "question": "Why double-quote variable expansions like \"$var\"?", "options": ["It's faster", "To prevent word-splitting and glob expansion bugs", "It's required syntax", "To make them global"], "answer": 1, "explanation": "Quoting stops the shell from splitting on spaces or expanding globs unexpectedly." },
+    { "id": "shell-scripting-q4", "type": "mcq", "question": "What does 'set -euo pipefail' do?", "options": ["Enables debug logging", "Exits on error, unset variable, or pipeline failure", "Runs in the background", "Disables errors"], "answer": 1, "explanation": "It makes scripts fail fast instead of continuing after errors." },
+    { "id": "shell-scripting-q5", "type": "mcq", "question": "How do you capture a command's output into a variable?", "options": ["var = command", "var=$(command)", "var := command", "capture command"], "answer": 1, "explanation": "Command substitution uses $(...)." },
+    { "id": "shell-scripting-q6", "type": "scenario", "question": "A script runs 'rm -rf $DIR/' but $DIR is unset. What happens?", "options": ["Nothing", "It safely skips", "It may expand to 'rm -rf /' and delete everything", "It prints an error only"], "answer": 2, "explanation": "An unset variable expands to nothing, turning the path into '/'; always quote and validate." },
+    { "id": "shell-scripting-q7", "type": "truefalse", "question": "${VAR:-default} substitutes 'default' when VAR is unset or empty.", "options": ["True", "False"], "answer": true, "explanation": "This parameter expansion provides a fallback value." },
+    { "id": "shell-scripting-q8", "type": "mcq", "question": "Which is the safe way to read a file line by line?", "options": ["for line in $(cat file)", "while read -r line; do …; done < file", "cat file | line", "read file"], "answer": 1, "explanation": "while read -r preserves whitespace and avoids word-splitting each line." },
+    { "id": "shell-scripting-q9", "type": "mcq", "question": "What does 'trap 'cleanup' EXIT' do?", "options": ["Ignores errors", "Runs the cleanup function when the script exits", "Traps network calls", "Deletes the script"], "answer": 1, "explanation": "trap registers a handler that runs on the given signal/event, here EXIT." },
+    { "id": "shell-scripting-q10", "type": "scenario", "question": "Your script works with bash but fails with 'not found' under /bin/sh. Likely cause?", "options": ["Disk full", "Using bash-only features under dash (sh)", "Missing shebang comment", "Too many functions"], "answer": 1, "explanation": "/bin/sh may be dash; bashisms like [[ ]] or arrays fail there — use a bash shebang." },
+    { "id": "shell-scripting-q11", "type": "mcq", "question": "Which tool lints shell scripts for common bugs?", "options": ["shellcheck", "bashlint", "shfix", "lintsh"], "answer": 0, "explanation": "shellcheck catches quoting, exit-code, and portability issues before you ship." }
+  ],
+  "tasks": [
+    { "level": "beginner", "title": "Write and run a first script", "goal": "Create an executable Bash script.", "steps": ["Create a file starting with #!/usr/bin/env bash", "Add 'set -euo pipefail' and echo a greeting using a variable", "Make it executable with chmod +x", "Run it with ./script.sh"], "successCriteria": ["The script runs from ./", "Output uses a quoted variable"] },
+    { "level": "intermediate", "title": "Arguments, conditionals, and validation", "goal": "Make the script robust to input.", "steps": ["Accept an argument $1 and validate it is provided", "Exit non-zero with a message if missing", "Use an if/else to branch on a file test", "Provide a default with ${VAR:-value}"], "successCriteria": ["Missing argument produces a clear error and non-zero exit", "Defaults apply when a variable is unset"] },
+    { "level": "advanced", "title": "Loops, functions, and error handling", "goal": "Automate a repetitive task safely.", "steps": ["Write a function that processes one file", "Loop over files found with find (null-delimited)", "Add a trap to clean up temp files on exit", "Check exit codes and log actions to a file"], "successCriteria": ["Script is idempotent on re-run", "Temp files are cleaned up even on failure"] },
+    { "level": "simulation", "title": "Backup-and-rotate automation", "goal": "Build a real ops script.", "steps": ["Archive a directory with a timestamped name", "Upload or move it to a backup location", "Delete backups older than N days", "Wire it into cron and confirm it runs unattended"], "successCriteria": ["Backups are created and old ones pruned", "The cron job runs successfully with absolute paths"] }
+  ]
+}

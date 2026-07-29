@@ -1,7 +1,7 @@
 {
   "slug": "aws-core",
   "title": "AWS Core Services (EC2, S3, IAM, Lambda)",
-  "order": 7,
+  "order": 14,
   "level": "intermediate",
   "concept": {
     "overview": "Amazon Web Services is the largest cloud provider, offering on-demand compute, storage, networking, and identity. Four services form the backbone most DevOps engineers touch daily: EC2 (virtual servers you rent by the second), S3 (durable, virtually unlimited object storage), IAM (the identity and permission system that controls who can do what), and Lambda (serverless functions that run code without managing servers). Master these four and you can build, secure, and scale most cloud workloads.",

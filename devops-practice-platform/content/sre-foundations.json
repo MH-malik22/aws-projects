@@ -1,7 +1,7 @@
 {
   "slug": "sre-foundations",
   "title": "SRE Foundations",
-  "order": 10,
+  "order": 17,
   "level": "advanced",
   "concept": {
     "overview": "Site Reliability Engineering (SRE) is a discipline, pioneered at Google, that applies software engineering practices to operations problems. Rather than treating reliability as a vague goal, SRE makes it measurable and budgeted: define Service Level Objectives (SLOs), measure them with Service Level Indicators (SLIs), and manage the gap with an error budget. When the budget is healthy, teams ship fast; when it is exhausted, they slow down and invest in reliability. SRE also emphasizes eliminating toil through automation, blameless postmortems, and engineering for graceful failure.",
