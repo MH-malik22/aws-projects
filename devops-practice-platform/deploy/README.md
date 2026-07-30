@@ -140,9 +140,22 @@ progress) — seed manually after content changes.
 
 ## Cost & cleanup
 
-- Burstable `B1ms` Postgres + two scale-to-zero Container Apps + Basic ACR is a
-  low-cost footprint for light use. Set the apps' `--min-replicas 0` to avoid
-  idle compute charges (the DB bills continuously).
+- **Deploys cost-optimized by default:** both Container Apps use
+  `min-replicas 0`, so they scale to zero and cost ~nothing when idle (light
+  traffic stays within the monthly free grant). The trade-off is a few-second
+  **cold start** on the first request after idle. To keep them always-warm,
+  deploy with `-MinReplicas 1` (PowerShell) or `MIN_REPLICAS=1` (Bash). The
+  deploy sends a warm-up request so the first-boot seed still happens during
+  deploy, not on your first visit.
+- The **database bills continuously** (Burstable `B1ms` ≈ $13–15/mo + ~$4
+  storage) — it can't scale to zero. Stop it when idle to pay storage only:
+  ```bash
+  az postgres flexible-server stop  -g devops-platform-rg -n <pg-name>
+  az postgres flexible-server start -g devops-platform-rg -n <pg-name>
+  ```
+- Basic ACR is ~$5/mo fixed. Rough all-in: **~$18–22/mo** left running,
+  **~$9–12/mo** with the DB stopped between sessions, **~$0** if you delete the
+  group and redeploy on demand.
 - **Custom domain + free managed cert:**
   ```bash
   az containerapp hostname add  -n devops-web -g devops-platform-rg --hostname www.example.com

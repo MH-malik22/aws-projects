@@ -20,7 +20,9 @@ NAME_PREFIX="${NAME_PREFIX:-devops}"
 PG_ADMIN="${PG_ADMIN:-devopsadmin}"
 PG_PASSWORD="${PG_PASSWORD:-}"
 IMAGE_TAG="${IMAGE_TAG:-$(date +%Y%m%d%H%M%S)}"
-SEED="${SEED:-true}"
+# Cost-optimized by default: apps scale to zero when idle. Set MIN_REPLICAS=1 to
+# keep them always-warm (no cold starts, higher cost).
+MIN_REPLICAS="${MIN_REPLICAS:-0}"
 
 # Platform root = the parent of this script's directory.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -62,6 +64,7 @@ echo "==> Deploying API container app"
 if az containerapp show -n devops-api -g "$RG" -o none 2>/dev/null; then
   az containerapp update -n devops-api -g "$RG" \
     --image "${ACR_SERVER}/devops-api:${IMAGE_TAG}" \
+    --min-replicas "$MIN_REPLICAS" --max-replicas 3 \
     --set-env-vars DATABASE_SSL=true PORT=4000 INIT_DB=true -o none
 else
   az containerapp create \
@@ -69,7 +72,7 @@ else
     --image "${ACR_SERVER}/devops-api:${IMAGE_TAG}" \
     --registry-server "$ACR_SERVER" --registry-username "$ACR_USER" --registry-password "$ACR_PASS" \
     --target-port 4000 --ingress external \
-    --min-replicas 1 --max-replicas 3 --cpu 0.5 --memory 1.0Gi \
+    --min-replicas "$MIN_REPLICAS" --max-replicas 3 --cpu 0.5 --memory 1.0Gi \
     --secrets "db-url=$DB_URL" \
     --env-vars DATABASE_URL=secretref:db-url PORT=4000 DATABASE_SSL=true INIT_DB=true \
     -o none
@@ -85,14 +88,16 @@ az acr build -r "$ACR_NAME" -t "devops-web:${IMAGE_TAG}" \
 
 echo "==> Deploying web container app"
 if az containerapp show -n devops-web -g "$RG" -o none 2>/dev/null; then
-  az containerapp update -n devops-web -g "$RG" --image "${ACR_SERVER}/devops-web:${IMAGE_TAG}" -o none
+  az containerapp update -n devops-web -g "$RG" \
+    --image "${ACR_SERVER}/devops-web:${IMAGE_TAG}" \
+    --min-replicas "$MIN_REPLICAS" --max-replicas 3 -o none
 else
   az containerapp create \
     -n devops-web -g "$RG" --environment "$ENV_ID" \
     --image "${ACR_SERVER}/devops-web:${IMAGE_TAG}" \
     --registry-server "$ACR_SERVER" --registry-username "$ACR_USER" --registry-password "$ACR_PASS" \
     --target-port 80 --ingress external \
-    --min-replicas 1 --max-replicas 3 --cpu 0.5 --memory 1.0Gi \
+    --min-replicas "$MIN_REPLICAS" --max-replicas 3 --cpu 0.5 --memory 1.0Gi \
     -o none
 fi
 
@@ -101,6 +106,16 @@ WEB_FQDN="$(az containerapp show -n devops-web -g "$RG" --query properties.confi
 echo "==> Pointing the API's CORS at the web origin"
 az containerapp update -n devops-api -g "$RG" \
   --set-env-vars "CORS_ORIGIN=https://${WEB_FQDN}" -o none
+
+# Apps scale to zero, so nothing runs until a request arrives. Send a warm-up
+# request now to trigger the API's first-boot schema + seed during deploy.
+echo "==> Warming up the API (triggers first-boot schema + seed)"
+for i in $(seq 1 20); do
+  if curl -fsS --max-time 40 "https://${API_FQDN}/api/health" >/dev/null 2>&1; then
+    echo "    API healthy and initialized."; break
+  fi
+  sleep 6
+done
 
 # The API self-seeds on first boot (INIT_DB=true, seeds only when empty), so no
 # separate seed step is needed. To force a content reload after editing
@@ -114,6 +129,8 @@ cat <<EOF
  API    : https://$API_FQDN/api
  ACR    : $ACR_NAME
  RG     : $RG   (delete everything: az group delete -n $RG --yes)
+ Scale  : min-replicas=$MIN_REPLICAS (0 = scale-to-zero, lowest cost)
+ Tip    : stop the DB when idle -> az postgres flexible-server stop -g $RG -n <pg-name>
 =============================================
 For CI/CD on push, set repo variable ACR_NAME=$ACR_NAME and the AZURE_* secrets
 (see deploy/README.md), then the GitHub Actions workflow deploys automatically.

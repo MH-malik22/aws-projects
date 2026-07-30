@@ -19,7 +19,10 @@ param(
   [string]$Rg         = 'devops-platform-rg',
   [string]$NamePrefix = 'devops',
   [string]$PgAdmin    = 'devopsadmin',
-  [string]$ImageTag   = (Get-Date -Format 'yyyyMMddHHmmss')
+  [string]$ImageTag   = (Get-Date -Format 'yyyyMMddHHmmss'),
+  # Cost-optimized by default: apps scale to zero when idle. Pass -MinReplicas 1
+  # to keep them always-warm (no cold starts, higher cost).
+  [int]   $MinReplicas = 0
 )
 
 # Run an `az` command and stop the script if it fails (emulates `set -e`).
@@ -68,6 +71,7 @@ az containerapp show -n devops-api -g $Rg -o none 2>$null
 if ($LASTEXITCODE -eq 0) {
   Invoke-Az containerapp update -n devops-api -g $Rg `
     --image "$acrServer/devops-api:$ImageTag" `
+    --min-replicas $MinReplicas --max-replicas 3 `
     --set-env-vars DATABASE_SSL=true PORT=4000 INIT_DB=true -o none
 } else {
   Invoke-Az containerapp create `
@@ -75,7 +79,7 @@ if ($LASTEXITCODE -eq 0) {
     --image "$acrServer/devops-api:$ImageTag" `
     --registry-server $acrServer --registry-username $acrUser --registry-password $acrPass `
     --target-port 4000 --ingress external `
-    --min-replicas 1 --max-replicas 3 --cpu 0.5 --memory 1.0Gi `
+    --min-replicas $MinReplicas --max-replicas 3 --cpu 0.5 --memory 1.0Gi `
     --secrets "db-url=$dbUrl" `
     --env-vars DATABASE_URL=secretref:db-url PORT=4000 DATABASE_SSL=true INIT_DB=true `
     -o none
@@ -92,14 +96,16 @@ Invoke-Az acr build -r $acrName -t "devops-web:$ImageTag" `
 Write-Host "==> Deploying web container app"
 az containerapp show -n devops-web -g $Rg -o none 2>$null
 if ($LASTEXITCODE -eq 0) {
-  Invoke-Az containerapp update -n devops-web -g $Rg --image "$acrServer/devops-web:$ImageTag" -o none
+  Invoke-Az containerapp update -n devops-web -g $Rg `
+    --image "$acrServer/devops-web:$ImageTag" `
+    --min-replicas $MinReplicas --max-replicas 3 -o none
 } else {
   Invoke-Az containerapp create `
     -n devops-web -g $Rg --environment $envId `
     --image "$acrServer/devops-web:$ImageTag" `
     --registry-server $acrServer --registry-username $acrUser --registry-password $acrPass `
     --target-port 80 --ingress external `
-    --min-replicas 1 --max-replicas 3 --cpu 0.5 --memory 1.0Gi `
+    --min-replicas $MinReplicas --max-replicas 3 --cpu 0.5 --memory 1.0Gi `
     -o none
 }
 
@@ -107,6 +113,20 @@ $webFqdn = az containerapp show -n devops-web -g $Rg --query properties.configur
 
 Write-Host "==> Pointing the API's CORS at the web origin"
 Invoke-Az containerapp update -n devops-api -g $Rg --set-env-vars "CORS_ORIGIN=https://$webFqdn" -o none
+
+# Apps scale to zero, so nothing runs until a request arrives. Send a warm-up
+# request now to trigger the API's first-boot schema + seed during deploy (so
+# the first real visit is fast). Allows a generous timeout for the cold start.
+Write-Host "==> Warming up the API (triggers first-boot schema + seed)"
+$ok = $false
+for ($i = 1; $i -le 20; $i++) {
+  try {
+    $r = Invoke-WebRequest -UseBasicParsing -Uri "https://$apiFqdn/api/health" -TimeoutSec 40
+    if ($r.StatusCode -eq 200) { $ok = $true; break }
+  } catch { Start-Sleep -Seconds 6 }
+}
+if ($ok) { Write-Host "    API healthy and initialized." }
+else { Write-Warning "API not confirmed healthy yet — it will initialize on first visit (may be slow once)." }
 
 # The API self-seeds on first boot (INIT_DB=true, seeds only when empty), so no
 # separate seed step is needed. To force a content reload after changing
@@ -118,4 +138,6 @@ Write-Host " Web UI : https://$webFqdn"
 Write-Host " API    : https://$apiFqdn/api"
 Write-Host " ACR    : $acrName"
 Write-Host " RG     : $Rg   (delete everything: az group delete -n $Rg --yes)"
+Write-Host " Scale  : min-replicas=$MinReplicas (0 = scale-to-zero, lowest cost)"
+Write-Host " Tip    : stop the DB when idle -> az postgres flexible-server stop -g $Rg -n <pg-name>"
 Write-Host "=============================================="
