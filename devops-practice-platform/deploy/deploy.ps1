@@ -19,8 +19,7 @@ param(
   [string]$Rg         = 'devops-platform-rg',
   [string]$NamePrefix = 'devops',
   [string]$PgAdmin    = 'devopsadmin',
-  [string]$ImageTag   = (Get-Date -Format 'yyyyMMddHHmmss'),
-  [bool]  $Seed       = $true
+  [string]$ImageTag   = (Get-Date -Format 'yyyyMMddHHmmss')
 )
 
 # Run an `az` command and stop the script if it fails (emulates `set -e`).
@@ -63,11 +62,13 @@ Write-Host "==> Building API image in ACR (devops-api:$ImageTag)"
 Invoke-Az acr build -r $acrName -t "devops-api:$ImageTag" -f $dockerfile $root -o none
 
 Write-Host "==> Deploying API container app"
+# INIT_DB=true makes the API apply its schema and seed-if-empty on startup, so
+# no fragile startup-command override is needed.
 az containerapp show -n devops-api -g $Rg -o none 2>$null
 if ($LASTEXITCODE -eq 0) {
   Invoke-Az containerapp update -n devops-api -g $Rg `
     --image "$acrServer/devops-api:$ImageTag" `
-    --set-env-vars DATABASE_SSL=true PORT=4000 -o none
+    --set-env-vars DATABASE_SSL=true PORT=4000 INIT_DB=true -o none
 } else {
   Invoke-Az containerapp create `
     -n devops-api -g $Rg --environment $envId `
@@ -76,8 +77,7 @@ if ($LASTEXITCODE -eq 0) {
     --target-port 4000 --ingress external `
     --min-replicas 1 --max-replicas 3 --cpu 0.5 --memory 1.0Gi `
     --secrets "db-url=$dbUrl" `
-    --env-vars DATABASE_URL=secretref:db-url PORT=4000 DATABASE_SSL=true `
-    --command "/bin/sh" "-c" "npm run migrate && npm start" `
+    --env-vars DATABASE_URL=secretref:db-url PORT=4000 DATABASE_SSL=true INIT_DB=true `
     -o none
 }
 
@@ -108,13 +108,9 @@ $webFqdn = az containerapp show -n devops-web -g $Rg --query properties.configur
 Write-Host "==> Pointing the API's CORS at the web origin"
 Invoke-Az containerapp update -n devops-api -g $Rg --set-env-vars "CORS_ORIGIN=https://$webFqdn" -o none
 
-if ($Seed) {
-  Write-Host "==> Seeding the 17 modules (one-time; reloads content)"
-  az containerapp exec -n devops-api -g $Rg --command "npm run seed"
-  if ($LASTEXITCODE -ne 0) {
-    Write-Warning "seed via exec failed/skipped. Run manually: az containerapp exec -n devops-api -g $Rg --command `"npm run seed`""
-  }
-}
+# The API self-seeds on first boot (INIT_DB=true, seeds only when empty), so no
+# separate seed step is needed. To force a content reload after changing
+# content/*.json, run:  az containerapp exec -n devops-api -g $Rg --command "npm run seed"
 
 Write-Host ""
 Write-Host "==================== DONE ===================="

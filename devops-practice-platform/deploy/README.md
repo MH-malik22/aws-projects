@@ -72,16 +72,21 @@ Override defaults with env vars: `LOCATION`, `RG`, `NAME_PREFIX`, `PG_ADMIN`,
 4. Creates the `devops-web` app and points the API's `CORS_ORIGIN` at it.
 5. Runs the content seed **once** (`npm run seed`).
 
-## Seeding vs. migrations
+## Seeding vs. migrations (self-initializing container)
 
-- **Migrations** (`npm run migrate`) create tables `IF NOT EXISTS` — idempotent,
-  run on every API start.
-- **Seed** (`npm run seed`) reloads module content and **truncates** the module
-  tables, so it must *not* run on every replica start (it would reset learner
-  progress). Run it on first deploy and after content changes:
-  ```bash
-  az containerapp exec -n devops-api -g devops-platform-rg --command "npm run seed"
-  ```
+The API app is deployed with `INIT_DB=true`, so it prepares its own database on
+startup — no fragile startup-command override, no separate seed step:
+
+- **Schema** is applied on every start (idempotent — `CREATE TABLE IF NOT EXISTS`).
+- **Content is seeded only when the modules table is empty.** That means the
+  first boot seeds all 17 modules, and later restarts/scale events **do not** wipe
+  learner progress.
+
+Because seeding is skipped once content exists, **changing `content/*.json` needs
+a manual reload** (it truncates and reloads module content):
+```bash
+az containerapp exec -n devops-api -g devops-platform-rg --command "npm run seed"
+```
 
 ## PostgreSQL over TLS
 

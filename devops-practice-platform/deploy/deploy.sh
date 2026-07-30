@@ -57,12 +57,12 @@ echo "==> Building API image in ACR (devops-api:${IMAGE_TAG})"
 az acr build -r "$ACR_NAME" -t "devops-api:${IMAGE_TAG}" -f "$ROOT/server/Dockerfile" "$ROOT" -o none
 
 echo "==> Deploying API container app"
-# migrate is idempotent and runs on every start; seed is run once separately
-# (it reloads/truncates content and must NOT run on each replica start).
+# INIT_DB=true makes the API apply its schema and seed-if-empty on startup, so
+# no fragile startup-command override is needed.
 if az containerapp show -n devops-api -g "$RG" -o none 2>/dev/null; then
   az containerapp update -n devops-api -g "$RG" \
     --image "${ACR_SERVER}/devops-api:${IMAGE_TAG}" \
-    --set-env-vars DATABASE_SSL=true PORT=4000 -o none
+    --set-env-vars DATABASE_SSL=true PORT=4000 INIT_DB=true -o none
 else
   az containerapp create \
     -n devops-api -g "$RG" --environment "$ENV_ID" \
@@ -71,8 +71,7 @@ else
     --target-port 4000 --ingress external \
     --min-replicas 1 --max-replicas 3 --cpu 0.5 --memory 1.0Gi \
     --secrets "db-url=$DB_URL" \
-    --env-vars DATABASE_URL=secretref:db-url PORT=4000 DATABASE_SSL=true \
-    --command "/bin/sh" "-c" "npm run migrate && npm start" \
+    --env-vars DATABASE_URL=secretref:db-url PORT=4000 DATABASE_SSL=true INIT_DB=true \
     -o none
 fi
 
@@ -103,12 +102,10 @@ echo "==> Pointing the API's CORS at the web origin"
 az containerapp update -n devops-api -g "$RG" \
   --set-env-vars "CORS_ORIGIN=https://${WEB_FQDN}" -o none
 
-if [[ "$SEED" == "true" ]]; then
-  echo "==> Seeding the 17 modules (one-time; reloads content)"
-  az containerapp exec -n devops-api -g "$RG" --command "npm run seed" || \
-    echo "    NOTE: seed via exec failed/skipped. Run it manually:
-      az containerapp exec -n devops-api -g $RG --command \"npm run seed\""
-fi
+# The API self-seeds on first boot (INIT_DB=true, seeds only when empty), so no
+# separate seed step is needed. To force a content reload after editing
+# content/*.json, run:
+#   az containerapp exec -n devops-api -g "$RG" --command "npm run seed"
 
 cat <<EOF
 

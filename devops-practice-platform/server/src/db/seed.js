@@ -1,5 +1,5 @@
 import { readdir, readFile, access } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { pool } from './pool.js';
 
@@ -35,7 +35,9 @@ async function loadModules(dir) {
   return modules;
 }
 
-async function seed() {
+// Exported so the API can seed on first startup (INIT_DB=true) when the DB is
+// empty. Reloads all module content (truncates module tables).
+export async function seedFromContent() {
   const dir = await resolveContentDir();
   const modules = await loadModules(dir);
   console.log(`[seed] loading ${modules.length} modules from ${dir}`);
@@ -85,9 +87,14 @@ async function seed() {
   }
 }
 
-seed()
-  .then(() => pool.end())
-  .catch((err) => {
-    console.error('[seed] failed:', err);
-    process.exit(1);
-  });
+// Run standalone via `npm run seed` (not when imported by the server).
+const invokedDirectly =
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (invokedDirectly) {
+  seedFromContent()
+    .then(() => pool.end())
+    .catch((err) => {
+      console.error('[seed] failed:', err);
+      process.exit(1);
+    });
+}
