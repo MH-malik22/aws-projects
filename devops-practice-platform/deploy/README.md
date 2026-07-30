@@ -31,11 +31,24 @@ Browser ──HTTPS──▶ web  (Container App, nginx:80)      ← React SPA
 
 ## One-command deploy
 
-From the `devops-practice-platform/` directory:
+From the `devops-practice-platform/` directory.
 
+**macOS / Linux / Git Bash / WSL** (Bash):
 ```bash
 PG_PASSWORD='Str0ng_Passw0rd!' ./deploy/deploy.sh
 ```
+
+**Windows PowerShell** (no bash needed):
+```powershell
+./deploy/deploy.ps1 -PgPassword 'Str0ng_Passw0rd!'
+```
+If PowerShell blocks the script ("running scripts is disabled"):
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy\deploy.ps1 -PgPassword 'Str0ng_Passw0rd!'
+```
+
+> Note: `VAR=value ./script` is Bash syntax and does **not** work in PowerShell —
+> use `deploy.ps1` (which takes `-PgPassword`) on Windows.
 
 It prints the live URLs at the end:
 

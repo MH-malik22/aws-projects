@@ -76,7 +76,12 @@ Host it on **Azure Container Apps** (+ managed PostgreSQL, + Container Registry)
 with one command — plus a GitHub Actions pipeline for continuous deploys:
 
 ```bash
+# macOS / Linux / Git Bash / WSL
 PG_PASSWORD='Str0ng_Passw0rd!' ./deploy/deploy.sh
+```
+```powershell
+# Windows PowerShell
+./deploy/deploy.ps1 -PgPassword 'Str0ng_Passw0rd!'
 ```
 
 Infrastructure is defined as Bicep in [`deploy/bicep/main.bicep`](deploy/bicep/main.bicep);
