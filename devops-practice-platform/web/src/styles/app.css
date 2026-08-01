@@ -313,6 +313,12 @@ h1,h2,h3,h4 { line-height: 1.2; }
 .crumb { font-family: 'IBM Plex Mono', monospace; font-size: .8rem; color: var(--muted); margin-bottom: 14px; }
 .crumb a:hover { color: var(--amber); }
 .crumb .sep { color: var(--line); }
+.crumb-home {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--panel-2); color: var(--paper);
+}
+.crumb-home:hover { border-color: var(--amber); color: var(--amber); }
 
 .mod-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
 .mod-head h1 { font-family: 'IBM Plex Mono', monospace; font-size: clamp(1.5rem,3vw,2rem); margin: 8px 0 0; }

@@ -57,7 +57,8 @@ export default function Module() {
   return (
     <div className="module-page">
       <div className="crumb">
-        <Link to="/">run</Link> <span className="sep">/</span> {mod.slug}
+        <Link to="/" className="crumb-home" aria-label="Home (dashboard)">⌂ home</Link>
+        <span className="sep">/</span> {mod.slug}
       </div>
 
       <header className="mod-head">
