@@ -86,30 +86,31 @@
     {
       "slug": "user-management",
       "title": "User Management",
-      "intro": "Add users to Jenkins and control what each one can do using the Role-Based Authorization Strategy. Diagrams below illustrate each step — swap them for your own screenshots any time.",
+      "intro": "Add users to Jenkins and control what each one can do using the Role-Based Authorization Strategy. Screenshots are loaded from /guides/jenkins/*.png; until you add them, an illustrative diagram of each step is shown instead.",
       "sections": [
         {
           "heading": "Add users",
           "steps": [
-            { "text": "Navigate to Jenkins → Manage Jenkins → Users.", "image": "/guides/jenkins/nav-users.svg", "caption": "Manage Jenkins → Users" },
-            { "text": "Click Create User, fill in the username, password, full name, and email address, then click Create User.", "image": "/guides/jenkins/add-user-form.svg", "caption": "The Create User form" }
+            { "text": "Navigate to Jenkins → Manage Jenkins → Users.", "image": "/guides/jenkins/manage-jenkins-users.png", "fallback": "/guides/jenkins/nav-users.svg", "caption": "Manage Jenkins → Users" },
+            { "text": "On the Users page click + Create User, then fill in the user ID, name, password, and email, and click Create User. Repeat for each user (here: Dev, Devops, jenkins, QA).", "image": "/guides/jenkins/users-list.png", "fallback": "/guides/jenkins/add-user-form.svg", "caption": "Jenkins' own user database — + Create User" }
           ]
         },
         {
           "heading": "Create roles in Jenkins",
           "steps": [
-            { "text": "Roles require a plugin. Go to Manage Jenkins → Plugins → Available plugins, search for \"Role-based Authorization Strategy\", install it, and restart Jenkins if prompted.", "image": "/guides/jenkins/install-plugin.svg", "caption": "Install the Role-based Authorization Strategy plugin" },
-            { "text": "Go to Manage Jenkins → Security. Under Authorization you will see \"Logged-in users can do anything\" selected — change it to \"Role-Based Strategy\" and Save.", "image": "/guides/jenkins/security-strategy.svg", "caption": "Authorization → Role-Based Strategy" },
-            { "text": "A new option, \"Manage and Assign Roles\", now appears under Manage Jenkins.", "image": "/guides/jenkins/manage-roles.svg", "caption": "The new Manage and Assign Roles entry" },
-            { "text": "Open Manage Roles to define global roles (for example admin, developer, viewer) and tick the permissions each role should have, then Save.", "image": "/guides/jenkins/roles-matrix.svg", "caption": "Define roles and their permissions" },
-            { "text": "Open Assign Roles and map each user to one or more of the roles you created, then Save.", "image": "/guides/jenkins/assign-roles.svg", "caption": "Assign users to roles" }
+            { "text": "Roles require a plugin. Go to Manage Jenkins → Plugins → Available plugins, search for \"Role-based Authorization Strategy\", install it, and restart Jenkins if prompted.", "image": "/guides/jenkins/install-plugin.png", "fallback": "/guides/jenkins/install-plugin.svg", "caption": "Install the Role-based Authorization Strategy plugin" },
+            { "text": "Go to Manage Jenkins → Security. Under Authentication you will see Authorization set to \"Logged-in users can do anything\".", "image": "/guides/jenkins/security-before.png", "fallback": "/guides/jenkins/security-strategy.svg", "caption": "Authorization → Logged-in users can do anything" },
+            { "text": "Change Authorization to \"Role-Based Strategy\" and click Save.", "image": "/guides/jenkins/security-after.png", "fallback": "/guides/jenkins/security-strategy.svg", "caption": "Authorization → Role-Based Strategy" },
+            { "text": "A new option, \"Manage and Assign Roles\", now appears under Manage Jenkins → Security.", "image": "/guides/jenkins/manage-and-assign-roles.png", "fallback": "/guides/jenkins/manage-roles.svg", "caption": "The new Manage and Assign Roles entry" },
+            { "text": "Open Manage Roles and add global roles (for example Developer, Testing, DevOps), ticking the permissions each role should have, then Save.", "image": "/guides/jenkins/manage-roles.png", "fallback": "/guides/jenkins/roles-matrix.svg", "caption": "Manage Roles — global roles & permissions" },
+            { "text": "Open Assign Roles and map each user to a role (for example DevOps Engineer → DevOps, Testing Team → Testing, Developer → Developer), then Save.", "image": "/guides/jenkins/assign-roles.png", "fallback": "/guides/jenkins/assign-roles.svg", "caption": "Assign roles to the created users" }
           ]
         },
         {
           "heading": "Test the users",
           "steps": [
-            { "text": "Open Jenkins in an incognito / private browser window (so you are not logged in as admin).", "image": "/guides/jenkins/test-incognito.svg", "caption": "Open Jenkins in incognito" },
-            { "text": "Log in as one of the users you created and confirm they can only see and do what their assigned role allows." }
+            { "text": "Open Jenkins in an incognito / private browser window and sign in as one of the users you created (for example dev).", "image": "/guides/jenkins/test-incognito.png", "fallback": "/guides/jenkins/test-incognito.svg", "caption": "Sign in to Jenkins (incognito)" },
+            { "text": "Confirm the user only sees and can do what their assigned role allows.", "image": "/guides/jenkins/logged-in-dashboard.png", "fallback": "/guides/jenkins/test-incognito.svg", "caption": "Signed in — role-limited view" }
           ]
         }
       ]

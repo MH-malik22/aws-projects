@@ -21,7 +21,19 @@ export default function GuideView({ guide }) {
                     <p className="guide-step-text">{step.text}</p>
                     {step.image && (
                       <figure className="guide-figure">
-                        <img src={step.image} alt={step.caption || step.text} loading="lazy" />
+                        <img
+                          src={step.image}
+                          alt={step.caption || step.text}
+                          loading="lazy"
+                          onError={(e) => {
+                            // Fall back to the illustrative diagram until a real
+                            // screenshot is dropped in at step.image's path.
+                            if (step.fallback && !e.currentTarget.dataset.fb) {
+                              e.currentTarget.dataset.fb = '1';
+                              e.currentTarget.src = step.fallback;
+                            }
+                          }}
+                        />
                         {step.caption && <figcaption>{step.caption}</figcaption>}
                       </figure>
                     )}
