@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 240" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="240" rx="12" fill="#0E1220"/>
+  <rect x="16" y="16" width="608" height="208" rx="10" fill="#161B26" stroke="#263041"/>
+  <text x="40" y="50" font-family="monospace" font-size="14" fill="#E7E9EE" font-weight="600">Manage Jenkins</text>
+  <line x1="40" y1="62" x2="600" y2="62" stroke="#263041"/>
+  <g font-family="monospace" font-size="13" fill="#8A97AD">
+    <rect x="40" y="76" width="270" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+    <text x="54" y="96">🔒  Security</text>
+    <rect x="40" y="114" width="270" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+    <text x="54" y="134">👥  Users</text>
+    <!-- the new one -->
+    <rect x="40" y="152" width="270" height="34" rx="6" fill="#F5A52422" stroke="#F5A524"/>
+    <text x="54" y="174" fill="#F5A524" font-weight="600">🛡  Manage and Assign Roles</text>
+    <text x="326" y="174" fill="#F5A524" font-size="12">← new after enabling the plugin</text>
+  </g>
+</svg>

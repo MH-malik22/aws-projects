@@ -51,9 +51,9 @@ export async function seedFromContent() {
 
     for (const m of modules) {
       const { rows } = await client.query(
-        `INSERT INTO modules (slug, title, order_index, level, concept, notes)
-         VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-        [m.slug, m.title, m.order, m.level, JSON.stringify(m.concept || {}), JSON.stringify(m.notes || {})]
+        `INSERT INTO modules (slug, title, order_index, level, concept, notes, guides)
+         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+        [m.slug, m.title, m.order, m.level, JSON.stringify(m.concept || {}), JSON.stringify(m.notes || {}), JSON.stringify(m.guides || [])]
       );
       const moduleId = rows[0].id;
 

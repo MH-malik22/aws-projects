@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="280" rx="12" fill="#0E1220"/>
+  <rect x="16" y="16" width="608" height="248" rx="10" fill="#161B26" stroke="#263041"/>
+  <text x="40" y="50" font-family="monospace" font-size="14" fill="#E7E9EE" font-weight="600">Manage Jenkins › Security</text>
+  <line x1="40" y1="62" x2="600" y2="62" stroke="#263041"/>
+  <text x="40" y="90" font-family="monospace" font-size="13" fill="#8A97AD">Authorization</text>
+  <!-- option 1 (was selected) -->
+  <circle cx="60" cy="118" r="7" fill="#0E1220" stroke="#455066" stroke-width="2"/>
+  <text x="80" y="123" font-family="monospace" font-size="13" fill="#8A97AD">Logged-in users can do anything</text>
+  <text x="360" y="123" font-family="monospace" font-size="11" fill="#455066">(old)</text>
+  <!-- option 2 (now selected) -->
+  <circle cx="60" cy="156" r="7" fill="#F5A524" stroke="#F5A524" stroke-width="2"/>
+  <circle cx="60" cy="156" r="3" fill="#1a1204"/>
+  <rect x="76" y="142" width="220" height="28" rx="6" fill="#F5A52422" stroke="#F5A524"/>
+  <text x="88" y="161" font-family="monospace" font-size="13" fill="#F5A524" font-weight="600">Role-Based Strategy</text>
+  <text x="308" y="161" font-family="monospace" font-size="11" fill="#F5A524">← select this</text>
+  <!-- other options -->
+  <circle cx="60" cy="194" r="7" fill="#0E1220" stroke="#455066" stroke-width="2"/>
+  <text x="80" y="199" font-family="monospace" font-size="13" fill="#8A97AD">Matrix-based security</text>
+  <rect x="470" y="216" width="118" height="30" rx="6" fill="#F5A524"/>
+  <text x="529" y="236" font-family="monospace" font-size="13" fill="#1a1204" font-weight="600" text-anchor="middle">Save</text>
+</svg>

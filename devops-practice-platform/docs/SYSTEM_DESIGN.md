@@ -67,7 +67,7 @@ See `server/src/db/schema.sql` (idempotent DDL). Summary:
 
 | Table            | Key columns                                                                 | Notes |
 |------------------|------------------------------------------------------------------------------|-------|
-| `modules`        | `id`, `slug` (unique), `title`, `order_index`, `level`, `concept` jsonb, `notes` jsonb | One row per tool |
+| `modules`        | `id`, `slug` (unique), `title`, `order_index`, `level`, `concept` jsonb, `notes` jsonb, `guides` jsonb | One row per tool; `guides` holds optional walkthrough tabs |
 | `quiz_questions` | `id` (text, e.g. `docker-q1`), `module_id` fk, `position`, `type`, `question`, `options` jsonb, `answer` jsonb, `explanation` | `type` ∈ mcq/truefalse/scenario |
 | `tasks`          | `id`, `module_id` fk, `position`, `level`, `title`, `goal`, `steps` jsonb, `success_criteria` jsonb | 4 per module |
 | `users`          | `id`, `external_id` (unique), `display_name`                                 | `external_id` = `x-user-id` header |
@@ -119,9 +119,25 @@ Each `content/<slug>.json`:
       "steps": ["…"],
       "successCriteria": ["…"]
     }
+  ],
+  "guides": [                                  // optional — each becomes an extra tab
+    {
+      "slug": "user-management",
+      "title": "User Management",
+      "intro": "…",
+      "sections": [
+        { "heading": "…", "steps": [
+          { "text": "…", "image": "/guides/<module>/<step>.svg", "caption": "…" }
+        ] }
+      ]
+    }
   ]
 }
 ```
+
+Guide images are static assets under `web/public/guides/<module>/` (illustrative
+SVGs — replaceable with real screenshots). Modules with a `guides` array render
+one extra tab per guide on the module page, after **Labs**.
 
 ---
 

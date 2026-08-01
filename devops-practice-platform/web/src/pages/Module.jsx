@@ -5,8 +5,9 @@ import ProgressBar from '../components/ProgressBar.jsx';
 import NotesView from '../components/NotesView.jsx';
 import Quiz from '../components/Quiz.jsx';
 import Tasks from '../components/Tasks.jsx';
+import GuideView from '../components/GuideView.jsx';
 
-const TABS = ['Concept', 'Notes', 'Quiz', 'Labs'];
+const BASE_TABS = ['Concept', 'Notes', 'Quiz', 'Labs'];
 
 export default function Module() {
   const { slug } = useParams();
@@ -42,6 +43,11 @@ export default function Module() {
   const pr = mod.progress;
   const done = { Notes: pr.notesRead, Quiz: pr.quiz?.passed, Labs: pr.taskCount > 0 && (pr.tasksCompleted?.length || 0) >= pr.taskCount };
 
+  // Optional per-module walkthrough guides become extra tabs after Labs.
+  const guides = mod.guides || [];
+  const tabs = [...BASE_TABS, ...guides.map((g) => g.title)];
+  const activeGuide = guides.find((g) => g.title === tab);
+
   // Contextual next step
   let next = null;
   if (!pr.notesRead) next = { tab: 'Notes', label: 'read the notes' };
@@ -63,7 +69,7 @@ export default function Module() {
       </header>
 
       <nav className="tabs" aria-label="Stage sections">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button key={t} className={`tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
             {t}{done[t] && <span className="tick" aria-label="complete">✓</span>}
           </button>
@@ -99,6 +105,7 @@ export default function Module() {
 
         {tab === 'Quiz' && <Quiz slug={slug} onProgress={handleProgress} />}
         {tab === 'Labs' && <Tasks slug={slug} onProgress={handleProgress} />}
+        {activeGuide && <GuideView guide={activeGuide} />}
       </div>
 
       {next && tab !== next.tab && (

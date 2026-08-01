@@ -413,6 +413,30 @@ h1,h2,h3,h4 { line-height: 1.2; }
 
 .quiz-actions { position: sticky; bottom: 0; margin-top: 16px; padding: 12px 0; background: linear-gradient(180deg, transparent, var(--ink) 40%); }
 
+/* ---- Guides (walkthrough tabs) ---- */
+.guide-intro { color: var(--muted); margin: 0 0 22px; max-width: 70ch; }
+.guide-section { margin-bottom: 26px; }
+.guide-heading { font-family: 'IBM Plex Mono', monospace; color: var(--amber); font-size: .95rem; margin: 0 0 14px; }
+.guide-steps { list-style: none; padding: 0; margin: 0; }
+.guide-step { display: flex; gap: 14px; padding-bottom: 18px; position: relative; }
+.guide-step:not(:last-child)::before { content: ""; position: absolute; left: 13px; top: 34px; bottom: 0; width: 2px; background: var(--line); }
+.guide-step-num {
+  width: 28px; height: 28px; flex-shrink: 0; z-index: 1; border-radius: 50%;
+  display: grid; place-items: center; font-family: 'IBM Plex Mono', monospace; font-size: .74rem;
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--amber);
+}
+.guide-step-body { flex: 1; min-width: 0; }
+.guide-step-text { margin: 3px 0 0; }
+.guide-figure {
+  margin: 12px 0 0; border: 1px solid var(--line); border-radius: var(--r-md);
+  overflow: hidden; background: var(--panel); max-width: 640px;
+}
+.guide-figure img { display: block; width: 100%; height: auto; }
+.guide-figure figcaption {
+  font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--muted);
+  padding: 8px 12px; border-top: 1px solid var(--line); background: var(--panel-2);
+}
+
 /* ---- Labs ---- */
 .task-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; margin-bottom: 14px; }
 .task-card.done { border-color: var(--pass); }

@@ -81,5 +81,38 @@
     { "level": "intermediate", "title": "Add credentials and conditional deploy", "goal": "Use secrets and branch conditions safely.", "steps": ["Add a secret to the Credentials store", "Use withCredentials to inject it into a step", "Add a Deploy stage guarded by when { branch 'main' }", "Verify the secret is masked in logs and deploy only runs on main"], "successCriteria": ["Secret is never printed in the console", "Deploy stage is skipped on non-main branches"] },
     { "level": "advanced", "title": "Distribute builds and parallelize", "goal": "Scale the pipeline across agents.", "steps": ["Connect an agent (SSH or a Docker/K8s cloud)", "Label the agent and target it from a stage", "Run test suites in parallel branches", "Publish JUnit results and archive artifacts"], "successCriteria": ["Stages run on the agent, not the controller", "Parallel tests and archived artifacts appear in the build"] },
     { "level": "simulation", "title": "Full CI/CD with approval and shared library", "goal": "Model a production delivery pipeline.", "steps": ["Extract common steps into a shared library", "Build and push a commit-tagged image, then scan it", "Deploy to staging automatically; gate production behind input approval", "Notify the team on success/failure via post handlers"], "successCriteria": ["Production deploy requires explicit approval", "Shared library is reused and notifications fire on outcome"] }
+  ],
+  "guides": [
+    {
+      "slug": "user-management",
+      "title": "User Management",
+      "intro": "Add users to Jenkins and control what each one can do using the Role-Based Authorization Strategy. Diagrams below illustrate each step — swap them for your own screenshots any time.",
+      "sections": [
+        {
+          "heading": "Add users",
+          "steps": [
+            { "text": "Navigate to Jenkins → Manage Jenkins → Users.", "image": "/guides/jenkins/nav-users.svg", "caption": "Manage Jenkins → Users" },
+            { "text": "Click Create User, fill in the username, password, full name, and email address, then click Create User.", "image": "/guides/jenkins/add-user-form.svg", "caption": "The Create User form" }
+          ]
+        },
+        {
+          "heading": "Create roles in Jenkins",
+          "steps": [
+            { "text": "Roles require a plugin. Go to Manage Jenkins → Plugins → Available plugins, search for \"Role-based Authorization Strategy\", install it, and restart Jenkins if prompted.", "image": "/guides/jenkins/install-plugin.svg", "caption": "Install the Role-based Authorization Strategy plugin" },
+            { "text": "Go to Manage Jenkins → Security. Under Authorization you will see \"Logged-in users can do anything\" selected — change it to \"Role-Based Strategy\" and Save.", "image": "/guides/jenkins/security-strategy.svg", "caption": "Authorization → Role-Based Strategy" },
+            { "text": "A new option, \"Manage and Assign Roles\", now appears under Manage Jenkins.", "image": "/guides/jenkins/manage-roles.svg", "caption": "The new Manage and Assign Roles entry" },
+            { "text": "Open Manage Roles to define global roles (for example admin, developer, viewer) and tick the permissions each role should have, then Save.", "image": "/guides/jenkins/roles-matrix.svg", "caption": "Define roles and their permissions" },
+            { "text": "Open Assign Roles and map each user to one or more of the roles you created, then Save.", "image": "/guides/jenkins/assign-roles.svg", "caption": "Assign users to roles" }
+          ]
+        },
+        {
+          "heading": "Test the users",
+          "steps": [
+            { "text": "Open Jenkins in an incognito / private browser window (so you are not logged in as admin).", "image": "/guides/jenkins/test-incognito.svg", "caption": "Open Jenkins in incognito" },
+            { "text": "Log in as one of the users you created and confirm they can only see and do what their assigned role allows." }
+          ]
+        }
+      ]
+    }
   ]
 }

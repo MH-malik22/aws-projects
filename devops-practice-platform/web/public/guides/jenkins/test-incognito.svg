@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="280" rx="12" fill="#0E1220"/>
+  <!-- incognito window -->
+  <rect x="60" y="30" width="520" height="220" rx="12" fill="#161B26" stroke="#263041"/>
+  <!-- title bar -->
+  <rect x="60" y="30" width="520" height="34" rx="12" fill="#0B0F18"/>
+  <circle cx="82" cy="47" r="5" fill="#455066"/>
+  <circle cx="100" cy="47" r="5" fill="#455066"/>
+  <circle cx="118" cy="47" r="5" fill="#455066"/>
+  <text x="300" y="52" font-family="monospace" font-size="12" fill="#8A97AD" text-anchor="middle">🕶  Incognito — Jenkins</text>
+  <!-- login card -->
+  <text x="320" y="100" font-family="monospace" font-size="15" fill="#E7E9EE" font-weight="600" text-anchor="middle">Sign in to Jenkins</text>
+  <rect x="200" y="118" width="240" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+  <text x="214" y="138" font-family="monospace" font-size="13" fill="#E7E9EE">developer1</text>
+  <rect x="200" y="156" width="240" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+  <text x="214" y="176" font-family="monospace" font-size="13" fill="#8A97AD">••••••••••</text>
+  <rect x="200" y="196" width="240" height="34" rx="6" fill="#F5A524"/>
+  <text x="320" y="218" font-family="monospace" font-size="13" fill="#1a1204" font-weight="600" text-anchor="middle">Sign in</text>
+</svg>

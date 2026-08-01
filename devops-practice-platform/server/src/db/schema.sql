@@ -8,8 +8,12 @@ CREATE TABLE IF NOT EXISTS modules (
   order_index INTEGER NOT NULL,
   level       TEXT NOT NULL CHECK (level IN ('beginner','intermediate','advanced')),
   concept     JSONB NOT NULL DEFAULT '{}'::jsonb,
-  notes       JSONB NOT NULL DEFAULT '{}'::jsonb
+  notes       JSONB NOT NULL DEFAULT '{}'::jsonb,
+  guides      JSONB NOT NULL DEFAULT '[]'::jsonb   -- optional per-module walkthrough tabs
 );
+
+-- Add the guides column to databases created before it existed (idempotent).
+ALTER TABLE modules ADD COLUMN IF NOT EXISTS guides JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS quiz_questions (
   id          TEXT PRIMARY KEY,               -- e.g. "docker-q1"

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="300" rx="12" fill="#0E1220"/>
+  <rect x="16" y="16" width="608" height="268" rx="10" fill="#161B26" stroke="#263041"/>
+  <!-- breadcrumb -->
+  <g font-family="monospace" font-size="13">
+    <rect x="32" y="34" width="118" height="26" rx="6" fill="#1D2431" stroke="#263041"/>
+    <text x="44" y="51" fill="#8A97AD">Jenkins</text>
+    <text x="158" y="51" fill="#455066">›</text>
+    <rect x="172" y="34" width="150" height="26" rx="6" fill="#1D2431" stroke="#263041"/>
+    <text x="184" y="51" fill="#8A97AD">Manage Jenkins</text>
+    <text x="330" y="51" fill="#455066">›</text>
+    <rect x="344" y="34" width="86" height="26" rx="6" fill="#F5A524"/>
+    <text x="356" y="51" fill="#1a1204" font-weight="600">Users</text>
+  </g>
+  <!-- left nav -->
+  <rect x="32" y="78" width="180" height="190" rx="8" fill="#0E1220" stroke="#263041"/>
+  <g font-family="monospace" font-size="13" fill="#8A97AD">
+    <text x="48" y="106">System</text>
+    <text x="48" y="134">Security</text>
+    <text x="48" y="162">Plugins</text>
+    <rect x="40" y="176" width="164" height="26" rx="6" fill="#F5A52422" stroke="#F5A524"/>
+    <text x="48" y="194" fill="#F5A524" font-weight="600">Users</text>
+    <text x="48" y="228">Nodes</text>
+    <text x="48" y="256">Credentials</text>
+  </g>
+  <!-- panel: users list -->
+  <rect x="228" y="78" width="380" height="190" rx="8" fill="#0E1220" stroke="#263041"/>
+  <text x="246" y="106" font-family="monospace" font-size="14" fill="#E7E9EE" font-weight="600">Users</text>
+  <g font-family="monospace" font-size="12" fill="#8A97AD">
+    <line x1="246" y1="120" x2="590" y2="120" stroke="#263041"/>
+    <text x="246" y="146">admin</text><text x="470" y="146" fill="#3FB950">admin</text>
+    <line x1="246" y1="158" x2="590" y2="158" stroke="#1b2333"/>
+    <text x="246" y="182">developer1</text><text x="470" y="182">developer</text>
+    <line x1="246" y1="194" x2="590" y2="194" stroke="#1b2333"/>
+    <text x="246" y="218">viewer1</text><text x="470" y="218">viewer</text>
+  </g>
+  <rect x="470" y="234" width="120" height="26" rx="6" fill="#F5A524"/>
+  <text x="484" y="252" font-family="monospace" font-size="12" fill="#1a1204" font-weight="600">+ Create User</text>
+</svg>

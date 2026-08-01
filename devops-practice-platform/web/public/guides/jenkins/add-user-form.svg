@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="320" rx="12" fill="#0E1220"/>
+  <rect x="16" y="16" width="608" height="288" rx="10" fill="#161B26" stroke="#263041"/>
+  <text x="40" y="52" font-family="monospace" font-size="16" fill="#E7E9EE" font-weight="600">Create User</text>
+  <line x1="40" y1="66" x2="600" y2="66" stroke="#263041"/>
+  <g font-family="monospace" font-size="13">
+    <!-- rows -->
+    <text x="40" y="102" fill="#8A97AD">Username</text>
+    <rect x="200" y="86" width="360" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+    <text x="214" y="106" fill="#E7E9EE">developer1</text>
+
+    <text x="40" y="150" fill="#8A97AD">Password</text>
+    <rect x="200" y="134" width="360" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+    <text x="214" y="154" fill="#8A97AD">••••••••••</text>
+
+    <text x="40" y="198" fill="#8A97AD">Full name</text>
+    <rect x="200" y="182" width="360" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+    <text x="214" y="202" fill="#E7E9EE">Dev Eloper</text>
+
+    <text x="40" y="246" fill="#8A97AD">E-mail address</text>
+    <rect x="200" y="230" width="360" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+    <text x="214" y="250" fill="#E7E9EE">dev1@example.com</text>
+  </g>
+  <rect x="440" y="272" width="120" height="28" rx="6" fill="#F5A524"/>
+  <text x="454" y="291" font-family="monospace" font-size="12" fill="#1a1204" font-weight="600">Create User</text>
+</svg>

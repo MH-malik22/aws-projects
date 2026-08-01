@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="280" rx="12" fill="#0E1220"/>
+  <rect x="16" y="16" width="608" height="248" rx="10" fill="#161B26" stroke="#263041"/>
+  <text x="40" y="48" font-family="monospace" font-size="14" fill="#E7E9EE" font-weight="600">Assign Roles — Global roles</text>
+  <line x1="40" y1="60" x2="600" y2="60" stroke="#263041"/>
+  <g font-family="monospace" font-size="11" fill="#8A97AD">
+    <text x="300" y="86" text-anchor="middle">admin</text>
+    <text x="410" y="86" text-anchor="middle">developer</text>
+    <text x="520" y="86" text-anchor="middle">viewer</text>
+  </g>
+  <text x="40" y="86" font-family="monospace" font-size="11" fill="#8A97AD">User</text>
+  <line x1="40" y1="96" x2="600" y2="96" stroke="#263041"/>
+  <g font-family="monospace" font-size="12">
+    <text x="40" y="124" fill="#E7E9EE">admin</text>
+    <text x="300" y="124" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="410" y="124" fill="#455066" text-anchor="middle">☐</text>
+    <text x="520" y="124" fill="#455066" text-anchor="middle">☐</text>
+    <line x1="40" y1="136" x2="600" y2="136" stroke="#1b2333"/>
+
+    <text x="40" y="164" fill="#E7E9EE">developer1</text>
+    <text x="300" y="164" fill="#455066" text-anchor="middle">☐</text>
+    <text x="410" y="164" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="520" y="164" fill="#455066" text-anchor="middle">☐</text>
+    <line x1="40" y1="176" x2="600" y2="176" stroke="#1b2333"/>
+
+    <text x="40" y="204" fill="#E7E9EE">viewer1</text>
+    <text x="300" y="204" fill="#455066" text-anchor="middle">☐</text>
+    <text x="410" y="204" fill="#455066" text-anchor="middle">☐</text>
+    <text x="520" y="204" fill="#3FB950" text-anchor="middle">☑</text>
+  </g>
+  <rect x="470" y="228" width="118" height="28" rx="6" fill="#F5A524"/>
+  <text x="529" y="247" font-family="monospace" font-size="12" fill="#1a1204" font-weight="600" text-anchor="middle">Save</text>
+</svg>

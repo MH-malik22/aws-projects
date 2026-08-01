@@ -72,6 +72,7 @@ modulesRouter.get('/:slug', async (req, res, next) => {
       level: mod.level,
       concept: mod.concept,
       notes: mod.notes,
+      guides: Array.isArray(mod.guides) ? mod.guides : [],
       progress: serializeProgress(progressRow, taskCountRes.rows[0].n),
     });
   } catch (err) {

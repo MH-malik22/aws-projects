@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="300" rx="12" fill="#0E1220"/>
+  <rect x="16" y="16" width="608" height="268" rx="10" fill="#161B26" stroke="#263041"/>
+  <text x="40" y="48" font-family="monospace" font-size="14" fill="#E7E9EE" font-weight="600">Manage Roles — Global roles</text>
+  <line x1="40" y1="60" x2="600" y2="60" stroke="#263041"/>
+  <!-- column headers (permissions) -->
+  <g font-family="monospace" font-size="11" fill="#8A97AD">
+    <text x="250" y="88" text-anchor="middle">Overall</text>
+    <text x="340" y="88" text-anchor="middle">Job</text>
+    <text x="430" y="88" text-anchor="middle">Run</text>
+    <text x="520" y="88" text-anchor="middle">Agent</text>
+  </g>
+  <text x="40" y="88" font-family="monospace" font-size="11" fill="#8A97AD">Role</text>
+  <line x1="40" y1="98" x2="600" y2="98" stroke="#263041"/>
+  <!-- rows -->
+  <g font-family="monospace" font-size="12">
+    <text x="40" y="126" fill="#E7E9EE">admin</text>
+    <text x="250" y="126" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="340" y="126" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="430" y="126" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="520" y="126" fill="#3FB950" text-anchor="middle">☑</text>
+    <line x1="40" y1="138" x2="600" y2="138" stroke="#1b2333"/>
+
+    <text x="40" y="166" fill="#E7E9EE">developer</text>
+    <text x="250" y="166" fill="#455066" text-anchor="middle">☐</text>
+    <text x="340" y="166" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="430" y="166" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="520" y="166" fill="#455066" text-anchor="middle">☐</text>
+    <line x1="40" y1="178" x2="600" y2="178" stroke="#1b2333"/>
+
+    <text x="40" y="206" fill="#E7E9EE">viewer</text>
+    <text x="250" y="206" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="340" y="206" fill="#455066" text-anchor="middle">☐</text>
+    <text x="430" y="206" fill="#3FB950" text-anchor="middle">☑</text>
+    <text x="520" y="206" fill="#455066" text-anchor="middle">☐</text>
+  </g>
+  <text x="40" y="238" font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#8A97AD">Tick the permissions each role should have.</text>
+  <rect x="470" y="244" width="118" height="28" rx="6" fill="#F5A524"/>
+  <text x="529" y="263" font-family="monospace" font-size="12" fill="#1a1204" font-weight="600" text-anchor="middle">Save</text>
+</svg>

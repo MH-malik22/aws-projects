@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" font-family="'IBM Plex Sans', system-ui, sans-serif">
+  <rect width="640" height="300" rx="12" fill="#0E1220"/>
+  <rect x="16" y="16" width="608" height="268" rx="10" fill="#161B26" stroke="#263041"/>
+  <g font-family="monospace" font-size="13">
+    <text x="40" y="50" fill="#8A97AD">Manage Jenkins › Plugins ›</text>
+    <rect x="250" y="34" width="150" height="24" rx="6" fill="#F5A52422" stroke="#F5A524"/>
+    <text x="262" y="51" fill="#F5A524" font-weight="600">Available plugins</text>
+  </g>
+  <!-- search -->
+  <rect x="40" y="72" width="560" height="30" rx="6" fill="#0E1220" stroke="#263041"/>
+  <text x="54" y="92" font-family="monospace" font-size="13" fill="#E7E9EE">🔍 Role-based Authorization Strategy</text>
+  <!-- result row -->
+  <rect x="40" y="118" width="560" height="120" rx="8" fill="#0E1220" stroke="#F5A524"/>
+  <rect x="52" y="130" width="30" height="30" rx="6" fill="#1D2431" stroke="#263041"/>
+  <text x="60" y="151" font-size="16">🧩</text>
+  <text x="96" y="144" font-family="monospace" font-size="14" fill="#E7E9EE" font-weight="600">Role-based Authorization Strategy</text>
+  <text x="96" y="166" font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#8A97AD">Manage user permissions with global and project roles.</text>
+  <rect x="96" y="182" width="120" height="26" rx="6" fill="#1D2431" stroke="#263041"/>
+  <text x="150" y="199" font-family="monospace" font-size="12" fill="#8A97AD" text-anchor="middle">☑ selected</text>
+  <rect x="470" y="182" width="118" height="34" rx="6" fill="#F5A524"/>
+  <text x="529" y="204" font-family="monospace" font-size="13" fill="#1a1204" font-weight="600" text-anchor="middle">Install</text>
+  <text x="40" y="266" font-family="monospace" font-size="12" fill="#8A97AD">Restart Jenkins after install if prompted.</text>
+</svg>
