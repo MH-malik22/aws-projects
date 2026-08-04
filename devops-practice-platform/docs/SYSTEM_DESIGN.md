@@ -126,8 +126,15 @@ Each `content/<slug>.json`:
       "title": "User Management",
       "intro": "…",
       "sections": [
+        // a section is EITHER a walkthrough (steps) …
         { "heading": "…", "steps": [
-          { "text": "…", "image": "/guides/<module>/<step>.svg", "caption": "…" }
+          { "text": "…", "image": "/guides/<module>/<step>.png",
+            "fallback": "/guides/<module>/<step>.svg", "caption": "…" }
+        ] },
+        // … OR a reference table (commands)
+        { "heading": "Networking", "commands": [
+          { "cmd": "ss -tulpn", "desc": "Show listening sockets",
+            "example": "Debug port conflicts on Kubernetes nodes" }
         ] }
       ]
     }

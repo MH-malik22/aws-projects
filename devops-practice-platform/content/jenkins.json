@@ -17,27 +17,84 @@
   },
   "notes": {
     "definitions": [
-      { "term": "Controller", "def": "The central Jenkins server that schedules jobs, holds config/history, and serves the UI." },
-      { "term": "Agent / Node", "def": "A worker that executes pipeline steps; connected to the controller over SSH/JNLP or spun up on demand." },
-      { "term": "Jenkinsfile", "def": "A pipeline defined as code (declarative or scripted) checked into the repository." },
-      { "term": "Stage / Step", "def": "A stage is a named phase (Build, Test); steps are the individual commands inside it." },
-      { "term": "Freestyle vs Pipeline", "def": "Freestyle jobs are UI-configured; Pipeline jobs are code-defined and version-controlled (preferred)." },
-      { "term": "Executor", "def": "A slot on an agent that runs one build at a time; agents can have multiple executors." },
-      { "term": "Shared Library", "def": "Reusable pipeline code (Groovy) shared across many Jenkinsfiles." }
+      {
+        "term": "Controller",
+        "def": "The central Jenkins server that schedules jobs, holds config/history, and serves the UI."
+      },
+      {
+        "term": "Agent / Node",
+        "def": "A worker that executes pipeline steps; connected to the controller over SSH/JNLP or spun up on demand."
+      },
+      {
+        "term": "Jenkinsfile",
+        "def": "A pipeline defined as code (declarative or scripted) checked into the repository."
+      },
+      {
+        "term": "Stage / Step",
+        "def": "A stage is a named phase (Build, Test); steps are the individual commands inside it."
+      },
+      {
+        "term": "Freestyle vs Pipeline",
+        "def": "Freestyle jobs are UI-configured; Pipeline jobs are code-defined and version-controlled (preferred)."
+      },
+      {
+        "term": "Executor",
+        "def": "A slot on an agent that runs one build at a time; agents can have multiple executors."
+      },
+      {
+        "term": "Shared Library",
+        "def": "Reusable pipeline code (Groovy) shared across many Jenkinsfiles."
+      }
     ],
     "commands": [
-      { "cmd": "pipeline { agent any; stages { ... } }", "desc": "Skeleton of a declarative pipeline." },
-      { "cmd": "stage('Build') { steps { sh 'make' } }", "desc": "A stage running a shell step." },
-      { "cmd": "agent { docker 'node:20' }", "desc": "Run the stage inside a container image." },
-      { "cmd": "environment { REGISTRY = 'ghcr.io' }", "desc": "Define environment variables for the pipeline/stage." },
-      { "cmd": "withCredentials([...]) { ... }", "desc": "Inject stored secrets scoped to a block." },
-      { "cmd": "when { branch 'main' }", "desc": "Run a stage only when a condition holds." },
-      { "cmd": "post { success { ... } failure { ... } }", "desc": "Run steps based on build outcome." },
-      { "cmd": "input message: 'Deploy to prod?'", "desc": "Pause for manual approval before continuing." },
-      { "cmd": "parallel(a: { ... }, b: { ... })", "desc": "Run branches of work concurrently." },
-      { "cmd": "sh 'docker build -t app:${GIT_COMMIT} .'", "desc": "Build a commit-tagged image in a step." },
-      { "cmd": "java -jar jenkins-cli.jar -s URL build JOB", "desc": "Trigger a job from the Jenkins CLI." },
-      { "cmd": "archiveArtifacts artifacts: 'target/*.jar'", "desc": "Publish build outputs from a run." }
+      {
+        "cmd": "pipeline { agent any; stages { ... } }",
+        "desc": "Skeleton of a declarative pipeline."
+      },
+      {
+        "cmd": "stage('Build') { steps { sh 'make' } }",
+        "desc": "A stage running a shell step."
+      },
+      {
+        "cmd": "agent { docker 'node:20' }",
+        "desc": "Run the stage inside a container image."
+      },
+      {
+        "cmd": "environment { REGISTRY = 'ghcr.io' }",
+        "desc": "Define environment variables for the pipeline/stage."
+      },
+      {
+        "cmd": "withCredentials([...]) { ... }",
+        "desc": "Inject stored secrets scoped to a block."
+      },
+      {
+        "cmd": "when { branch 'main' }",
+        "desc": "Run a stage only when a condition holds."
+      },
+      {
+        "cmd": "post { success { ... } failure { ... } }",
+        "desc": "Run steps based on build outcome."
+      },
+      {
+        "cmd": "input message: 'Deploy to prod?'",
+        "desc": "Pause for manual approval before continuing."
+      },
+      {
+        "cmd": "parallel(a: { ... }, b: { ... })",
+        "desc": "Run branches of work concurrently."
+      },
+      {
+        "cmd": "sh 'docker build -t app:${GIT_COMMIT} .'",
+        "desc": "Build a commit-tagged image in a step."
+      },
+      {
+        "cmd": "java -jar jenkins-cli.jar -s URL build JOB",
+        "desc": "Trigger a job from the Jenkins CLI."
+      },
+      {
+        "cmd": "archiveArtifacts artifacts: 'target/*.jar'",
+        "desc": "Publish build outputs from a run."
+      }
     ],
     "bestPractices": [
       "Define pipelines as code (Jenkinsfile) in the repo — never configure critical jobs only in the UI.",
@@ -63,24 +120,246 @@
     ]
   },
   "quiz": [
-    { "id": "jenkins-q1", "type": "mcq", "question": "What is a Jenkinsfile?", "options": ["A plugin binary", "A pipeline defined as code, stored in the repository", "The Jenkins config database", "An agent connection file"], "answer": 1, "explanation": "A Jenkinsfile defines the pipeline (declarative or scripted) and lives in version control." },
-    { "id": "jenkins-q2", "type": "mcq", "question": "In the controller/agent model, what should the controller avoid doing?", "options": ["Serving the UI", "Scheduling jobs", "Running heavy builds itself", "Storing configuration"], "answer": 2, "explanation": "The controller schedules and coordinates; heavy builds belong on agents to keep it responsive." },
-    { "id": "jenkins-q3", "type": "truefalse", "question": "Pipeline (as-code) jobs are generally preferred over freestyle jobs for critical work.", "options": ["True", "False"], "answer": true, "explanation": "Pipelines are version-controlled, reviewable, and reproducible; freestyle jobs are UI-only snowflakes." },
-    { "id": "jenkins-q4", "type": "mcq", "question": "How should database credentials be used in a pipeline?", "options": ["Hardcoded in the Jenkinsfile", "Printed to the log", "Stored in Credentials and injected via withCredentials", "Committed to the repo"], "answer": 2, "explanation": "Secrets live in the encrypted Credentials store and are injected into a scoped block." },
-    { "id": "jenkins-q5", "type": "mcq", "question": "Which block runs steps based on whether the build succeeded or failed?", "options": ["when", "post", "environment", "agent"], "answer": 1, "explanation": "The post section defines success/failure/always handlers." },
-    { "id": "jenkins-q6", "type": "scenario", "question": "You need a human to approve before deploying to production. Which step?", "options": ["sh 'approve'", "input message: 'Deploy to prod?'", "when { approved }", "post { approve }"], "answer": 1, "explanation": "The input step pauses the pipeline until someone approves." },
-    { "id": "jenkins-q7", "type": "truefalse", "question": "Shared libraries let multiple Jenkinsfiles reuse common pipeline code.", "options": ["True", "False"], "answer": true, "explanation": "Shared libraries (Groovy) centralize reusable steps and keep pipelines DRY." },
-    { "id": "jenkins-q8", "type": "mcq", "question": "What primarily gives Jenkins its broad integrations?", "options": ["Its database", "Its plugin ecosystem", "Its UI theme", "Its REST port"], "answer": 1, "explanation": "1,800+ plugins integrate Jenkins with SCMs, build tools, clouds, and more." },
-    { "id": "jenkins-q9", "type": "scenario", "question": "A disk failure wiped the Jenkins server and all jobs/history are gone. Root cause of the pain?", "options": ["Too many agents", "No backup of JENKINS_HOME", "Using pipelines", "Too few plugins"], "answer": 1, "explanation": "JENKINS_HOME holds jobs, history, and credentials; without backups it is unrecoverable." },
-    { "id": "jenkins-q10", "type": "mcq", "question": "What does 'agent { docker 'node:20' }' do for a stage?", "options": ["Deploys to Docker Hub", "Runs the stage inside a node:20 container", "Builds a Docker image", "Installs Docker"], "answer": 1, "explanation": "It executes the stage's steps inside the specified container image." },
-    { "id": "jenkins-q11", "type": "mcq", "question": "What is an executor in Jenkins?", "options": ["A plugin", "A slot on an agent that runs one build at a time", "The pipeline file", "A credential type"], "answer": 1, "explanation": "Executors are concurrent build slots on an agent; more executors = more parallel builds." },
-    { "id": "jenkins-q12", "type": "scenario", "question": "Pipelines keep breaking after routine plugin updates. Best practice to reduce this?", "options": ["Never use plugins", "Pin plugin versions and test upgrades in staging", "Auto-update everything nightly", "Disable the controller"], "answer": 1, "explanation": "Pinning versions and testing upgrades prevents surprise breakage in production pipelines." }
+    {
+      "id": "jenkins-q1",
+      "type": "mcq",
+      "question": "What is a Jenkinsfile?",
+      "options": [
+        "A plugin binary",
+        "A pipeline defined as code, stored in the repository",
+        "The Jenkins config database",
+        "An agent connection file"
+      ],
+      "answer": 1,
+      "explanation": "A Jenkinsfile defines the pipeline (declarative or scripted) and lives in version control."
+    },
+    {
+      "id": "jenkins-q2",
+      "type": "mcq",
+      "question": "In the controller/agent model, what should the controller avoid doing?",
+      "options": [
+        "Serving the UI",
+        "Scheduling jobs",
+        "Running heavy builds itself",
+        "Storing configuration"
+      ],
+      "answer": 2,
+      "explanation": "The controller schedules and coordinates; heavy builds belong on agents to keep it responsive."
+    },
+    {
+      "id": "jenkins-q3",
+      "type": "truefalse",
+      "question": "Pipeline (as-code) jobs are generally preferred over freestyle jobs for critical work.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "Pipelines are version-controlled, reviewable, and reproducible; freestyle jobs are UI-only snowflakes."
+    },
+    {
+      "id": "jenkins-q4",
+      "type": "mcq",
+      "question": "How should database credentials be used in a pipeline?",
+      "options": [
+        "Hardcoded in the Jenkinsfile",
+        "Printed to the log",
+        "Stored in Credentials and injected via withCredentials",
+        "Committed to the repo"
+      ],
+      "answer": 2,
+      "explanation": "Secrets live in the encrypted Credentials store and are injected into a scoped block."
+    },
+    {
+      "id": "jenkins-q5",
+      "type": "mcq",
+      "question": "Which block runs steps based on whether the build succeeded or failed?",
+      "options": [
+        "when",
+        "post",
+        "environment",
+        "agent"
+      ],
+      "answer": 1,
+      "explanation": "The post section defines success/failure/always handlers."
+    },
+    {
+      "id": "jenkins-q6",
+      "type": "scenario",
+      "question": "You need a human to approve before deploying to production. Which step?",
+      "options": [
+        "sh 'approve'",
+        "input message: 'Deploy to prod?'",
+        "when { approved }",
+        "post { approve }"
+      ],
+      "answer": 1,
+      "explanation": "The input step pauses the pipeline until someone approves."
+    },
+    {
+      "id": "jenkins-q7",
+      "type": "truefalse",
+      "question": "Shared libraries let multiple Jenkinsfiles reuse common pipeline code.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "Shared libraries (Groovy) centralize reusable steps and keep pipelines DRY."
+    },
+    {
+      "id": "jenkins-q8",
+      "type": "mcq",
+      "question": "What primarily gives Jenkins its broad integrations?",
+      "options": [
+        "Its database",
+        "Its plugin ecosystem",
+        "Its UI theme",
+        "Its REST port"
+      ],
+      "answer": 1,
+      "explanation": "1,800+ plugins integrate Jenkins with SCMs, build tools, clouds, and more."
+    },
+    {
+      "id": "jenkins-q9",
+      "type": "scenario",
+      "question": "A disk failure wiped the Jenkins server and all jobs/history are gone. Root cause of the pain?",
+      "options": [
+        "Too many agents",
+        "No backup of JENKINS_HOME",
+        "Using pipelines",
+        "Too few plugins"
+      ],
+      "answer": 1,
+      "explanation": "JENKINS_HOME holds jobs, history, and credentials; without backups it is unrecoverable."
+    },
+    {
+      "id": "jenkins-q10",
+      "type": "mcq",
+      "question": "What does 'agent { docker 'node:20' }' do for a stage?",
+      "options": [
+        "Deploys to Docker Hub",
+        "Runs the stage inside a node:20 container",
+        "Builds a Docker image",
+        "Installs Docker"
+      ],
+      "answer": 1,
+      "explanation": "It executes the stage's steps inside the specified container image."
+    },
+    {
+      "id": "jenkins-q11",
+      "type": "mcq",
+      "question": "What is an executor in Jenkins?",
+      "options": [
+        "A plugin",
+        "A slot on an agent that runs one build at a time",
+        "The pipeline file",
+        "A credential type"
+      ],
+      "answer": 1,
+      "explanation": "Executors are concurrent build slots on an agent; more executors = more parallel builds."
+    },
+    {
+      "id": "jenkins-q12",
+      "type": "scenario",
+      "question": "Pipelines keep breaking after routine plugin updates. Best practice to reduce this?",
+      "options": [
+        "Never use plugins",
+        "Pin plugin versions and test upgrades in staging",
+        "Auto-update everything nightly",
+        "Disable the controller"
+      ],
+      "answer": 1,
+      "explanation": "Pinning versions and testing upgrades prevents surprise breakage in production pipelines."
+    },
+    {
+      "id": "jenkins-q13",
+      "type": "mcq",
+      "question": "Which of these is the recommended way to restrict what each Jenkins user can do?",
+      "options": [
+        "Give everyone admin and rely on trust",
+        "Enable an authorization strategy such as Role-Based Strategy and assign scoped roles",
+        "Disable security entirely",
+        "Share one login"
+      ],
+      "answer": 1,
+      "explanation": "Enable a security realm for authentication plus an authorization strategy (e.g. Role-Based Strategy) to grant least-privilege permissions."
+    },
+    {
+      "id": "jenkins-q14",
+      "type": "mcq",
+      "question": "What is 'self-testing code' in a CI context?",
+      "options": [
+        "Code that needs no tests",
+        "Code shipped with an automated test suite the pipeline runs on every change",
+        "Manual QA scripts",
+        "Code that tests itself in production only"
+      ],
+      "answer": 1,
+      "explanation": "Self-testing code ships with automated tests CI executes on every commit, so regressions surface immediately."
+    }
   ],
   "tasks": [
-    { "level": "beginner", "title": "Create your first pipeline job", "goal": "Run a Jenkins pipeline from a Jenkinsfile.", "steps": ["Install Jenkins (or use a container) and complete setup", "Create a Pipeline job pointing at a repo with a Jenkinsfile", "Add stages for Checkout and Build with a simple sh step", "Run the job and read the stage view and console output"], "successCriteria": ["The pipeline runs and all stages pass", "Console output shows each stage executing"] },
-    { "level": "intermediate", "title": "Add credentials and conditional deploy", "goal": "Use secrets and branch conditions safely.", "steps": ["Add a secret to the Credentials store", "Use withCredentials to inject it into a step", "Add a Deploy stage guarded by when { branch 'main' }", "Verify the secret is masked in logs and deploy only runs on main"], "successCriteria": ["Secret is never printed in the console", "Deploy stage is skipped on non-main branches"] },
-    { "level": "advanced", "title": "Distribute builds and parallelize", "goal": "Scale the pipeline across agents.", "steps": ["Connect an agent (SSH or a Docker/K8s cloud)", "Label the agent and target it from a stage", "Run test suites in parallel branches", "Publish JUnit results and archive artifacts"], "successCriteria": ["Stages run on the agent, not the controller", "Parallel tests and archived artifacts appear in the build"] },
-    { "level": "simulation", "title": "Full CI/CD with approval and shared library", "goal": "Model a production delivery pipeline.", "steps": ["Extract common steps into a shared library", "Build and push a commit-tagged image, then scan it", "Deploy to staging automatically; gate production behind input approval", "Notify the team on success/failure via post handlers"], "successCriteria": ["Production deploy requires explicit approval", "Shared library is reused and notifications fire on outcome"] }
+    {
+      "level": "beginner",
+      "title": "Create your first pipeline job",
+      "goal": "Run a Jenkins pipeline from a Jenkinsfile.",
+      "steps": [
+        "Install Jenkins (or use a container) and complete setup",
+        "Create a Pipeline job pointing at a repo with a Jenkinsfile",
+        "Add stages for Checkout and Build with a simple sh step",
+        "Run the job and read the stage view and console output"
+      ],
+      "successCriteria": [
+        "The pipeline runs and all stages pass",
+        "Console output shows each stage executing"
+      ]
+    },
+    {
+      "level": "intermediate",
+      "title": "Add credentials and conditional deploy",
+      "goal": "Use secrets and branch conditions safely.",
+      "steps": [
+        "Add a secret to the Credentials store",
+        "Use withCredentials to inject it into a step",
+        "Add a Deploy stage guarded by when { branch 'main' }",
+        "Verify the secret is masked in logs and deploy only runs on main"
+      ],
+      "successCriteria": [
+        "Secret is never printed in the console",
+        "Deploy stage is skipped on non-main branches"
+      ]
+    },
+    {
+      "level": "advanced",
+      "title": "Distribute builds and parallelize",
+      "goal": "Scale the pipeline across agents.",
+      "steps": [
+        "Connect an agent (SSH or a Docker/K8s cloud)",
+        "Label the agent and target it from a stage",
+        "Run test suites in parallel branches",
+        "Publish JUnit results and archive artifacts"
+      ],
+      "successCriteria": [
+        "Stages run on the agent, not the controller",
+        "Parallel tests and archived artifacts appear in the build"
+      ]
+    },
+    {
+      "level": "simulation",
+      "title": "Full CI/CD with approval and shared library",
+      "goal": "Model a production delivery pipeline.",
+      "steps": [
+        "Extract common steps into a shared library",
+        "Build and push a commit-tagged image, then scan it",
+        "Deploy to staging automatically; gate production behind input approval",
+        "Notify the team on success/failure via post handlers"
+      ],
+      "successCriteria": [
+        "Production deploy requires explicit approval",
+        "Shared library is reused and notifications fire on outcome"
+      ]
+    }
   ],
   "guides": [
     {
@@ -91,26 +370,76 @@
         {
           "heading": "Add users",
           "steps": [
-            { "text": "Navigate to Jenkins → Manage Jenkins → Users.", "image": "/guides/jenkins/manage-jenkins-users.png", "fallback": "/guides/jenkins/nav-users.svg", "caption": "Manage Jenkins → Users" },
-            { "text": "On the Users page click + Create User, then fill in the user ID, name, password, and email, and click Create User. Repeat for each user (here: Dev, Devops, jenkins, QA).", "image": "/guides/jenkins/users-list.png", "fallback": "/guides/jenkins/add-user-form.svg", "caption": "Jenkins' own user database — + Create User" }
+            {
+              "text": "Navigate to Jenkins → Manage Jenkins → Users.",
+              "image": "/guides/jenkins/manage-jenkins-users.png",
+              "fallback": "/guides/jenkins/nav-users.svg",
+              "caption": "Manage Jenkins → Users"
+            },
+            {
+              "text": "On the Users page click + Create User, then fill in the user ID, name, password, and email, and click Create User. Repeat for each user (here: Dev, Devops, jenkins, QA).",
+              "image": "/guides/jenkins/users-list.png",
+              "fallback": "/guides/jenkins/add-user-form.svg",
+              "caption": "Jenkins' own user database — + Create User"
+            }
           ]
         },
         {
           "heading": "Create roles in Jenkins",
           "steps": [
-            { "text": "Roles require a plugin. Go to Manage Jenkins → Plugins → Available plugins, search for \"Role-based Authorization Strategy\", install it, and restart Jenkins if prompted.", "image": "/guides/jenkins/install-plugin.png", "fallback": "/guides/jenkins/install-plugin.svg", "caption": "Install the Role-based Authorization Strategy plugin" },
-            { "text": "Go to Manage Jenkins → Security. Under Authentication you will see Authorization set to \"Logged-in users can do anything\".", "image": "/guides/jenkins/security-before.png", "fallback": "/guides/jenkins/security-strategy.svg", "caption": "Authorization → Logged-in users can do anything" },
-            { "text": "Change Authorization to \"Role-Based Strategy\" and click Save.", "image": "/guides/jenkins/security-after.png", "fallback": "/guides/jenkins/security-strategy.svg", "caption": "Authorization → Role-Based Strategy" },
-            { "text": "A new option, \"Manage and Assign Roles\", now appears under Manage Jenkins → Security.", "image": "/guides/jenkins/manage-and-assign-roles.png", "fallback": "/guides/jenkins/manage-roles.svg", "caption": "The new Manage and Assign Roles entry" },
-            { "text": "Open Manage Roles and add global roles (for example Developer, Testing, DevOps), ticking the permissions each role should have, then Save.", "image": "/guides/jenkins/manage-roles.png", "fallback": "/guides/jenkins/roles-matrix.svg", "caption": "Manage Roles — global roles & permissions" },
-            { "text": "Open Assign Roles and map each user to a role (for example DevOps Engineer → DevOps, Testing Team → Testing, Developer → Developer), then Save.", "image": "/guides/jenkins/assign-roles.png", "fallback": "/guides/jenkins/assign-roles.svg", "caption": "Assign roles to the created users" }
+            {
+              "text": "Roles require a plugin. Go to Manage Jenkins → Plugins → Available plugins, search for \"Role-based Authorization Strategy\", install it, and restart Jenkins if prompted.",
+              "image": "/guides/jenkins/install-plugin.png",
+              "fallback": "/guides/jenkins/install-plugin.svg",
+              "caption": "Install the Role-based Authorization Strategy plugin"
+            },
+            {
+              "text": "Go to Manage Jenkins → Security. Under Authentication you will see Authorization set to \"Logged-in users can do anything\".",
+              "image": "/guides/jenkins/security-before.png",
+              "fallback": "/guides/jenkins/security-strategy.svg",
+              "caption": "Authorization → Logged-in users can do anything"
+            },
+            {
+              "text": "Change Authorization to \"Role-Based Strategy\" and click Save.",
+              "image": "/guides/jenkins/security-after.png",
+              "fallback": "/guides/jenkins/security-strategy.svg",
+              "caption": "Authorization → Role-Based Strategy"
+            },
+            {
+              "text": "A new option, \"Manage and Assign Roles\", now appears under Manage Jenkins → Security.",
+              "image": "/guides/jenkins/manage-and-assign-roles.png",
+              "fallback": "/guides/jenkins/manage-roles.svg",
+              "caption": "The new Manage and Assign Roles entry"
+            },
+            {
+              "text": "Open Manage Roles and add global roles (for example Developer, Testing, DevOps), ticking the permissions each role should have, then Save.",
+              "image": "/guides/jenkins/manage-roles.png",
+              "fallback": "/guides/jenkins/roles-matrix.svg",
+              "caption": "Manage Roles — global roles & permissions"
+            },
+            {
+              "text": "Open Assign Roles and map each user to a role (for example DevOps Engineer → DevOps, Testing Team → Testing, Developer → Developer), then Save.",
+              "image": "/guides/jenkins/assign-roles.png",
+              "fallback": "/guides/jenkins/assign-roles.svg",
+              "caption": "Assign roles to the created users"
+            }
           ]
         },
         {
           "heading": "Test the users",
           "steps": [
-            { "text": "Open Jenkins in an incognito / private browser window and sign in as one of the users you created (for example dev).", "image": "/guides/jenkins/test-incognito.png", "fallback": "/guides/jenkins/test-incognito.svg", "caption": "Sign in to Jenkins (incognito)" },
-            { "text": "Confirm the user only sees and can do what their assigned role allows.", "image": "/guides/jenkins/logged-in-dashboard.png", "fallback": "/guides/jenkins/test-incognito.svg", "caption": "Signed in — role-limited view" }
+            {
+              "text": "Open Jenkins in an incognito / private browser window and sign in as one of the users you created (for example dev).",
+              "image": "/guides/jenkins/test-incognito.png",
+              "fallback": "/guides/jenkins/test-incognito.svg",
+              "caption": "Sign in to Jenkins (incognito)"
+            },
+            {
+              "text": "Confirm the user only sees and can do what their assigned role allows.",
+              "image": "/guides/jenkins/logged-in-dashboard.png",
+              "fallback": "/guides/jenkins/test-incognito.svg",
+              "caption": "Signed in — role-limited view"
+            }
           ]
         }
       ]

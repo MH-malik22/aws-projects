@@ -1,5 +1,5 @@
-// Renders a module walkthrough guide: an intro, then numbered steps grouped
-// into sections, each step with optional illustrative image + caption.
+// Renders a module guide. A section is either a list of numbered steps (a
+// walkthrough) or a reference table of commands.
 export default function GuideView({ guide }) {
   if (!guide) return null;
   // Continuous step numbering across sections.
@@ -11,6 +11,26 @@ export default function GuideView({ guide }) {
       {(guide.sections || []).map((section, si) => (
         <section className="guide-section" key={si}>
           {section.heading && <h3 className="guide-heading"># {section.heading}</h3>}
+
+          {section.commands && (
+            <div className="cmd-scroll">
+              <table className="ref-table">
+                <thead>
+                  <tr><th>Command</th><th>What it does</th><th>Real DevOps example</th></tr>
+                </thead>
+                <tbody>
+                  {section.commands.map((c, i) => (
+                    <tr key={i}>
+                      <td><code>{c.cmd}</code></td>
+                      <td>{c.desc}</td>
+                      <td className="ref-example">{c.example}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           <ol className="guide-steps">
             {(section.steps || []).map((step, i) => {
               n += 1;

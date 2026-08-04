@@ -17,27 +17,84 @@
   },
   "notes": {
     "definitions": [
-      { "term": "Shell", "def": "A command interpreter (e.g., bash) that reads commands and asks the kernel to run them." },
-      { "term": "Kernel", "def": "The core of the OS that manages hardware, memory, processes, and the filesystem." },
-      { "term": "Process", "def": "A running instance of a program, identified by a PID and owned by a user." },
-      { "term": "File permissions", "def": "Read (r), write (w), execute (x) bits for owner, group, and others, e.g., rwxr-xr-x." },
-      { "term": "systemd", "def": "The init system and service manager that starts and supervises daemons via units." },
-      { "term": "stdin/stdout/stderr", "def": "The three standard streams: input (0), normal output (1), and error output (2)." },
-      { "term": "Environment variable", "def": "A key=value setting in a process's environment, e.g., PATH or HOME." }
+      {
+        "term": "Shell",
+        "def": "A command interpreter (e.g., bash) that reads commands and asks the kernel to run them."
+      },
+      {
+        "term": "Kernel",
+        "def": "The core of the OS that manages hardware, memory, processes, and the filesystem."
+      },
+      {
+        "term": "Process",
+        "def": "A running instance of a program, identified by a PID and owned by a user."
+      },
+      {
+        "term": "File permissions",
+        "def": "Read (r), write (w), execute (x) bits for owner, group, and others, e.g., rwxr-xr-x."
+      },
+      {
+        "term": "systemd",
+        "def": "The init system and service manager that starts and supervises daemons via units."
+      },
+      {
+        "term": "stdin/stdout/stderr",
+        "def": "The three standard streams: input (0), normal output (1), and error output (2)."
+      },
+      {
+        "term": "Environment variable",
+        "def": "A key=value setting in a process's environment, e.g., PATH or HOME."
+      }
     ],
     "commands": [
-      { "cmd": "ls -la", "desc": "List files with details, permissions, and hidden entries." },
-      { "cmd": "cd / pwd", "desc": "Change directory / print the working directory." },
-      { "cmd": "grep -r \"pattern\" .", "desc": "Recursively search file contents for a pattern." },
-      { "cmd": "find . -name '*.log'", "desc": "Locate files by name or other criteria." },
-      { "cmd": "chmod 640 file", "desc": "Set permissions numerically (owner rw, group r, other none)." },
-      { "cmd": "chown user:group file", "desc": "Change file owner and group." },
-      { "cmd": "ps aux / top / htop", "desc": "Inspect running processes and resource usage." },
-      { "cmd": "kill -9 <pid>", "desc": "Send SIGKILL to forcibly terminate a process." },
-      { "cmd": "systemctl status <svc>", "desc": "Check a systemd service's state and recent logs." },
-      { "cmd": "journalctl -u <svc> -f", "desc": "Follow the live logs for a service." },
-      { "cmd": "tail -f /var/log/syslog", "desc": "Stream new lines appended to a log file." },
-      { "cmd": "df -h / du -sh *", "desc": "Show disk free space / directory sizes." }
+      {
+        "cmd": "ls -la",
+        "desc": "List files with details, permissions, and hidden entries."
+      },
+      {
+        "cmd": "cd / pwd",
+        "desc": "Change directory / print the working directory."
+      },
+      {
+        "cmd": "grep -r \"pattern\" .",
+        "desc": "Recursively search file contents for a pattern."
+      },
+      {
+        "cmd": "find . -name '*.log'",
+        "desc": "Locate files by name or other criteria."
+      },
+      {
+        "cmd": "chmod 640 file",
+        "desc": "Set permissions numerically (owner rw, group r, other none)."
+      },
+      {
+        "cmd": "chown user:group file",
+        "desc": "Change file owner and group."
+      },
+      {
+        "cmd": "ps aux / top / htop",
+        "desc": "Inspect running processes and resource usage."
+      },
+      {
+        "cmd": "kill -9 <pid>",
+        "desc": "Send SIGKILL to forcibly terminate a process."
+      },
+      {
+        "cmd": "systemctl status <svc>",
+        "desc": "Check a systemd service's state and recent logs."
+      },
+      {
+        "cmd": "journalctl -u <svc> -f",
+        "desc": "Follow the live logs for a service."
+      },
+      {
+        "cmd": "tail -f /var/log/syslog",
+        "desc": "Stream new lines appended to a log file."
+      },
+      {
+        "cmd": "df -h / du -sh *",
+        "desc": "Show disk free space / directory sizes."
+      }
     ],
     "bestPractices": [
       "Prefer least privilege: run services as non-root users and use sudo only when needed.",
@@ -63,24 +120,591 @@
     ]
   },
   "quiz": [
-    { "id": "linux-q1", "type": "mcq", "question": "What does 'chmod 755 script.sh' grant?", "options": ["Owner rwx, group and others r-x", "Everyone full access", "Owner read-only", "Group write, others none"], "answer": 0, "explanation": "7=rwx for owner, 5=r-x for group and others." },
-    { "id": "linux-q2", "type": "truefalse", "question": "The directory /etc typically stores system configuration files.", "options": ["True", "False"], "answer": true, "explanation": "/etc is the conventional location for host and service configuration." },
-    { "id": "linux-q3", "type": "mcq", "question": "Which command follows a service's live logs under systemd?", "options": ["tail -n /etc", "journalctl -u nginx -f", "systemctl logs", "cat /proc/logs"], "answer": 1, "explanation": "journalctl -u <unit> -f streams the running log for a systemd unit." },
-    { "id": "linux-q4", "type": "mcq", "question": "What is stderr's file descriptor number?", "options": ["0", "1", "2", "3"], "answer": 2, "explanation": "stdin=0, stdout=1, stderr=2." },
-    { "id": "linux-q5", "type": "scenario", "question": "A disk is full and a service crashed. Which command best identifies the biggest consumers in /var?", "options": ["ls -l /var", "du -sh /var/* | sort -h", "cat /var/*", "chmod -R 777 /var"], "answer": 1, "explanation": "du -sh on each entry, sorted, reveals the largest directories quickly." },
-    { "id": "linux-q6", "type": "truefalse", "question": "'set -euo pipefail' makes a bash script exit on errors and unset variables.", "options": ["True", "False"], "answer": true, "explanation": "-e exits on error, -u errors on unset vars, pipefail catches failures in pipelines." },
-    { "id": "linux-q7", "type": "mcq", "question": "Which signal does 'kill -9' send?", "options": ["SIGTERM (graceful)", "SIGHUP", "SIGKILL (forceful, uncatchable)", "SIGINT"], "answer": 2, "explanation": "-9 is SIGKILL, which the process cannot trap or ignore." },
-    { "id": "linux-q8", "type": "mcq", "question": "What does the pipe operator '|' do?", "options": ["Runs commands in parallel", "Sends one command's stdout to the next command's stdin", "Redirects output to a file", "Comments out a line"], "answer": 1, "explanation": "The pipe connects stdout of the left command to stdin of the right command." },
-    { "id": "linux-q9", "type": "scenario", "question": "You need to run a web server as a non-root user for security. What is the recommended approach?", "options": ["Run it as root; it's simpler", "Create a dedicated service user and grant only needed permissions", "chmod 777 the web root", "Disable the firewall"], "answer": 1, "explanation": "Least privilege: a dedicated non-root user limits blast radius if the service is compromised." },
-    { "id": "linux-q10", "type": "mcq", "question": "Which virtual filesystem exposes running kernel and process information?", "options": ["/home", "/proc", "/opt", "/tmp"], "answer": 1, "explanation": "/proc presents live kernel and per-process data as files." },
-    { "id": "linux-q11", "type": "truefalse", "question": "Environment variables like PATH are inherited by child processes.", "options": ["True", "False"], "answer": true, "explanation": "Child processes inherit the parent's exported environment." },
-    { "id": "linux-q12", "type": "mcq", "question": "How do you count how many lines contain 'ERROR' in app.log?", "options": ["grep ERROR app.log -c only counts files", "grep -c ERROR app.log", "wc ERROR app.log", "find ERROR in app.log"], "answer": 1, "explanation": "grep -c prints the number of matching lines." },
-    { "id": "linux-q13", "type": "scenario", "question": "A cron job runs but 'command not found' appears in its log, though it works in your shell. Likely cause?", "options": ["The command was deleted", "cron has a minimal PATH; use the absolute path or set PATH", "cron cannot run scripts", "The disk is full"], "answer": 1, "explanation": "cron runs with a stripped-down environment; specify absolute paths or export PATH in the job." }
+    {
+      "id": "linux-q1",
+      "type": "mcq",
+      "question": "What does 'chmod 755 script.sh' grant?",
+      "options": [
+        "Owner rwx, group and others r-x",
+        "Everyone full access",
+        "Owner read-only",
+        "Group write, others none"
+      ],
+      "answer": 0,
+      "explanation": "7=rwx for owner, 5=r-x for group and others."
+    },
+    {
+      "id": "linux-q2",
+      "type": "truefalse",
+      "question": "The directory /etc typically stores system configuration files.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "/etc is the conventional location for host and service configuration."
+    },
+    {
+      "id": "linux-q3",
+      "type": "mcq",
+      "question": "Which command follows a service's live logs under systemd?",
+      "options": [
+        "tail -n /etc",
+        "journalctl -u nginx -f",
+        "systemctl logs",
+        "cat /proc/logs"
+      ],
+      "answer": 1,
+      "explanation": "journalctl -u <unit> -f streams the running log for a systemd unit."
+    },
+    {
+      "id": "linux-q4",
+      "type": "mcq",
+      "question": "What is stderr's file descriptor number?",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "answer": 2,
+      "explanation": "stdin=0, stdout=1, stderr=2."
+    },
+    {
+      "id": "linux-q5",
+      "type": "scenario",
+      "question": "A disk is full and a service crashed. Which command best identifies the biggest consumers in /var?",
+      "options": [
+        "ls -l /var",
+        "du -sh /var/* | sort -h",
+        "cat /var/*",
+        "chmod -R 777 /var"
+      ],
+      "answer": 1,
+      "explanation": "du -sh on each entry, sorted, reveals the largest directories quickly."
+    },
+    {
+      "id": "linux-q6",
+      "type": "truefalse",
+      "question": "'set -euo pipefail' makes a bash script exit on errors and unset variables.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "-e exits on error, -u errors on unset vars, pipefail catches failures in pipelines."
+    },
+    {
+      "id": "linux-q7",
+      "type": "mcq",
+      "question": "Which signal does 'kill -9' send?",
+      "options": [
+        "SIGTERM (graceful)",
+        "SIGHUP",
+        "SIGKILL (forceful, uncatchable)",
+        "SIGINT"
+      ],
+      "answer": 2,
+      "explanation": "-9 is SIGKILL, which the process cannot trap or ignore."
+    },
+    {
+      "id": "linux-q8",
+      "type": "mcq",
+      "question": "What does the pipe operator '|' do?",
+      "options": [
+        "Runs commands in parallel",
+        "Sends one command's stdout to the next command's stdin",
+        "Redirects output to a file",
+        "Comments out a line"
+      ],
+      "answer": 1,
+      "explanation": "The pipe connects stdout of the left command to stdin of the right command."
+    },
+    {
+      "id": "linux-q9",
+      "type": "scenario",
+      "question": "You need to run a web server as a non-root user for security. What is the recommended approach?",
+      "options": [
+        "Run it as root; it's simpler",
+        "Create a dedicated service user and grant only needed permissions",
+        "chmod 777 the web root",
+        "Disable the firewall"
+      ],
+      "answer": 1,
+      "explanation": "Least privilege: a dedicated non-root user limits blast radius if the service is compromised."
+    },
+    {
+      "id": "linux-q10",
+      "type": "mcq",
+      "question": "Which virtual filesystem exposes running kernel and process information?",
+      "options": [
+        "/home",
+        "/proc",
+        "/opt",
+        "/tmp"
+      ],
+      "answer": 1,
+      "explanation": "/proc presents live kernel and per-process data as files."
+    },
+    {
+      "id": "linux-q11",
+      "type": "truefalse",
+      "question": "Environment variables like PATH are inherited by child processes.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "Child processes inherit the parent's exported environment."
+    },
+    {
+      "id": "linux-q12",
+      "type": "mcq",
+      "question": "How do you count how many lines contain 'ERROR' in app.log?",
+      "options": [
+        "grep ERROR app.log -c only counts files",
+        "grep -c ERROR app.log",
+        "wc ERROR app.log",
+        "find ERROR in app.log"
+      ],
+      "answer": 1,
+      "explanation": "grep -c prints the number of matching lines."
+    },
+    {
+      "id": "linux-q13",
+      "type": "scenario",
+      "question": "A cron job runs but 'command not found' appears in its log, though it works in your shell. Likely cause?",
+      "options": [
+        "The command was deleted",
+        "cron has a minimal PATH; use the absolute path or set PATH",
+        "cron cannot run scripts",
+        "The disk is full"
+      ],
+      "answer": 1,
+      "explanation": "cron runs with a stripped-down environment; specify absolute paths or export PATH in the job."
+    },
+    {
+      "id": "linux-q14",
+      "type": "mcq",
+      "question": "Which command lists the processes currently holding a file or port open?",
+      "options": [
+        "lsof",
+        "netcat",
+        "chmod",
+        "du"
+      ],
+      "answer": 0,
+      "explanation": "lsof (List Open Files) shows which processes have files or sockets open — ideal for finding what is holding port 8080."
+    },
+    {
+      "id": "linux-q15",
+      "type": "mcq",
+      "question": "What does 'tee' do in a pipeline?",
+      "options": [
+        "Terminates the pipeline",
+        "Writes input to a file AND passes it on to stdout",
+        "Compresses the stream",
+        "Sorts input"
+      ],
+      "answer": 1,
+      "explanation": "tee splits the stream: e.g. './deploy.sh | tee deploy.log' shows output live while also saving it."
+    },
+    {
+      "id": "linux-q16",
+      "type": "mcq",
+      "question": "What does appending '&' to a command do?",
+      "options": [
+        "Runs it as root",
+        "Runs it in the background, returning the prompt immediately",
+        "Redirects output",
+        "Repeats it"
+      ],
+      "answer": 1,
+      "explanation": "'&' backgrounds the job; combine with nohup or a service manager if it must outlive the shell."
+    },
+    {
+      "id": "linux-q17",
+      "type": "scenario",
+      "question": "A build agent reports 'command not found' for a tool you know is installed. What should you check first?",
+      "options": [
+        "Disk space",
+        "Whether the tool's directory is in $PATH for that shell/user",
+        "The kernel version",
+        "DNS"
+      ],
+      "answer": 1,
+      "explanation": "Non-interactive shells (cron, CI) often have a minimal PATH; echo $PATH and use absolute paths or export PATH."
+    }
   ],
   "tasks": [
-    { "level": "beginner", "title": "Navigate and inspect the filesystem", "goal": "Get comfortable moving around and reading files.", "steps": ["Use pwd, cd, and ls -la to explore /etc and /var/log", "Print the last 20 lines of a log with tail -n 20", "Search a file for a keyword using grep", "Check disk usage with df -h"], "successCriteria": ["You can list, read, and search files without errors", "You identified the largest directory under /var/log"] },
-    { "level": "intermediate", "title": "Manage permissions and users", "goal": "Practice the permission model safely.", "steps": ["Create a file and view its permissions with ls -l", "Change its mode with chmod to 640", "Change ownership with chown (using sudo)", "Create a script, make it executable, and run it"], "successCriteria": ["Permissions match the intended rwx pattern", "The script runs from ./script.sh"] },
-    { "level": "advanced", "title": "Write a robust bash script", "goal": "Automate a task with error handling.", "steps": ["Start the script with 'set -euo pipefail'", "Accept an argument and validate it is provided", "Loop over files matching a pattern with find", "Log actions to a file and check exit codes"], "successCriteria": ["Script exits non-zero on invalid input", "Actions are logged and idempotent on re-run"] },
-    { "level": "simulation", "title": "Triage a struggling server", "goal": "Diagnose a host under load like an on-call engineer.", "steps": ["Use top/htop to find the top CPU and memory consumers", "Check disk with df -h and du -sh for a full partition", "Inspect a failing service with systemctl status and journalctl", "Free space or restart the service, then confirm recovery"], "successCriteria": ["Root cause identified (CPU, memory, or disk)", "Service returns to active/running state"] }
+    {
+      "level": "beginner",
+      "title": "Navigate and inspect the filesystem",
+      "goal": "Get comfortable moving around and reading files.",
+      "steps": [
+        "Use pwd, cd, and ls -la to explore /etc and /var/log",
+        "Print the last 20 lines of a log with tail -n 20",
+        "Search a file for a keyword using grep",
+        "Check disk usage with df -h"
+      ],
+      "successCriteria": [
+        "You can list, read, and search files without errors",
+        "You identified the largest directory under /var/log"
+      ]
+    },
+    {
+      "level": "intermediate",
+      "title": "Manage permissions and users",
+      "goal": "Practice the permission model safely.",
+      "steps": [
+        "Create a file and view its permissions with ls -l",
+        "Change its mode with chmod to 640",
+        "Change ownership with chown (using sudo)",
+        "Create a script, make it executable, and run it"
+      ],
+      "successCriteria": [
+        "Permissions match the intended rwx pattern",
+        "The script runs from ./script.sh"
+      ]
+    },
+    {
+      "level": "advanced",
+      "title": "Write a robust bash script",
+      "goal": "Automate a task with error handling.",
+      "steps": [
+        "Start the script with 'set -euo pipefail'",
+        "Accept an argument and validate it is provided",
+        "Loop over files matching a pattern with find",
+        "Log actions to a file and check exit codes"
+      ],
+      "successCriteria": [
+        "Script exits non-zero on invalid input",
+        "Actions are logged and idempotent on re-run"
+      ]
+    },
+    {
+      "level": "simulation",
+      "title": "Triage a struggling server",
+      "goal": "Diagnose a host under load like an on-call engineer.",
+      "steps": [
+        "Use top/htop to find the top CPU and memory consumers",
+        "Check disk with df -h and du -sh for a full partition",
+        "Inspect a failing service with systemctl status and journalctl",
+        "Free space or restart the service, then confirm recovery"
+      ],
+      "successCriteria": [
+        "Root cause identified (CPU, memory, or disk)",
+        "Service returns to active/running state"
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "slug": "command-reference",
+      "title": "Command Reference",
+      "intro": "Everyday Linux commands for DevOps work, each with a real situation where you would reach for it. Sourced from the project's DevOps notes.",
+      "sections": [
+        {
+          "heading": "System Information & Monitoring",
+          "commands": [
+            {
+              "cmd": "uname -a",
+              "desc": "Displays all system information",
+              "example": "Check OS version before installing dependencies"
+            },
+            {
+              "cmd": "hostnamectl",
+              "desc": "Shows hostname and OS info",
+              "example": "Verify server hostname in multi-node clusters"
+            },
+            {
+              "cmd": "top",
+              "desc": "Monitors running processes in real time",
+              "example": "Check which process is consuming high CPU during CI pipeline"
+            },
+            {
+              "cmd": "htop",
+              "desc": "Interactive process viewer (improved top)",
+              "example": "Inspect memory usage during Docker container builds"
+            },
+            {
+              "cmd": "vmstat 1",
+              "desc": "Shows CPU, memory, I/O stats",
+              "example": "Diagnose performance lag on build agent"
+            },
+            {
+              "cmd": "free -h",
+              "desc": "Shows memory usage",
+              "example": "Check memory usage before deploying resource-heavy applications"
+            },
+            {
+              "cmd": "df -h",
+              "desc": "Disk usage by mounted filesystems",
+              "example": "Check available disk space before Jenkins job runs"
+            },
+            {
+              "cmd": "du -sh /var/log",
+              "desc": "Shows directory size",
+              "example": "Identify large log files eating disk space"
+            }
+          ]
+        },
+        {
+          "heading": "File & Directory Management",
+          "commands": [
+            {
+              "cmd": "ls -lah",
+              "desc": "List files with permissions and sizes",
+              "example": "Check file ownership in /etc/nginx before deployment"
+            },
+            {
+              "cmd": "cd /opt/app",
+              "desc": "Change directory",
+              "example": "Navigate to app directory for build"
+            },
+            {
+              "cmd": "mkdir /backup/configs",
+              "desc": "Create directory",
+              "example": "Store backup configurations before applying changes"
+            },
+            {
+              "cmd": "cp config.yaml config.yaml.bak",
+              "desc": "Copy file",
+              "example": "Create backup before updating config"
+            },
+            {
+              "cmd": "mv app.log app.log.old",
+              "desc": "Rename or move file",
+              "example": "Archive old log files"
+            },
+            {
+              "cmd": "rm -rf /tmp/build_cache",
+              "desc": "Remove directory",
+              "example": "Clean temp cache before build"
+            },
+            {
+              "cmd": "find /var/log -name \"*.log\"",
+              "desc": "Find all log files",
+              "example": "Identify and clean up old logs"
+            }
+          ]
+        },
+        {
+          "heading": "File Viewing & Editing",
+          "commands": [
+            {
+              "cmd": "cat app.log",
+              "desc": "View file contents",
+              "example": "Quickly check log output after deploy"
+            },
+            {
+              "cmd": "less /var/log/syslog",
+              "desc": "Scroll through logs interactively",
+              "example": "Review system logs after service crash"
+            },
+            {
+              "cmd": "tail -f /var/log/nginx/access.log",
+              "desc": "Follow live log updates",
+              "example": "Watch requests hitting NGINX in real time"
+            },
+            {
+              "cmd": "head -n 20 config.yaml",
+              "desc": "View first 20 lines",
+              "example": "Check configuration header info"
+            },
+            {
+              "cmd": "vi /etc/systemd/system/app.service",
+              "desc": "Edit configuration",
+              "example": "Modify systemd unit file for service"
+            },
+            {
+              "cmd": "nano ~/.bashrc",
+              "desc": "Edit environment settings",
+              "example": "Add custom aliases for DevOps tools"
+            }
+          ]
+        },
+        {
+          "heading": "Permissions & Ownership",
+          "commands": [
+            {
+              "cmd": "chmod 755 deploy.sh",
+              "desc": "Change file permissions",
+              "example": "Make deployment script executable"
+            },
+            {
+              "cmd": "chown root:root /etc/nginx/nginx.conf",
+              "desc": "Change file ownership",
+              "example": "Ensure config file has proper permissions"
+            },
+            {
+              "cmd": "sudo su -",
+              "desc": "Switch to root user",
+              "example": "Perform admin-level installations"
+            },
+            {
+              "cmd": "sudo systemctl restart nginx",
+              "desc": "Restart service with root privileges",
+              "example": "Apply config changes to NGINX"
+            }
+          ]
+        },
+        {
+          "heading": "Networking",
+          "commands": [
+            {
+              "cmd": "ping google.com",
+              "desc": "Check network connectivity",
+              "example": "Verify if build agent has internet access"
+            },
+            {
+              "cmd": "curl -I https://api.example.com",
+              "desc": "Check API response headers",
+              "example": "Validate endpoint health before deployment"
+            },
+            {
+              "cmd": "wget https://file.com/app.tar.gz",
+              "desc": "Download file",
+              "example": "Pull artifacts during CI/CD pipeline"
+            },
+            {
+              "cmd": "netstat -tulnp",
+              "desc": "Show open ports",
+              "example": "Verify if service is listening on correct port"
+            },
+            {
+              "cmd": "ss -tulpn",
+              "desc": "Modern replacement for netstat",
+              "example": "Debug port conflicts in Kubernetes nodes"
+            },
+            {
+              "cmd": "telnet 10.0.0.5 8080",
+              "desc": "Test TCP connection",
+              "example": "Check connectivity between microservices"
+            },
+            {
+              "cmd": "nslookup example.com",
+              "desc": "Resolve DNS",
+              "example": "Validate DNS entry after domain update"
+            }
+          ]
+        },
+        {
+          "heading": "Process & Service Management",
+          "commands": [
+            {
+              "cmd": "ps aux",
+              "desc": "grep nginx",
+              "example": "List processes"
+            },
+            {
+              "cmd": "kill -9 <pid>",
+              "desc": "Force kill a process",
+              "example": "Stop hung process blocking port 8080"
+            },
+            {
+              "cmd": "systemctl start docker",
+              "desc": "Start service",
+              "example": "Bring Docker service up on boot"
+            },
+            {
+              "cmd": "systemctl status jenkins",
+              "desc": "Check service status",
+              "example": "Monitor Jenkins build agent health"
+            },
+            {
+              "cmd": "service ssh restart",
+              "desc": "Restart service",
+              "example": "Refresh SSH after config change"
+            }
+          ]
+        },
+        {
+          "heading": "Package Management",
+          "commands": [
+            {
+              "cmd": "apt update && apt upgrade -y",
+              "desc": "Update packages",
+              "example": "Keep build server secure and up-to-date"
+            },
+            {
+              "cmd": "apt install git -y",
+              "desc": "Install package",
+              "example": "Install Git for SCM integration"
+            },
+            {
+              "cmd": "yum install docker -y",
+              "desc": "Install Docker on RHEL/CentOS",
+              "example": "Setup container host"
+            },
+            {
+              "cmd": "dpkg -l",
+              "desc": "grep nginx",
+              "example": "Check installed packages"
+            },
+            {
+              "cmd": "snap install kubectl --classic",
+              "desc": "Install snap package",
+              "example": "Install kubectl quickly"
+            }
+          ]
+        },
+        {
+          "heading": "Compression & Archiving",
+          "commands": [
+            {
+              "cmd": "tar -czvf backup.tar.gz /etc/nginx",
+              "desc": "Compress folder",
+              "example": "Backup NGINX configs before upgrade"
+            },
+            {
+              "cmd": "tar -xzvf backup.tar.gz",
+              "desc": "Extract archive",
+              "example": "Restore from backup"
+            },
+            {
+              "cmd": "zip -r logs.zip /var/log",
+              "desc": "Create zip archive",
+              "example": "Send logs to remote support team"
+            },
+            {
+              "cmd": "unzip logs.zip",
+              "desc": "Extract zip file",
+              "example": "Retrieve archived logs for analysis"
+            }
+          ]
+        },
+        {
+          "heading": "Misc & Automation",
+          "commands": [
+            {
+              "cmd": "crontab -e",
+              "desc": "Schedule cron jobs",
+              "example": "Automate nightly backups"
+            },
+            {
+              "cmd": "alias k=\"kubectl\"",
+              "desc": "Create shortcut",
+              "example": "Speed up Kubernetes commands"
+            },
+            {
+              "cmd": "history",
+              "desc": "grep deploy",
+              "example": "Search past commands"
+            },
+            {
+              "cmd": "echo $PATH",
+              "desc": "View system PATH",
+              "example": "Ensure tool paths are set"
+            },
+            {
+              "cmd": "export APP_ENV=prod",
+              "desc": "Set environment variable",
+              "example": "Use in deployment scripts"
+            }
+          ]
+        }
+      ]
+    }
   ]
 }

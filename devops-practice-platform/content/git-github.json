@@ -17,27 +17,84 @@
   },
   "notes": {
     "definitions": [
-      { "term": "Repository", "def": "A project tracked by Git, including all files and the complete history in the .git directory." },
-      { "term": "Commit", "def": "An immutable snapshot of the staged changes, identified by a SHA hash and linked to its parent commit(s)." },
-      { "term": "Branch", "def": "A movable pointer to a commit; used to develop features in isolation from the main line." },
-      { "term": "HEAD", "def": "A reference to the commit (usually via the current branch) that your working directory is based on." },
-      { "term": "Remote", "def": "A named reference to another copy of the repository, such as 'origin' on GitHub." },
-      { "term": "Merge vs Rebase", "def": "Merge joins two branches creating a merge commit; rebase replays your commits on top of another branch for a linear history." },
-      { "term": "Pull Request", "def": "A GitHub feature to propose, review, and discuss changes on a branch before merging into the target branch." }
+      {
+        "term": "Repository",
+        "def": "A project tracked by Git, including all files and the complete history in the .git directory."
+      },
+      {
+        "term": "Commit",
+        "def": "An immutable snapshot of the staged changes, identified by a SHA hash and linked to its parent commit(s)."
+      },
+      {
+        "term": "Branch",
+        "def": "A movable pointer to a commit; used to develop features in isolation from the main line."
+      },
+      {
+        "term": "HEAD",
+        "def": "A reference to the commit (usually via the current branch) that your working directory is based on."
+      },
+      {
+        "term": "Remote",
+        "def": "A named reference to another copy of the repository, such as 'origin' on GitHub."
+      },
+      {
+        "term": "Merge vs Rebase",
+        "def": "Merge joins two branches creating a merge commit; rebase replays your commits on top of another branch for a linear history."
+      },
+      {
+        "term": "Pull Request",
+        "def": "A GitHub feature to propose, review, and discuss changes on a branch before merging into the target branch."
+      }
     ],
     "commands": [
-      { "cmd": "git init", "desc": "Create a new local repository in the current directory." },
-      { "cmd": "git clone <url>", "desc": "Copy a remote repository, including its full history, to your machine." },
-      { "cmd": "git status", "desc": "Show which files are staged, unstaged, or untracked." },
-      { "cmd": "git add <path>", "desc": "Stage changes for the next commit; use '.' for everything." },
-      { "cmd": "git commit -m \"msg\"", "desc": "Record staged changes as a new commit with a message." },
-      { "cmd": "git branch <name>", "desc": "Create a new branch; 'git switch -c <name>' creates and switches." },
-      { "cmd": "git merge <branch>", "desc": "Integrate another branch into the current one." },
-      { "cmd": "git rebase <branch>", "desc": "Replay current branch commits on top of another branch." },
-      { "cmd": "git push -u origin <branch>", "desc": "Send local commits to the remote and set upstream tracking." },
-      { "cmd": "git pull", "desc": "Fetch and merge changes from the tracked remote branch." },
-      { "cmd": "git log --oneline --graph", "desc": "View compact, visual commit history." },
-      { "cmd": "git revert <sha>", "desc": "Create a new commit that undoes a previous commit safely." }
+      {
+        "cmd": "git init",
+        "desc": "Create a new local repository in the current directory."
+      },
+      {
+        "cmd": "git clone <url>",
+        "desc": "Copy a remote repository, including its full history, to your machine."
+      },
+      {
+        "cmd": "git status",
+        "desc": "Show which files are staged, unstaged, or untracked."
+      },
+      {
+        "cmd": "git add <path>",
+        "desc": "Stage changes for the next commit; use '.' for everything."
+      },
+      {
+        "cmd": "git commit -m \"msg\"",
+        "desc": "Record staged changes as a new commit with a message."
+      },
+      {
+        "cmd": "git branch <name>",
+        "desc": "Create a new branch; 'git switch -c <name>' creates and switches."
+      },
+      {
+        "cmd": "git merge <branch>",
+        "desc": "Integrate another branch into the current one."
+      },
+      {
+        "cmd": "git rebase <branch>",
+        "desc": "Replay current branch commits on top of another branch."
+      },
+      {
+        "cmd": "git push -u origin <branch>",
+        "desc": "Send local commits to the remote and set upstream tracking."
+      },
+      {
+        "cmd": "git pull",
+        "desc": "Fetch and merge changes from the tracked remote branch."
+      },
+      {
+        "cmd": "git log --oneline --graph",
+        "desc": "View compact, visual commit history."
+      },
+      {
+        "cmd": "git revert <sha>",
+        "desc": "Create a new commit that undoes a previous commit safely."
+      }
     ],
     "bestPractices": [
       "Write small, focused commits with clear, imperative messages ('Add retry logic', not 'fixed stuff').",
@@ -63,24 +120,273 @@
     ]
   },
   "quiz": [
-    { "id": "git-github-q1", "type": "mcq", "question": "Which command stages a modified file for the next commit?", "options": ["git commit <file>", "git add <file>", "git push <file>", "git stage --commit <file>"], "answer": 1, "explanation": "'git add' moves changes into the staging area (index); 'git commit' then records them." },
-    { "id": "git-github-q2", "type": "truefalse", "question": "Every Git clone contains the full project history, not just the latest snapshot.", "options": ["True", "False"], "answer": true, "explanation": "Git is distributed: each clone is a complete repository with the entire commit history." },
-    { "id": "git-github-q3", "type": "mcq", "question": "What does 'git revert <sha>' do?", "options": ["Deletes the commit from history", "Creates a new commit that undoes the referenced commit", "Resets the branch pointer without changing files", "Force-pushes to the remote"], "answer": 1, "explanation": "git revert is the safe way to undo: it adds a new inverse commit, preserving history." },
-    { "id": "git-github-q4", "type": "mcq", "question": "Which statement about merge vs rebase is correct?", "options": ["Merge always rewrites history", "Rebase creates a merge commit", "Rebase produces a linear history by replaying commits", "They are identical operations"], "answer": 2, "explanation": "Rebase replays commits onto a new base for a linear history; merge creates a merge commit." },
-    { "id": "git-github-q5", "type": "truefalse", "question": "Force-pushing to a shared branch can overwrite teammates' commits.", "options": ["True", "False"], "answer": true, "explanation": "A force push can rewrite remote history and discard others' work, so avoid it on shared branches." },
-    { "id": "git-github-q6", "type": "mcq", "question": "What is the purpose of a .gitignore file?", "options": ["Encrypt secrets in the repo", "List files Git should not track", "Store commit messages", "Configure the remote URL"], "answer": 1, "explanation": ".gitignore tells Git which paths to leave untracked (build output, secrets, dependencies)." },
-    { "id": "git-github-q7", "type": "scenario", "question": "You committed an API key by mistake and already pushed. What is the BEST first response?", "options": ["Do nothing; it's already public so it's fine", "Rotate/revoke the key immediately, then remove it from history", "Just delete the file in a new commit", "Force-push over the branch and hope no one noticed"], "answer": 1, "explanation": "The key must be treated as compromised: revoke it first, then scrub history (e.g., git filter-repo). Deleting in a new commit leaves it in history." },
-    { "id": "git-github-q8", "type": "mcq", "question": "Which command shows a compact visual history?", "options": ["git status -v", "git log --oneline --graph", "git show --all", "git diff --graph"], "answer": 1, "explanation": "git log --oneline --graph renders a condensed, branch-aware commit graph." },
-    { "id": "git-github-q9", "type": "mcq", "question": "In 'git push -u origin feature', what does '-u' do?", "options": ["Uploads uncommitted changes", "Sets the upstream tracking branch", "Unstages files", "Updates submodules"], "answer": 1, "explanation": "-u (--set-upstream) links the local branch to origin/feature so future 'git push'/'git pull' need no arguments." },
-    { "id": "git-github-q10", "type": "scenario", "question": "A pull request has failing CI checks but an approving review. Your branch protection requires passing checks. What happens?", "options": ["It can be merged because it was approved", "It cannot be merged until checks pass", "The checks are ignored on approval", "It auto-merges after 24 hours"], "answer": 1, "explanation": "Branch protection with required status checks blocks merge until CI passes, regardless of approvals." },
-    { "id": "git-github-q11", "type": "truefalse", "question": "'git reset --hard' can permanently discard uncommitted work.", "options": ["True", "False"], "answer": true, "explanation": "--hard resets the working directory and index to the target commit, discarding local changes." },
-    { "id": "git-github-q12", "type": "mcq", "question": "What is HEAD in Git?", "options": ["The first commit in a repo", "A reference to the current commit/branch you are on", "The remote server", "The name of the default branch"], "answer": 1, "explanation": "HEAD points to your current position in history, usually via the checked-out branch." },
-    { "id": "git-github-q13", "type": "scenario", "question": "Two developers edited the same lines and a merge reports a conflict. What must you do?", "options": ["Run git push --force to resolve it", "Manually edit the conflicted files, remove markers, then add and commit", "Delete the branch and start over", "Ignore it; Git resolves conflicts automatically"], "answer": 1, "explanation": "Git cannot auto-resolve overlapping edits; you edit the file, remove conflict markers, stage, and commit." }
+    {
+      "id": "git-github-q1",
+      "type": "mcq",
+      "question": "Which command stages a modified file for the next commit?",
+      "options": [
+        "git commit <file>",
+        "git add <file>",
+        "git push <file>",
+        "git stage --commit <file>"
+      ],
+      "answer": 1,
+      "explanation": "'git add' moves changes into the staging area (index); 'git commit' then records them."
+    },
+    {
+      "id": "git-github-q2",
+      "type": "truefalse",
+      "question": "Every Git clone contains the full project history, not just the latest snapshot.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "Git is distributed: each clone is a complete repository with the entire commit history."
+    },
+    {
+      "id": "git-github-q3",
+      "type": "mcq",
+      "question": "What does 'git revert <sha>' do?",
+      "options": [
+        "Deletes the commit from history",
+        "Creates a new commit that undoes the referenced commit",
+        "Resets the branch pointer without changing files",
+        "Force-pushes to the remote"
+      ],
+      "answer": 1,
+      "explanation": "git revert is the safe way to undo: it adds a new inverse commit, preserving history."
+    },
+    {
+      "id": "git-github-q4",
+      "type": "mcq",
+      "question": "Which statement about merge vs rebase is correct?",
+      "options": [
+        "Merge always rewrites history",
+        "Rebase creates a merge commit",
+        "Rebase produces a linear history by replaying commits",
+        "They are identical operations"
+      ],
+      "answer": 2,
+      "explanation": "Rebase replays commits onto a new base for a linear history; merge creates a merge commit."
+    },
+    {
+      "id": "git-github-q5",
+      "type": "truefalse",
+      "question": "Force-pushing to a shared branch can overwrite teammates' commits.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "A force push can rewrite remote history and discard others' work, so avoid it on shared branches."
+    },
+    {
+      "id": "git-github-q6",
+      "type": "mcq",
+      "question": "What is the purpose of a .gitignore file?",
+      "options": [
+        "Encrypt secrets in the repo",
+        "List files Git should not track",
+        "Store commit messages",
+        "Configure the remote URL"
+      ],
+      "answer": 1,
+      "explanation": ".gitignore tells Git which paths to leave untracked (build output, secrets, dependencies)."
+    },
+    {
+      "id": "git-github-q7",
+      "type": "scenario",
+      "question": "You committed an API key by mistake and already pushed. What is the BEST first response?",
+      "options": [
+        "Do nothing; it's already public so it's fine",
+        "Rotate/revoke the key immediately, then remove it from history",
+        "Just delete the file in a new commit",
+        "Force-push over the branch and hope no one noticed"
+      ],
+      "answer": 1,
+      "explanation": "The key must be treated as compromised: revoke it first, then scrub history (e.g., git filter-repo). Deleting in a new commit leaves it in history."
+    },
+    {
+      "id": "git-github-q8",
+      "type": "mcq",
+      "question": "Which command shows a compact visual history?",
+      "options": [
+        "git status -v",
+        "git log --oneline --graph",
+        "git show --all",
+        "git diff --graph"
+      ],
+      "answer": 1,
+      "explanation": "git log --oneline --graph renders a condensed, branch-aware commit graph."
+    },
+    {
+      "id": "git-github-q9",
+      "type": "mcq",
+      "question": "In 'git push -u origin feature', what does '-u' do?",
+      "options": [
+        "Uploads uncommitted changes",
+        "Sets the upstream tracking branch",
+        "Unstages files",
+        "Updates submodules"
+      ],
+      "answer": 1,
+      "explanation": "-u (--set-upstream) links the local branch to origin/feature so future 'git push'/'git pull' need no arguments."
+    },
+    {
+      "id": "git-github-q10",
+      "type": "scenario",
+      "question": "A pull request has failing CI checks but an approving review. Your branch protection requires passing checks. What happens?",
+      "options": [
+        "It can be merged because it was approved",
+        "It cannot be merged until checks pass",
+        "The checks are ignored on approval",
+        "It auto-merges after 24 hours"
+      ],
+      "answer": 1,
+      "explanation": "Branch protection with required status checks blocks merge until CI passes, regardless of approvals."
+    },
+    {
+      "id": "git-github-q11",
+      "type": "truefalse",
+      "question": "'git reset --hard' can permanently discard uncommitted work.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": true,
+      "explanation": "--hard resets the working directory and index to the target commit, discarding local changes."
+    },
+    {
+      "id": "git-github-q12",
+      "type": "mcq",
+      "question": "What is HEAD in Git?",
+      "options": [
+        "The first commit in a repo",
+        "A reference to the current commit/branch you are on",
+        "The remote server",
+        "The name of the default branch"
+      ],
+      "answer": 1,
+      "explanation": "HEAD points to your current position in history, usually via the checked-out branch."
+    },
+    {
+      "id": "git-github-q13",
+      "type": "scenario",
+      "question": "Two developers edited the same lines and a merge reports a conflict. What must you do?",
+      "options": [
+        "Run git push --force to resolve it",
+        "Manually edit the conflicted files, remove markers, then add and commit",
+        "Delete the branch and start over",
+        "Ignore it; Git resolves conflicts automatically"
+      ],
+      "answer": 1,
+      "explanation": "Git cannot auto-resolve overlapping edits; you edit the file, remove conflict markers, stage, and commit."
+    }
   ],
   "tasks": [
-    { "level": "beginner", "title": "Create your first repository", "goal": "Initialize a repo, make commits, and view history.", "steps": ["Run 'git init' in a new folder", "Create a README.md and add some text", "Stage it with 'git add README.md'", "Commit with a clear message", "Run 'git log --oneline' to see your commit"], "successCriteria": ["git log shows at least one commit", "git status reports a clean working tree"] },
-    { "level": "intermediate", "title": "Branch, commit, and merge", "goal": "Practice isolated feature development and merging.", "steps": ["Create a branch 'feature/greeting' and switch to it", "Add a new file and commit it", "Switch back to main", "Merge the feature branch into main", "Delete the feature branch"], "successCriteria": ["main contains the feature commit", "git log --graph shows the merge or fast-forward"] },
-    { "level": "advanced", "title": "Resolve a merge conflict", "goal": "Deliberately create and resolve a conflict.", "steps": ["On main, edit line 1 of a file and commit", "Create a branch from the previous commit and edit the same line differently, commit", "Merge the branch into main to trigger a conflict", "Open the file, choose the correct resolution, remove conflict markers", "Stage and commit the resolution"], "successCriteria": ["No conflict markers remain in the file", "git status shows the merge is complete"] },
-    { "level": "simulation", "title": "Open a pull request with review gates", "goal": "Simulate a real team workflow on GitHub.", "steps": ["Push a feature branch to GitHub", "Open a pull request targeting main", "Enable branch protection requiring one review and passing checks", "Add a CI workflow that runs a lint or test step", "Merge only after the check passes and the PR is approved"], "successCriteria": ["PR merged into main via the GitHub UI", "Merge was blocked until the required check passed"] }
+    {
+      "level": "beginner",
+      "title": "Create your first repository",
+      "goal": "Initialize a repo, make commits, and view history.",
+      "steps": [
+        "Run 'git init' in a new folder",
+        "Create a README.md and add some text",
+        "Stage it with 'git add README.md'",
+        "Commit with a clear message",
+        "Run 'git log --oneline' to see your commit"
+      ],
+      "successCriteria": [
+        "git log shows at least one commit",
+        "git status reports a clean working tree"
+      ]
+    },
+    {
+      "level": "intermediate",
+      "title": "Branch, commit, and merge",
+      "goal": "Practice isolated feature development and merging.",
+      "steps": [
+        "Create a branch 'feature/greeting' and switch to it",
+        "Add a new file and commit it",
+        "Switch back to main",
+        "Merge the feature branch into main",
+        "Delete the feature branch"
+      ],
+      "successCriteria": [
+        "main contains the feature commit",
+        "git log --graph shows the merge or fast-forward"
+      ]
+    },
+    {
+      "level": "advanced",
+      "title": "Resolve a merge conflict",
+      "goal": "Deliberately create and resolve a conflict.",
+      "steps": [
+        "On main, edit line 1 of a file and commit",
+        "Create a branch from the previous commit and edit the same line differently, commit",
+        "Merge the branch into main to trigger a conflict",
+        "Open the file, choose the correct resolution, remove conflict markers",
+        "Stage and commit the resolution"
+      ],
+      "successCriteria": [
+        "No conflict markers remain in the file",
+        "git status shows the merge is complete"
+      ]
+    },
+    {
+      "level": "simulation",
+      "title": "Open a pull request with review gates",
+      "goal": "Simulate a real team workflow on GitHub.",
+      "steps": [
+        "Push a feature branch to GitHub",
+        "Open a pull request targeting main",
+        "Enable branch protection requiring one review and passing checks",
+        "Add a CI workflow that runs a lint or test step",
+        "Merge only after the check passes and the PR is approved"
+      ],
+      "successCriteria": [
+        "PR merged into main via the GitHub UI",
+        "Merge was blocked until the required check passed"
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "slug": "command-reference",
+      "title": "Command Reference",
+      "intro": "Everyday Git commands, each with a real situation where you would reach for it.",
+      "sections": [
+        {
+          "heading": "Version Control (Git)",
+          "commands": [
+            {
+              "cmd": "git clone https://repo.git",
+              "desc": "Clone repo",
+              "example": "Pull project code for build"
+            },
+            {
+              "cmd": "git checkout -b feature/login",
+              "desc": "Create new branch",
+              "example": "Start new feature development"
+            },
+            {
+              "cmd": "git pull origin main",
+              "desc": "Sync latest changes",
+              "example": "Update local repo before CI build"
+            },
+            {
+              "cmd": "git commit -am \"Fix deployment script\"",
+              "desc": "Commit changes",
+              "example": "Save config fix"
+            },
+            {
+              "cmd": "git push origin main",
+              "desc": "Push to remote",
+              "example": "Trigger CI pipeline"
+            }
+          ]
+        }
+      ]
+    }
   ]
 }
